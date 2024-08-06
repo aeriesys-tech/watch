@@ -1,0 +1,124 @@
+[
+    {
+        "module": "Roles",
+        "abilities": [
+            {
+                "ability": "roles.view",
+                "description": "View Roles"
+            },
+            {
+                "ability": "roles.create",
+                "description": "Create Roles"
+            },
+            {
+                "ability": "roles.update",
+                "description": "Edit Roles"
+            },
+            {
+                "ability": "roles.delete",
+                "description": "Delete Roles"
+            }
+        ]
+    },
+    {
+        "module": "Users",
+        "abilities": [
+            {
+                "ability": "users.view",
+                "description": "View Users"
+            },
+            {
+                "ability": "users.create",
+                "description": "Create Users"
+            },
+            {
+                "ability": "users.update",
+                "description": "Edit Users"
+            },
+            {
+                "ability": "users.delete",
+                "description": "Delete Users"
+            }
+        ]
+    },
+    {
+        "module": "Languages",
+        "abilities": [
+            {
+                "ability": "languages.view",
+                "description": "View Languages"
+            },
+            {
+                "ability": "languages.create",
+                "description": "Create Languages"
+            },
+            {
+                "ability": "languages.update",
+                "description": "Edit Languages"
+            },
+            {
+                "ability": "languages.delete",
+                "description": "Delete Languages"
+            }
+        ]
+    },
+    {
+        "module": "Keywords",
+        "abilities": [
+            {
+                "ability": "keywords.view",
+                "description": "View Keywords"
+            },
+            {
+                "ability": "keywords.create",
+                "description": "Create Keywords"
+            },
+            {
+                "ability": "keywords.update",
+                "description": "Edit Keywords"
+            },
+            {
+                "ability": "keywords.delete",
+                "description": "Delete Keywords"
+            }
+        ]
+    },
+    {
+        "module": "Abilities",
+        "abilities": [
+            {
+                "ability": "abilities.view",
+                "description": "View Abilities"
+            },
+            {
+                "ability": "abilities.create",
+                "description": "Create Abilities"
+            },
+            {
+                "ability": "abilities.update",
+                "description": "Edit Abilities"
+            },
+            {
+                "ability": "abilities.delete",
+                "description": "Delete Abilities"
+            }
+        ]
+    },
+    {
+        "module": "Role Abilities",
+        "abilities": [
+            {
+                "ability": "role_abilities.import",
+                "description": "Import module, ability, and role abilities from JSON"
+            },
+            {
+                "ability": "role_abilities.change",
+                "description": "Change the status of the role ability"
+            },
+            {
+                "ability": "role_abilities.view",
+                "description": "Get all the abilities with role ability status"
+            }
+        ]
+    }
+]
