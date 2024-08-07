@@ -19,8 +19,6 @@ const db = {
   Ability: require("./ability")(sequelize, Sequelize.DataTypes),
   RoleAbility: require("./roleAbility")(sequelize, Sequelize.DataTypes),
   PasswordReset: require("./passwordReset")(sequelize, Sequelize.DataTypes),
-  Language: require("./language")(sequelize, Sequelize.DataTypes),
-  Keyword: require("./keyword")(sequelize, Sequelize.DataTypes), // Ensure Keyword is properly initialized
 };
 
 Object.keys(db).forEach((modelName) => {

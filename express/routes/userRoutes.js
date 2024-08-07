@@ -45,9 +45,6 @@ router.post(
 router.post("/getUsers", authMiddleware, userController.getUsers);
 router.post(
   "/paginateUsers",
-  authMiddleware,
-  checkPermission("users.view"),
-  paginateUsersValidation,
   userController.paginateUsers
 );
 
