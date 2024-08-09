@@ -3,84 +3,199 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from '../Components/Sidebar/Sidebar';
+import Pagination from '../Components/Pagination/Pagination';
 
 function User() {
     const [users, setUsers] = useState([]);
-
-    const [itemsPerPage, setItemsPerPage] = useState(10);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [sortField, setSortField] = useState("name");
-    const [sortOrder, setSortOrder] = useState("asc");
     const [loading, setLoading] = useState(false);
-    const [statusFilter, setStatusFilter] = useState("");
-
+    const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
+    const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState({
-        field: "name",
+        field: "created_at",
         order: "asc",
     });
-    const [search, setSearch] = useState("");
-    const [totalPages, setTotalPages] = useState(0);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [totalItems, setTotalItems] = useState(0);
 
+    // State for new user form
+    const [newUser, setNewUser] = useState({
+        user_id: null,
+        name: '',
+        email: '',
+        username: '',
+        password: '',
+        mobile_no: '',
+        role_id: '',
+        address: '',
+        avatar: '',
+        device_id: '',
+        status: true,
+    });
 
+    // State for form errors
+    const [errors, setErrors] = useState({});
 
+    // State for editing user
+    const [editingUser, setEditingUser] = useState(null);
 
+    const startIndex = (page - 1) * pageSize + 1;
+    const endIndex = Math.min(page * pageSize, totalItems);
+
+    const handleSortChange = (field) => {
+        setSortBy((prevSort) => ({
+            field,
+            order:
+                prevSort.field === field && prevSort.order === "asc" ? "desc" : "asc",
+        }));
+    };
+
+    const fetchUsers = async () => {
+        const queryString = `?page=${page}&limit=${pageSize}&sortBy=${sortBy.field}&order=${sortBy.order}&search=${search}`;
+        try {
+            setLoading(true);
+            const response = await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api/users/paginateUsers${queryString}`, {});
+            const data = response.data;
+            console.log('API Response:', data.data);
+
+            setUsers(data.data);
+            setTotalPages(data.totalPages || 0);
+            setCurrentPage(data.currentPage || 1);
+            setTotalItems(data.totalItems || 0);
+            setLoading(false);
+        } catch (error) {
+            setLoading(false);
+            console.error('Error fetching user data:', error);
+            toast.error('Error fetching user data');
+        }
+    };
 
     useEffect(() => {
         fetchUsers();
-    }, [currentPage, itemsPerPage, searchQuery, sortField, sortOrder]);
-
-    const fetchUsers = async () => {
-        setLoading(true);
-        const queryString = `?page=${page}&limit=${pageSize}&sortBy=${sortBy.field}&order=${sortBy.order}&search=${search}&status=${statusFilter}`;
-        try {
-            const response = await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api//users/paginateUsers/${queryString}`, {
-                page: currentPage,
-                itemsPerPage: itemsPerPage,
-                search: searchQuery,
-                sortField: sortField,
-                sortOrder: sortOrder
-            });
-            setUsers(response.data.data);
-            setTotalPages(response.data.totalPages);
-        } catch (error) {
-            console.error('Error fetching data: ', error);
-            toast.error('Failed to fetch users: ' + (error.response?.data.message || 'Server Error'));
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [page, pageSize, search, sortBy]);
 
     const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages) {
-            setCurrentPage(newPage);
+        setPage(newPage);
+    };
+
+    const handlePageSizeChange = (newPageSize) => {
+        setPageSize(newPageSize);
+        setPage(1);
+    };
+
+    const handleSearchChange = (event) => {
+        setSearch(event.target.value);
+        setPage(1);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewUser((prevUser) => ({ ...prevUser, [name]: value }));
+    };
+
+    const handleAddUser = async (e) => {
+        e.preventDefault();
+        setErrors({}); // Reset errors on new submission
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api/users/addUser`, newUser);
+            toast.success('User added successfully');
+            resetForm();
+            fetchUsers();
+            closeModal(); // Close the modal after successful addition
+        } catch (error) {
+            console.error('Error adding user:', error);
+            if (error.response && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+                toast.error(error.response.data.message || 'An error occurred');
+            } else {
+                toast.error('An unexpected error occurred');
+            }
         }
     };
 
-    const handleItemsPerPageChange = (e) => {
-        const newItemsPerPage = Number(e.target.value);
-        setItemsPerPage(newItemsPerPage);
-        setCurrentPage(1);
+    const handleEditUser = (user) => {
+        setEditingUser(user);
+        setNewUser({
+            user_id: user.user_id,
+            name: user.name,
+            email: user.email,
+            username: user.username,
+            password: '',
+            mobile_no: user.mobile_no,
+            role_id: user.role_id,
+            address: user.address,
+            avatar: user.avatar,
+            device_id: user.device_id,
+            status: user.status,
+        });
     };
 
-    const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(1);
+    const handleUpdateUser = async (e) => {
+        e.preventDefault();
+        setErrors({}); // Reset errors on new submission
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api/users/updateUser`, newUser);
+            toast.success('User updated successfully');
+            resetForm();
+            fetchUsers();
+            closeModal(); // Close the modal after successful update
+        } catch (error) {
+            console.error('Error updating user:', error);
+            if (error.response && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+                toast.error(error.response.data.message || 'An error occurred');
+            } else {
+                toast.error('An unexpected error occurred');
+            }
+        }
     };
 
-    const handleSort = (field) => {
-        setSortOrder(sortField === field && sortOrder === "asc" ? "desc" : "asc");
-        setSortField(field);
+    const handleToggleStatus = async (user) => {
+        try {
+            const updatedStatus = !user.status;
+            await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api/users/deleteUser`, { user_id: user.user_id, status: updatedStatus });
+            toast.success(`User ${updatedStatus ? 'restored' : 'deleted'} successfully`);
+            fetchUsers();
+        } catch (error) {
+            console.error('Error toggling user status:', error);
+            toast.error('An error occurred while updating the user status');
+        }
     };
 
+    const resetForm = () => {
+        setEditingUser(null);
+        setNewUser({
+            user_id: null,
+            name: '',
+            email: '',
+            username: '',
+            password: '',
+            mobile_no: '',
+            role_id: '',
+            address: '',
+            avatar: '',
+            device_id: '',
+            status: true,
+        });
+        setErrors({});
+    };
+
+    // Function to close the modal
+    const closeModal = () => {
+        const modalElement = document.getElementById('addUserModal');
+        const modal = window.bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+    };
 
     return (
         <div>
             <Sidebar />
-            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
             <div className="main main-app p-3 p-lg-4">
                 <div className="d-md-flex align-items-center justify-content-between mb-3">
                     <div>
@@ -91,7 +206,9 @@ function User() {
                         <h4 className="main-title mb-0">All Users</h4>
                     </div>
                     <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUserModal"><i className="ri-add-line fs-18 lh-1"></i>Add New User</button>
+                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUserModal" onClick={resetForm}>
+                            <i className="ri-add-line fs-18 lh-1"></i>Add New User
+                        </button>
                     </div>
                 </div>
                 <div className="row g-3">
@@ -99,72 +216,97 @@ function User() {
                         <div className="card card-one">
                             <div className="card-body pb-3">
                                 <div className="d-flex align-items-center mb-2">
-                                    <span className="me-1">Show</span>
-                                    <select className="form-select me-2 w-75" value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                                    <div className="form-search me-auto border py-0 shadow-none w-25">
+                                        <input type="text" className="form-control" placeholder="Search" value={search} onChange={handleSearchChange} />
+                                        <i className="ri-search-line"></i>
+                                    </div>
+                                    <span className="me-2">Show</span>
+                                    <select className="form-select me-2 w-10" value={pageSize} onChange={(e) => handlePageSizeChange(parseInt(e.target.value))}>
                                         <option value="10">10</option>
                                         <option value="20">20</option>
                                         <option value="30">30</option>
                                     </select>
-                                    <div className="form-search me-auto border py-0 shadow-none">
-                                        <input type="text" className="form-control" placeholder="Search" value={searchQuery} onChange={handleSearchChange} />
-                                        <i className="ri-search-line"></i>
-                                    </div>
+
                                 </div>
-                                {loading ? (
-                                    <div className="text-center">Loading...</div>
-                                ) : (
-                                    <div className="table-responsive">
-                                        <table className="table table-bordered text-nowrap">
-                                            <thead className="bg-light">
-                                                <tr>
-                                                    <th className="text-center"><input className="form-check-input" type="checkbox" /></th>
-                                                    <th className="text-center">#ID</th>
-                                                    <th onClick={() => handleSort("name")}>Name {sortField === "name" && (sortOrder === "asc" ? <i className="ri-arrow-up-fill"></i> : <i className="ri-arrow-down-fill"></i>)}</th>
-                                                    <th onClick={() => handleSort("mobile_no")}>Mobile No {sortField === "mobile_no" && (sortOrder === "asc" ? <i className="ri-arrow-up-fill"></i> : <i className="ri-arrow-down-fill"></i>)}</th>
-                                                    <th>Email</th>
-                                                    <th>Device ID</th>
-                                                    <th className="text-center">Action</th>
+                                <div className="table-responsive">
+                                    <table className="table table-bordered text-nowrap">
+                                        <thead className="bg-light">
+                                            <tr>
+                                                <th className="text-center"><input className="form-check-input" type="checkbox" value="" /></th>
+                                                <th className="text-center">#ID</th>
+                                                <th className="w-24" onClick={() => handleSortChange("name")}> Name
+                                                    {sortBy.field === "name" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th>Mobile No <i className="ri-arrow-down-fill"></i></th>
+                                                <th className="w-24" onClick={() => handleSortChange("email")}> Email
+                                                    {sortBy.field === "email" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th>Device ID</th>
+                                                <th>Status</th>
+                                                <th className="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {Array.isArray(users) && users.length > 0 ? users.map((user, index) => (
+                                                <tr key={user.id} style={{ opacity: user.status ? 1 : 0.5 }}>
+                                                    <td className="text-center"><input className="form-check-input" type="checkbox" value="" /></td>
+                                                    <td className="text-center">{startIndex + index}</td> {/* Serial number */}
+                                                    <td>{user.name}</td>
+                                                    <td>{user.mobile_no}</td>
+                                                    <td>{user.email}</td>
+                                                    <td>{user.device_id}</td>
+                                                    <td>{user.status ? 'Active' : 'Inactive'}</td>
+                                                    <td className="text-center">
+                                                        <div className="d-flex align-items-center justify-content-center">
+                                                            {user.status && (
+                                                                <a href="" className="text-success me-2" onClick={() => handleEditUser(user)} data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                                                    <i className="ri-pencil-line fs-18 lh-1"></i>
+                                                                </a>
+                                                            )}
+                                                            <div className="form-check form-switch me-2">
+                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${user.id}`} checked={user.status} onChange={() => handleToggleStatus(user)} />
+                                                            </div>
+                                                        </div>
+                                                    </td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                {users.map(user => (
-                                                    <tr key={user.user_id}>
-                                                        <td className="text-center"><input className="form-check-input" type="checkbox" /></td>
-                                                        <td className="text-center">{user.user_id}</td>
-                                                        <td>{user.name}</td>
-                                                        <td>{user.mobile_no}</td>
-                                                        <td>{user.email}</td>
-                                                        <td>{user.device_id}</td>
-                                                        <td className="text-center">
-                                                            <a href="#" className="text-secondary me-2"><i className="ri-eye-line fs-18 lh-1"></i></a>
-                                                            <a href="#" className="text-success me-2"><i className="ri-pencil-line fs-18 lh-1"></i></a>
-                                                            <a href="#" className="text-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i className="ri-delete-bin-line fs-18 lh-1"></i></a>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan="8" className="text-center">No users found</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             <div className="card-footer p-2">
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <span>Showing {users.length} of {totalPages * itemsPerPage} users</span>
-                                    <nav aria-label="Page navigation example">
-                                        <ul className="pagination mb-0">
-                                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                                <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>Previous</button>
-                                            </li>
-                                            {[...Array(totalPages).keys()].map(page => (
-                                                <li key={page + 1} className={`page-item ${currentPage === page + 1 ? 'active' : ''}`}>
-                                                    <button className="page-link" onClick={() => handlePageChange(page + 1)}>{page + 1}</button>
-                                                </li>
-                                            ))}
-                                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                                <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>Next</button>
-                                            </li>
-                                        </ul>
-                                    </nav>
+                                <div className="d-flex justify-content-between align-items-center px-2">
+                                    <span>Showing {startIndex} to {endIndex} of {totalItems} users</span>
+                                    <Pagination
+                                        currentPage={page}
+                                        totalPages={totalPages}
+                                        onPageChange={handlePageChange}
+                                        pageSize={pageSize}
+                                        onPageSizeChange={handlePageSizeChange}
+                                        totalItems={totalItems}
+                                        startIndex={startIndex}
+                                        endIndex={endIndex}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -172,70 +314,72 @@ function User() {
                 </div>
             </div>
 
-            {/* ADD MODAL*/}
+            {/* ADD/EDIT MODAL */}
             <div className="modal fade" id="addUserModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header bg-primary text-white">
-                            <h5 className="modal-title" id="exampleModalLabel">Add New User</h5>
+                            <h5 className="modal-title" id="exampleModalLabel">{editingUser ? "Edit User" : "Add New User"}</h5>
                             <button type="button" className="btn-close modal_close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <div className="row g-3">
-                                <div className="col-md-6">
-                                    <label className="form-label">Name <span className="text-danger">*</span></label>
-                                    <input type="text" className="form-control" placeholder="Enter your name" />
+                            <form onSubmit={editingUser ? handleUpdateUser : handleAddUser}>
+                                <div className="row g-3">
+                                    <div className="col-md-6">
+                                        <label className="form-label">Name <span className="text-danger">*</span></label>
+                                        <input type="text" className={`form-control ${errors.name ? "is-invalid" : ""}`} name="name" value={newUser.name} onChange={handleInputChange} placeholder="Enter your name" />
+                                        {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Email <span className="text-danger">*</span></label>
+                                        <input type="email" className={`form-control ${errors.email ? "is-invalid" : ""}`} name="email" value={newUser.email} onChange={handleInputChange} placeholder="Enter your email" />
+                                        {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Username <span className="text-danger">*</span></label>
+                                        <input type="text" className={`form-control ${errors.username ? "is-invalid" : ""}`} name="username" value={newUser.username} onChange={handleInputChange} placeholder="Enter your username" />
+                                        {errors.username && <div className="invalid-feedback">{errors.username}</div>}
+                                    </div>
+                                    {!editingUser && (
+                                        <div className="col-md-6">
+                                            <label className="form-label">Password <span className="text-danger">*</span></label>
+                                            <input type="password" className={`form-control ${errors.password ? "is-invalid" : ""}`} name="password" value={newUser.password} onChange={handleInputChange} placeholder="Enter your password" />
+                                            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                                        </div>
+                                    )}
+                                    <div className="col-md-6">
+                                        <label className="form-label">Mobile No. <span className="text-danger">*</span></label>
+                                        <input type="text" className={`form-control ${errors.mobile_no ? "is-invalid" : ""}`} name="mobile_no" value={newUser.mobile_no} onChange={handleInputChange} placeholder="Enter your mobile no." />
+                                        {errors.mobile_no && <div className="invalid-feedback">{errors.mobile_no}</div>}
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Role ID <span className="text-danger">*</span></label>
+                                        <input type="text" className={`form-control ${errors.role_id ? "is-invalid" : ""}`} name="role_id" value={newUser.role_id} onChange={handleInputChange} placeholder="Enter your role id" />
+                                        {errors.role_id && <div className="invalid-feedback">{errors.role_id}</div>}
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Avatar</label>
+                                        <input type="text" className={`form-control ${errors.avatar ? "is-invalid" : ""}`} name="avatar" value={newUser.avatar} onChange={handleInputChange} placeholder="Enter your avatar URL" />
+                                        {errors.avatar && <div className="invalid-feedback">{errors.avatar}</div>}
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">Device ID</label>
+                                        <input type="text" className={`form-control ${errors.device_id ? "is-invalid" : ""}`} name="device_id" value={newUser.device_id} onChange={handleInputChange} placeholder="Enter your Device ID" />
+                                        {errors.device_id && <div className="invalid-feedback">{errors.device_id}</div>}
+                                    </div>
+                                    <div className="col-md-12">
+                                        <label className="form-label">Address <span className="text-danger">*</span></label>
+                                        <textarea rows="2" className={`form-control ${errors.address ? "is-invalid" : ""}`} name="address" value={newUser.address} onChange={handleInputChange} placeholder="Enter your address"   ></textarea>
+                                        {errors.address && <div className="invalid-feedback">{errors.address}</div>}
+                                    </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <label className="form-label">Email <span className="text-danger">*</span></label>
-                                    <input type="text" className="form-control" placeholder="Enter your email" />
+                                <div className="modal-footer d-block border-top-0">
+                                    <div className="d-flex gap-2 mb-4">
+                                        <button type="button" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" className="btn btn-primary flex-fill">{editingUser ? "Update" : "Save"}</button>
+                                    </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <label className="form-label">Mobile No. <span className="text-danger">*</span></label>
-                                    <input type="text" className="form-control" placeholder="Enter your mobile no." />
-                                </div>
-                                <div className="col-md-6">
-                                    <label className="form-label">Role <span className="text-danger">*</span></label>
-                                    <select className="form-control">
-                                        <option value="">Select Role</option>
-                                        <option>Admin</option>
-                                        <option>User</option>
-                                    </select>
-                                </div>
-                                <div className="col-md-12">
-                                    <label className="form-label">Permanent Address <span className="text-danger">*</span></label>
-                                    <textarea rows="2" type="text" className="form-control" placeholder="Enter your address" ></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="modal-footer d-block border-top-0 ">
-                            <div className="d-flex gap-2 mb-4">
-                                <a href="" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</a>
-                                <a href="" className="btn btn-primary flex-fill">Save</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* DELETE MODAL*/}
-            <div className="modal fade" id="deleteUserModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header bg-danger text-white">
-                            <h5 className="modal-title" id="exampleModalLabel">Delete User</h5>
-                            <button type="button" className="btn-close modal_close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body text-center">
-                            <div className="mb-1 text-danger ti--3"><i className="ri-delete-bin-line fs-40 lh-1"></i></div>
-                            <h5 className="fw-semibold text-dark mb-1">Delete User</h5>
-                            <p className="fs-md text-secondary">Are you sure you want to delete this user?</p>
-                        </div>
-                        <div className="modal-footer d-block border-top-0 pt-0">
-                            <div className="d-flex gap-2 mb-4">
-                                <a href="" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</a>
-                                <a href="" className="btn btn-danger flex-fill">Delete</a>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>

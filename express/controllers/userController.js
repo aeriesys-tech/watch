@@ -5,8 +5,16 @@ const { Op } = require("sequelize");
 // Add a new user
 const addUser = async (req, res) => {
   try {
-    const { name, email, username, password, mobile_no, role_id, address } =
-      req.body;
+    const { name, email, username, password, mobile_no, role_id, address, device_id } = req.body;
+
+    console.log("Received Request Body:", req.body);
+
+    if (!password) {
+      return res.status(400).json({
+        message: "Password is required",
+        errors: { password: "Password is required" },
+      });
+    }
 
     // Check if the email already exists in the database
     const existingUser = await db.User.findOne({ where: { email } });
@@ -19,6 +27,7 @@ const addUser = async (req, res) => {
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("Hashed Password:", hashedPassword);
 
     // Create the new user
     const newUser = await db.User.create({
@@ -29,10 +38,12 @@ const addUser = async (req, res) => {
       mobile_no,
       role_id,
       address,
+      device_id,
     });
 
     res.json(newUser);
   } catch (error) {
+    console.error("Error adding user:", error);
     res.status(500).json({ error: error.message });
   }
 };

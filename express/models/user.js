@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
           key: "role_id",
         },
       },
+      device_id: {
+        type: DataTypes.STRING(15),
+        allowNull: false,
+      },
       address: {
         type: DataTypes.TEXT,
         allowNull: true,

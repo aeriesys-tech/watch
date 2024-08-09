@@ -25,6 +25,13 @@ const addUserValidation = (req, res, next) => {
       .escape()
       .notEmpty()
       .withMessage("Username is required"),
+    body("device_id")
+      .isString()
+      .withMessage("Device ID is required")
+      .trim()
+      .escape()
+      .notEmpty()
+      .withMessage("Device ID is required"),
     body("password")
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long")
