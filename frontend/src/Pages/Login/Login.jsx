@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import authWrapper from "../../utils/AuthWrapper";
 
 import frame1 from "../../Assets/assets/img/frame1.png";
 import frame2 from "../../Assets/assets/img/frame2.png";
@@ -13,7 +13,7 @@ function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
-    // const navigate = useNavigate(); // Hook to handle navigation
+    const navigate = useNavigate(); // Hook to handle navigation
 
     const handleLogin = async (event) => {
         event.preventDefault();
@@ -21,18 +21,14 @@ function Login() {
         setErrors({}); // Reset errors on new submission
 
         try {
-            const response = await axios({
-                method: 'POST',
-                url: `${process.env.REACT_APP_BASE_API_URL}/api/auth/login`,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: JSON.stringify(data)
-            });
+            const response = await authWrapper('/auth/login', data, true);
 
+            // Storing the entire login response in session storage
+            sessionStorage.setItem('auth', JSON.stringify(response.data));
+            sessionStorage.setItem('token', response.data.token)
             console.log("Login successful", response.data);
-            // Assuming the dashboard route is '/dashboard'
-            // navigate('/dashboard'); // Redirect to the dashboard
+
+            navigate('/users'); // Redirect to the user dashboard
 
         } catch (err) {
             if (err.response && err.response.data.errors) {
@@ -47,7 +43,7 @@ function Login() {
 
     return (
         <>
-            <ToastContainer autoClose={4000} position="top-right" theme="colored" />
+            <ToastContainer position="top-right" autoClose={4000} theme="colored" />
             <div className="page-sign">
                 <div className="container justify-content-center">
                     <div className="row gx-0">
@@ -83,7 +79,7 @@ function Login() {
                                     <p className="card-text">Please enter your email to login into your account.</p>
                                 </div>
                                 <div className="card-body">
-                                    <form onSubmit={handleLogin} className="needs-validation" noValidate>
+                                    <form onSubmit={handleLogin} className="needs-validation" noValidate autoComplete='on'>
                                         <div className="mb-4">
                                             <input
                                                 type="email"

@@ -14,24 +14,24 @@ const { checkPermission } = require("../middleware/permissionsMiddleware");
 
 router.post(
   "/addUser",
+  authMiddleware,
 
-
-
+  checkPermission("users.create"),
   addUserValidation,
   userController.addUser
 );
 router.post(
   "/updateUser",
-  // authMiddleware,
+  authMiddleware,
 
-  // checkPermission("users.update"),
+  checkPermission("users.update"),
   updateUserValidation,
   userController.updateUser
 );
 router.post(
   "/deleteUser",
-  // authMiddleware,
-  // checkPermission("users.delete"),
+  authMiddleware,
+  checkPermission("users.delete"),
   deleteUserValidation,
   userController.deleteUser
 );

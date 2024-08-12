@@ -16,10 +16,11 @@ function App() {
       <Router>
         <ToastContainer />
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/auth/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/sidebar" element={<Sidebar />} />
-          <Route path="/user" element={<User />} />
+          <Route path="/users" element={<User />} />
         </Routes>
       </Router>
       {/* <Login /> */}

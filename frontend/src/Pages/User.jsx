@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
+import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
+import { useNavigate } from 'react-router-dom';
 
 function User() {
     const [users, setUsers] = useState([]);
@@ -18,6 +19,8 @@ function User() {
         field: "created_at",
         order: "asc",
     });
+
+    const navigate = useNavigate(); // Use navigate for redirecting if needed
 
     // State for new user form
     const [newUser, setNewUser] = useState({
@@ -55,8 +58,7 @@ function User() {
         const queryString = `?page=${page}&limit=${pageSize}&sortBy=${sortBy.field}&order=${sortBy.order}&search=${search}`;
         try {
             setLoading(true);
-            const response = await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api/users/paginateUsers${queryString}`, {});
-            const data = response.data;
+            const data = await axiosWrapper(`/users/paginateUsers${queryString}`, {}, navigate);
             console.log('API Response:', data.data);
 
             setUsers(data.data);
@@ -99,16 +101,18 @@ function User() {
         setErrors({}); // Reset errors on new submission
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api/users/addUser`, newUser);
+            await axiosWrapper('/users/addUser', { data: newUser }, navigate).then((respo) => {
+                console.log(respo)
+            });
             toast.success('User added successfully');
             resetForm();
             fetchUsers();
-            closeModal(); // Close the modal after successful addition
+            closeModal();
         } catch (error) {
             console.error('Error adding user:', error);
-            if (error.response && error.response.data.errors) {
-                setErrors(error.response.data.errors);
-                toast.error(error.response.data.message || 'An error occurred');
+            if (error.message && error.message.errors) {
+                setErrors(error.message.errors);
+                toast.error(error.message.message || 'An error occurred');
             } else {
                 toast.error('An unexpected error occurred');
             }
@@ -137,16 +141,16 @@ function User() {
         setErrors({}); // Reset errors on new submission
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api/users/updateUser`, newUser);
+            await axiosWrapper('/users/updateUser', { data: newUser }, navigate);
             toast.success('User updated successfully');
             resetForm();
             fetchUsers();
             closeModal(); // Close the modal after successful update
         } catch (error) {
             console.error('Error updating user:', error);
-            if (error.response && error.response.data.errors) {
-                setErrors(error.response.data.errors);
-                toast.error(error.response.data.message || 'An error occurred');
+            if (error.message && error.message.errors) {
+                setErrors(error.message.errors);
+                toast.error(error.message.message || 'An error occurred');
             } else {
                 toast.error('An unexpected error occurred');
             }
@@ -156,7 +160,7 @@ function User() {
     const handleToggleStatus = async (user) => {
         try {
             const updatedStatus = !user.status;
-            await axios.post(`${process.env.REACT_APP_BASE_API_URL}/api/users/deleteUser`, { user_id: user.user_id, status: updatedStatus });
+            await axiosWrapper('/users/deleteUser', { data: { user_id: user.user_id, status: updatedStatus } }, navigate);
             toast.success(`User ${updatedStatus ? 'restored' : 'deleted'} successfully`);
             fetchUsers();
         } catch (error) {
