@@ -4,9 +4,10 @@ const db = require("./models");
 const routes = require("./routes");
 const cors = require("cors");
 require("dotenv").config();
+const path = require("path");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(cors());
@@ -26,6 +27,10 @@ db.sequelize
 
 // Routes
 app.use("/api", routes);
+app.use(
+  "/uploads/avatars",
+  express.static(path.join(__dirname, "uploads/avatars"))
+);
 
 // 404 Error Handling
 app.use((req, res, next) => {

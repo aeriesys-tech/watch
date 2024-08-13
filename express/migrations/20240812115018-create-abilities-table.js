@@ -1,4 +1,5 @@
 "use strict";
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("abilities", {
@@ -11,11 +12,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: "modules", // References the modules table
+          model: "modules", // Table name in lowercase
           key: "module_id",
         },
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
+        onDelete: "SET NULL", // Handle deletion of referenced rows
+        onUpdate: "CASCADE", // Handle updates to referenced rows
       },
       ability: {
         type: Sequelize.STRING(250),
@@ -34,7 +35,15 @@ module.exports = {
         allowNull: true,
       },
     });
+
+    // Add index on module_id, ability, and description
+    await queryInterface.addIndex("abilities", [
+      "module_id",
+      "ability",
+      "description",
+    ]);
   },
+
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable("abilities");
   },

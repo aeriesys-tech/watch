@@ -25,8 +25,9 @@ function Login() {
 
             // Storing the entire login response in session storage
             sessionStorage.setItem('auth', JSON.stringify(response.data));
-            sessionStorage.setItem('token', response.data.token)
+            sessionStorage.setItem('token', response.data.data.token)
             console.log("Login successful", response.data);
+            console.log("Login successf123456ul", response.data.data.token);
 
             navigate('/users'); // Redirect to the user dashboard
 

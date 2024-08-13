@@ -6,9 +6,8 @@ import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
 
-function User() {
-    const [users, setUsers] = useState([]);
-    const [roles, setRoles] = useState([]); // State to store the roles
+function Role() {
+    const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
@@ -23,31 +22,21 @@ function User() {
 
     const navigate = useNavigate(); // Use navigate for redirecting if needed
 
-    // State for new user form
-    const [newUser, setNewUser] = useState({
-        user_id: null,
-        name: '',
-        email: '',
-        username: '',
-        password: '',
-        mobile_no: '',
-        role_id: '',
-        address: '',
+    // State for new role form
+    const [newRole, setNewRole] = useState({
+        role_id: null,
+        role: '',
+        status: true
     });
 
-    // State for form errors
+
     const [errors, setErrors] = useState({});
 
-    // State for editing user
-    const [editingUser, setEditingUser] = useState(null);
+    // State for editing role
+    const [editingRole, setEditingRole] = useState(null);
 
     const startIndex = (page - 1) * pageSize + 1;
     const endIndex = Math.min(page * pageSize, totalItems);
-
-    useEffect(() => {
-        fetchUsers();
-        fetchRoles(); // Fetch roles when the component mounts
-    }, [page, pageSize, search, sortBy]);
 
     const handleSortChange = (field) => {
         setSortBy((prevSort) => ({
@@ -57,34 +46,30 @@ function User() {
         }));
     };
 
-    const fetchUsers = async () => {
+
+    const fetchRoles = async () => {
         const queryString = `?page=${page}&limit=${pageSize}&sortBy=${sortBy.field}&order=${sortBy.order}&search=${search}`;
         try {
             setLoading(true);
-            const data = await axiosWrapper(`/users/paginateUsers${queryString}`, {}, navigate);
-            console.log('API Response:', data.data.data);
+            const data = await axiosWrapper(`/roles/paginateRoles${queryString}`, {}, navigate);
+            console.log('API Response:', data.data);
 
-            setUsers(data.data.data);
+            setRoles(data.data.data);
             setTotalPages(data.data.totalPages || 0);
             setCurrentPage(data.data.currentPage || 1);
             setTotalItems(data.data.totalItems || 0);
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            console.error('Error fetching user data:', error);
-            toast.error('Error fetching user data');
+            console.error('Error fetching role data:', error);
+            toast.error('Error fetching role data');
         }
     };
 
-    const fetchRoles = async () => {
-        try {
-            const data = await axiosWrapper(`/roles/getRoles`, {}, navigate);
-            console.log("roles data", data);
-            setRoles(data.data); // Store roles in the state
-        } catch (error) {
-            console.error('Error fetching roles data:', error);
-        }
-    };
+    useEffect(() => {
+        fetchRoles();
+    }, [page, pageSize, search, sortBy]);
+
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
@@ -102,58 +87,54 @@ function User() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewUser((prevUser) => ({ ...prevUser, [name]: value }));
+        setNewRole((prevRole) => ({ ...prevRole, [name]: value }));
     };
 
-    const handleAddUser = async (e) => {
+    const handleAddRole = async (e) => {
         e.preventDefault();
         setErrors({}); // Reset errors on new submission
 
+        const { status, ...roleData } = newRole; // Exclude 'status' from the data sent to backend
+
         try {
-            await axiosWrapper('/users/addUser', { data: newUser }, navigate).then((respo) => {
-                console.log(respo);
-            });
-            toast.success('User added successfully');
+            await axiosWrapper('/roles/addRole', { data: roleData }, navigate);
+            toast.success('Role added successfully');
             resetForm();
-            fetchUsers();
+            fetchRoles();
             closeModal();
         } catch (error) {
-            console.error('Error adding user:', error);
-            if (error.message && error.message.errors) {
-                setErrors(error.message.errors);
-                toast.error(error.message.message || 'An error occurred');
+            console.error('Error adding role:', error);
+            if (error.response && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+                toast.error(error.response.data.message || 'An error occurred');
             } else {
                 toast.error('An unexpected error occurred');
             }
         }
     };
 
-    const handleEditUser = (user) => {
-        setEditingUser(user);
-        setNewUser({
-            user_id: user.user_id,
-            name: user.name,
-            email: user.email,
-            username: user.username,
-            password: '',
-            mobile_no: user.mobile_no,
-            role_id: user.role_id,
-            address: user.address,
+    const handleEditRole = (role) => {
+        setEditingRole(role);
+        setNewRole({
+            role_id: role.role_id,
+            role: role.role,
+            status: role.status,
         });
     };
 
-    const handleUpdateUser = async (e) => {
+
+    const handleUpdateRole = async (e) => {
         e.preventDefault();
         setErrors({}); // Reset errors on new submission
 
         try {
-            await axiosWrapper('/users/updateUser', { data: newUser }, navigate);
-            toast.success('User updated successfully');
+            await axiosWrapper('/roles/updateRole', { data: newRole }, navigate);
+            toast.success('Role updated successfully');
             resetForm();
-            fetchUsers();
+            fetchRoles();
             closeModal(); // Close the modal after successful update
         } catch (error) {
-            console.error('Error updating user:', error);
+            console.error('Error updating role:', error);
             if (error.message && error.message.errors) {
                 setErrors(error.message.errors);
                 toast.error(error.message.message || 'An error occurred');
@@ -163,36 +144,30 @@ function User() {
         }
     };
 
-    const handleToggleStatus = async (user) => {
+    const handleToggleStatus = async (role) => {
         try {
-            const updatedStatus = !user.status;
-            await axiosWrapper('/users/deleteUser', { data: { user_id: user.user_id, status: updatedStatus } }, navigate);
-            toast.success(`User ${updatedStatus ? 'restored' : 'deleted'} successfully`);
-            fetchUsers();
+            const updatedStatus = !role.status;
+            await axiosWrapper('/roles/deleteRole', { data: { role_id: role.role_id, status: updatedStatus } }, navigate);
+            toast.success(`Role ${updatedStatus ? 'restored' : 'deleted'} successfully`);
+            fetchRoles();
         } catch (error) {
-            console.error('Error toggling user status:', error);
-            toast.error('An error occurred while updating the user status');
+            console.error('Error toggling role status:', error);
+            toast.error('An error occurred while updating the role status');
         }
     };
 
     const resetForm = () => {
-        setEditingUser(null);
-        setNewUser({
-            user_id: null,
-            name: '',
-            email: '',
-            username: '',
-            password: '',
-            mobile_no: '',
-            role_id: '',
-            address: '',
+        setEditingRole(null);
+        setNewRole({
+            role_id: null,
+            role: '',
+            status: '',
         });
         setErrors({});
     };
-
     // Function to close the modal
     const closeModal = () => {
-        const modalElement = document.getElementById('addUserModal');
+        const modalElement = document.getElementById('addRoleModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
             modal.hide();
@@ -208,13 +183,13 @@ function User() {
                     <div>
                         <ol className="breadcrumb fs-sm mb-1">
                             <li className="breadcrumb-item"><a href="#">Dashboard</a></li>
-                            <li className="breadcrumb-item active" aria-current="page">Users</li>
+                            <li className="breadcrumb-item active" aria-current="page">Roles</li>
                         </ol>
-                        <h4 className="main-title mb-0">All Users</h4>
+                        <h4 className="main-title mb-0">Roles</h4>
                     </div>
                     <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUserModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New User
+                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addRoleModal" onClick={resetForm}>
+                            <i className="ri-add-line fs-18 lh-1"></i>Add New Role
                         </button>
                     </div>
                 </div>
@@ -234,14 +209,16 @@ function User() {
                                         <option value="20">20</option>
                                         <option value="30">30</option>
                                     </select>
+
                                 </div>
                                 <div className="table-responsive">
                                     <table className="table table-bordered text-nowrap">
                                         <thead className="bg-light">
                                             <tr>
+                                                {/* <th className="text-center"><input className="form-check-input" type="checkbox" value="" /></th> */}
                                                 <th className="text-center">#ID</th>
-                                                <th className="w-24" onClick={() => handleSortChange("name")}> Name
-                                                    {sortBy.field === "name" && (
+                                                <th className="w-24" onClick={() => handleSortChange("role")}> Role
+                                                    {sortBy.field === "role" && (
                                                         <span style={{ display: "inline-flex" }}>
                                                             {sortBy.order === "asc" ? (
                                                                 <i className="ri-arrow-up-fill"></i>
@@ -251,7 +228,7 @@ function User() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th>Mobile No</th>
+                                                {/* <th>Mobile No <i className="ri-arrow-down-fill"></i></th>
                                                 <th className="w-24" onClick={() => handleSortChange("email")}> Email
                                                     {sortBy.field === "email" && (
                                                         <span style={{ display: "inline-flex" }}>
@@ -263,27 +240,27 @@ function User() {
                                                         </span>
                                                     )}
                                                 </th>
+                                                <th>Device ID</th> */}
                                                 <th>Status</th>
                                                 <th className="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {Array.isArray(users) && users.length > 0 ? users.map((user, index) => (
-                                                <tr key={user.id} style={{ opacity: user.status ? 1 : 0.5 }}>
+                                            {Array.isArray(roles) && roles.length > 0 ? roles.map((role, index) => (
+                                                <tr key={role.id} style={{ opacity: role.status ? 1 : 0.5 }}>
+                                                    {/* <td className="text-center"><input className="form-check-input" type="checkbox" value="" /></td> */}
                                                     <td className="text-center">{startIndex + index}</td> {/* Serial number */}
-                                                    <td>{user.name}</td>
-                                                    <td>{user.mobile_no}</td>
-                                                    <td>{user.email}</td>
-                                                    <td>{user.status ? 'Active' : 'Inactive'}</td>
+                                                    <td>{role.role}</td>
+                                                    <td>{role.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {user.status && (
-                                                                <a href="" className="text-success me-2" onClick={() => handleEditUser(user)} data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                                            {role.status && (
+                                                                <a href="" className="text-success me-2" onClick={() => handleEditRole(role)} data-bs-toggle="modal" data-bs-target="#addRoleModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
                                                             <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${user.id}`} checked={user.status} onChange={() => handleToggleStatus(user)} />
+                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${role.id}`} checked={role.status} onChange={() => handleToggleStatus(role)} />
                                                             </div>
                                                         </div>
                                                     </td>
@@ -299,7 +276,7 @@ function User() {
                             </div>
                             <div className="card-footer p-2">
                                 <div className="d-flex justify-content-between align-items-center px-2">
-                                    <span>Showing {startIndex} to {endIndex} of {totalItems} users</span>
+                                    <span>Showing {startIndex} to {endIndex} of {totalItems} roles</span>
                                     <Pagination
                                         currentPage={page}
                                         totalPages={totalPages}
@@ -318,63 +295,26 @@ function User() {
             </div>
 
             {/* ADD/EDIT MODAL */}
-            <div className="modal fade" id="addUserModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal fade" id="addRoleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header bg-primary text-white">
-                            <h5 className="modal-title" id="exampleModalLabel">{editingUser ? "Edit User" : "Add New User"}</h5>
+                            <h5 className="modal-title" id="exampleModalLabel">{editingRole ? "Edit User" : "Add New User"}</h5>
                             <button type="button" className="btn-close modal_close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <form onSubmit={editingUser ? handleUpdateUser : handleAddUser}>
+                            <form onSubmit={editingRole ? handleUpdateRole : handleAddRole}>
                                 <div className="row g-3">
-                                    <div className="col-md-6">
-                                        <label className="form-label">Name <span className="text-danger">*</span></label>
-                                        <input type="text" className={`form-control ${errors.name ? "is-invalid" : ""}`} name="name" value={newUser.name} onChange={handleInputChange} placeholder="Enter your name" />
-                                        {errors.name && <div className="invalid-feedback">{errors.name}</div>}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">Email <span className="text-danger">*</span></label>
-                                        <input type="email" className={`form-control ${errors.email ? "is-invalid" : ""}`} name="email" value={newUser.email} onChange={handleInputChange} placeholder="Enter your email" />
-                                        {errors.email && <div className="invalid-feedback">{errors.email}</div>}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">Username <span className="text-danger">*</span></label>
-                                        <input type="text" className={`form-control ${errors.username ? "is-invalid" : ""}`} name="username" value={newUser.username} onChange={handleInputChange} placeholder="Enter your username" />
-                                        {errors.username && <div className="invalid-feedback">{errors.username}</div>}
-                                    </div>
-                                    {!editingUser && (
-                                        <div className="col-md-6">
-                                            <label className="form-label">Password <span className="text-danger">*</span></label>
-                                            <input type="password" className={`form-control ${errors.password ? "is-invalid" : ""}`} name="password" value={newUser.password} onChange={handleInputChange} placeholder="Enter your password" />
-                                            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-                                        </div>
-                                    )}
-                                    <div className="col-md-6">
-                                        <label className="form-label">Mobile No. <span className="text-danger">*</span></label>
-                                        <input type="text" className={`form-control ${errors.mobile_no ? "is-invalid" : ""}`} name="mobile_no" value={newUser.mobile_no} onChange={handleInputChange} placeholder="Enter your mobile no." />
-                                        {errors.mobile_no && <div className="invalid-feedback">{errors.mobile_no}</div>}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">Role <span className="text-danger">*</span></label>
-                                        <select className={`form-control ${errors.role_id ? "is-invalid" : ""}`} name="role_id" value={newUser.role_id} onChange={handleInputChange}>
-                                            <option value="">Select a role</option>
-                                            {roles.map(role => (
-                                                <option key={role.role_id} value={role.role_id}>{role.role}</option>
-                                            ))}
-                                        </select>
-                                        {errors.role_id && <div className="invalid-feedback">{errors.role_id}</div>}
-                                    </div>
                                     <div className="col-md-12">
-                                        <label className="form-label">Address <span className="text-danger">*</span></label>
-                                        <textarea rows="2" className={`form-control ${errors.address ? "is-invalid" : ""}`} name="address" value={newUser.address} onChange={handleInputChange} placeholder="Enter your address"></textarea>
-                                        {errors.address && <div className="invalid-feedback">{errors.address}</div>}
+                                        <label className="form-label">Role Name <span className="text-danger">*</span></label>
+                                        <input type="text" className={`form-control ${errors.role ? "is-invalid" : ""}`} name="role" value={newRole.role} onChange={handleInputChange} placeholder="Enter Role" />
+                                        {errors.role && <div className="invalid-feedback">{errors.role}</div>}
                                     </div>
                                 </div>
                                 <div className="modal-footer d-block border-top-0">
-                                    <div className="d-flex gap-2 mb-4">
+                                    <div className="d-flex gap-2 mb-1 mt-2">
                                         <button type="button" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" className="btn btn-primary flex-fill">{editingUser ? "Update" : "Save"}</button>
+                                        <button type="submit" className="btn btn-primary flex-fill">{editingRole ? "Update" : "Save"}</button>
                                     </div>
                                 </div>
                             </form>
@@ -386,4 +326,4 @@ function User() {
     );
 }
 
-export default User;
+export default Role;

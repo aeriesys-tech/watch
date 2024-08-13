@@ -2,16 +2,24 @@ const db = require("../models");
 const fs = require("fs");
 const path = require("path");
 
+const { sendResponse } = require("../services/responseService");
+
 // Import modules, abilities, and role abilities from JSON
 const importAbilities = async (req, res) => {
   let moduleDataList = req.body;
+
   if (!moduleDataList.length) {
     // Check if body is empty
-    // Path to your JSON file
     const filePath = path.join(__dirname, "../data/abilities.json");
-    // Read the file
-    const fileData = fs.readFileSync(filePath);
-    moduleDataList = JSON.parse(fileData);
+
+    try {
+      // Read the file
+      const fileData = fs.readFileSync(filePath);
+      moduleDataList = JSON.parse(fileData);
+    } catch (error) {
+      console.error("Error reading or parsing JSON file:", error);
+      return sendResponse(res, 500, "Error reading or parsing JSON file");
+    }
   }
 
   try {
@@ -57,10 +65,10 @@ const importAbilities = async (req, res) => {
       }
     }
 
-    res.status(200).json({ message: "Abilities imported successfully" });
+    sendResponse(res, 200, "Abilities imported successfully");
   } catch (error) {
     console.error("Error importing abilities:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    sendResponse(res, 500, "Internal Server Error");
   }
 };
 
@@ -84,21 +92,108 @@ const changeAbility = async (req, res) => {
 };
 
 // Get all abilities with role ability status
+// const getAbilities = async (req, res) => {
+//   try {
+//     const abilities = await db.Ability.findAll({
+//       include: [
+//         {
+//           model: db.Module,
+//           as: "module",
+//         },
+//         // {
+//         //   model: db.RoleAbility,
+//         //   as: "roleAbilities",
+//         // },
+//       ],
+//     });
+//     res.status(200).json(abilities);
+//   } catch (error) {
+//     console.error("Error fetching abilities:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
 const getAbilities = async (req, res) => {
+  const { role_id } = req.query; // Expecting role_id to be passed as a query parameter
+
   try {
+    // Fetch all abilities and populate the module data
     const abilities = await db.Ability.findAll({
+      attributes: {
+        exclude: ["created_at", "updated_at"],
+      },
       include: [
         {
           model: db.Module,
           as: "module",
-        },
-        {
-          model: db.RoleAbility,
-          as: "roleAbilities",
+          attributes: {
+            exclude: ["created_at", "updated_at"],
+          },
         },
       ],
     });
-    res.status(200).json(abilities);
+
+    // Log fetched abilities for debugging
+    console.log("Fetched abilities:", abilities);
+
+    // Prepare to collect role abilities status if role_id is provided
+    let roleAbilitiesStatus = {};
+    if (role_id) {
+      const roleAbilities = await db.RoleAbility.findAll({
+        where: { role_id },
+      });
+
+      // Log fetched role abilities for debugging
+      console.log("Fetched role abilities:", roleAbilities);
+
+      roleAbilities.forEach((ra) => {
+        // Ensure accurate comparison by converting to string
+        if (ra.ability_id) {
+          roleAbilitiesStatus[ra.ability_id.toString()] = true;
+        }
+      });
+    }
+
+    // Group abilities by modules
+    const groupedByModules = abilities.reduce((acc, ability) => {
+      if (!ability.ability_id || !ability.module || !ability.module.module_id) {
+        console.error("Invalid ability data:", ability);
+        return acc;
+      }
+
+      const moduleName = ability.module.module;
+
+      // Prepare ability object including status
+      const abilityData = {
+        _id: ability.ability_id.toString(), // Ensure consistent ID format
+        ability: ability.ability,
+        description: ability.description,
+        status: roleAbilitiesStatus[ability.ability_id.toString()] || false, // Check status
+      };
+
+      if (!acc[moduleName]) {
+        acc[moduleName] = {
+          module_id: ability.module.module_id.toString(),
+          module_name: moduleName,
+          abilities: [],
+        };
+      }
+
+      acc[moduleName].abilities.push(abilityData);
+
+      return acc;
+    }, {});
+
+    // Log grouped abilities by modules for debugging
+    console.log("Grouped by modules:", groupedByModules);
+
+    const modulesArray = Object.values(groupedByModules);
+
+    res.status(200).json({
+      success: true,
+      count: modulesArray.length,
+      data: modulesArray,
+    });
   } catch (error) {
     console.error("Error fetching abilities:", error);
     res.status(500).json({ error: error.message });

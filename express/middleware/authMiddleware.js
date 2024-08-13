@@ -1,9 +1,10 @@
 // const jwt = require("jsonwebtoken");
-// const db = require("../models"); // Adjust path as needed
+// const db = require("../models");
 
 // const authMiddleware = async (req, res, next) => {
 //   const token = req.header("Authorization")?.replace("Bearer ", "");
 //   if (!token) {
+//     console.log("No token provided.");
 //     return res.status(401).json({ error: "Access denied. No token provided." });
 //   }
 
@@ -27,7 +28,10 @@
 //       return res.status(401).json({ error: "Invalid or expired token." });
 //     }
 
-//     if (new Date() > new Date(userToken.expire_at)) {
+//     const currentDate = new Date();
+//     const expireDate = new Date(userToken.expire_at);
+
+//     if (currentDate > expireDate) {
 //       console.log("Token expired.");
 //       return res.status(401).json({ error: "Token expired." });
 //     }
@@ -44,7 +48,7 @@
 
 // module.exports = authMiddleware;
 const jwt = require("jsonwebtoken");
-const db = require("../models"); // Adjust path as needed
+const db = require("../models");
 
 const authMiddleware = async (req, res, next) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
@@ -82,8 +86,9 @@ const authMiddleware = async (req, res, next) => {
     }
 
     console.log("Token valid.");
-    // Attach user info to request object
+    // Attach user info to response locals
     req.user = decoded;
+    res.locals.user = decoded; // Store the decoded user data in res.locals
     next();
   } catch (error) {
     console.error("Token verification error:", error.message);

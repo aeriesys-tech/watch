@@ -11,9 +11,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-          model: "Module", // Ensure the model name matches the defined model
+          model: "modules", // Table name in lowercase
           key: "module_id",
         },
+        onDelete: "SET NULL", // Handle deletion of referenced rows
+        onUpdate: "CASCADE", // Handle updates to referenced rows
       },
       ability: {
         type: DataTypes.STRING(250),
@@ -46,11 +48,11 @@ module.exports = (sequelize, DataTypes) => {
   Ability.associate = (models) => {
     Ability.belongsTo(models.Module, {
       foreignKey: "module_id",
-      as: "module", // Alias to be used in queries
+      as: "module",
     });
     Ability.hasMany(models.RoleAbility, {
       foreignKey: "ability_id",
-      as: "roleAbilities", // Alias to be used in queries
+      as: "roleAbilities",
     });
   };
 

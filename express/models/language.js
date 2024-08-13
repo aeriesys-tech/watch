@@ -1,15 +1,15 @@
 module.exports = (sequelize, DataTypes) => {
-  const Role = sequelize.define(
-    "Role",
+  const Language = sequelize.define(
+    "Language",
     {
-      role_id: {
+      language_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      role: {
+      language: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: true,
       },
       status: {
         type: DataTypes.BOOLEAN,
@@ -17,11 +17,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       created_at: {
         type: DataTypes.DATE,
-        allowNull: true,
+        defaultValue: DataTypes.NOW,
       },
       updated_at: {
         type: DataTypes.DATE,
-        allowNull: true,
+        defaultValue: DataTypes.NOW,
       },
       deleted_at: {
         type: DataTypes.DATE,
@@ -29,7 +29,6 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      tableName: "roles", // Explicitly set table name
       timestamps: true,
       paranoid: true,
       underscored: true,
@@ -39,21 +38,18 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          fields: ["role"],
+          fields: ["language"],
         },
       ],
     }
   );
 
-  Role.associate = (models) => {
-    Role.hasMany(models.User, {
-      foreignKey: "role_id",
-    });
-    Role.hasMany(models.RoleAbility, {
-      foreignKey: "role_id",
-      as: "roleAbilities",
+  Language.associate = (models) => {
+    Language.hasMany(models.Keyword, {
+      foreignKey: "language_id",
+      as: "keywords",
     });
   };
 
-  return Role;
+  return Language;
 };

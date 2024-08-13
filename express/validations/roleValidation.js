@@ -10,11 +10,6 @@ const addRoleValidation = (req, res, next) => {
       .trim()
       .notEmpty()
       .withMessage("Role name is required"),
-    body("status")
-      .isBoolean()
-      .withMessage("Status must be a boolean")
-      .notEmpty()
-      .withMessage("Status is required"),
   ])(req, res, next);
 };
 
@@ -31,10 +26,6 @@ const updateRoleValidation = (req, res, next) => {
       .isString()
       .withMessage("Role name must be a string")
       .trim(),
-    body("status")
-      .optional()
-      .isBoolean()
-      .withMessage("Status must be a boolean"),
   ])(req, res, next);
 };
 

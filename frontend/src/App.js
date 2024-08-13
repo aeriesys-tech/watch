@@ -7,6 +7,7 @@ import Dashboard from './Pages/Dashboard/Dashboard';
 import Login from './Pages/Login/Login';
 import Sidebar from './Components/Sidebar/Sidebar';
 import User from './Pages/User';
+import Role from './Pages/Role';
 
 
 
@@ -21,6 +22,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/sidebar" element={<Sidebar />} />
           <Route path="/users" element={<User />} />
+          <Route path="/roles" element={<Role />} />
         </Routes>
       </Router>
       {/* <Login /> */}

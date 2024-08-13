@@ -4,12 +4,20 @@ const roleAbilityRoutes = require("./roleAbilityRoutes");
 const userRoutes = require("./userRoutes");
 const authRoutes = require("./authRoutes");
 const roleRoutes = require("./roleRoutes");
+const languageRoutes = require("./languageRoutes");
+const keywordRoutes = require("./keywordRoutes");
 const rolePermissionRoutes = require("./rolePermissionRoutes");
+const deviceTypeRoutes = require("./deviceTypeRoutes");
+const unitRoutes = require("./unitRoutes");
 
 // Use user routes
 router.use("/users", userRoutes);
 router.use("/roleAbilities", roleAbilityRoutes);
 router.use("/auth", authRoutes);
 router.use("/roles", roleRoutes);
+router.use("/languages", languageRoutes);
+router.use("/keywords", keywordRoutes);
 router.use("/rolePermissions", rolePermissionRoutes);
+router.use("/deviceType", deviceTypeRoutes);
+router.use("/unit", unitRoutes);
 module.exports = router;

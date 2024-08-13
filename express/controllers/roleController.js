@@ -1,66 +1,55 @@
 const db = require("../models");
 const { Op } = require("sequelize");
+const { sendResponse } = require("../services/responseService");
 
 // Add a new role
 const addRole = async (req, res) => {
   try {
-    const { role, status } = req.body;
+    const { role } = req.body;
 
     // Check if the role already exists in the database
     const existingRole = await db.Role.findOne({ where: { role } });
     if (existingRole) {
-      return res.status(400).json({
-        message: "role already exists",
-        errors: { role: "Role already exists" },
+      return sendResponse(res, 400, false, "Role already exists", null, {
+        role: "Role already exists",
       });
     }
 
     // Create the new role if it does not exist
-    const newRole = await db.Role.create({ role, status });
-    res.json(newRole);
+    const newRole = await db.Role.create({ role });
+    sendResponse(res, 200, true, "Role created successfully", newRole);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendResponse(res, 500, false, error.message);
   }
 };
 
 // Update a role
 const updateRole = async (req, res) => {
   try {
-    const { role_id, role, status } = req.body;
+    const { role_id, role } = req.body;
 
     // Check if the new role name already exists in the database
     const existingRole = await db.Role.findOne({ where: { role } });
     if (existingRole && existingRole.role_id !== role_id) {
-      return res
-        .status(400)
-        .json({
-          message: "Role already exists",
-          errors: { role: "Role already exists" },
-        });
+      return sendResponse(res, 400, false, "Role already exists", null, {
+        role: "Role already exists",
+      });
     }
 
     // Update the role
-    await db.Role.update({ role, status }, { where: { role_id } });
+    await db.Role.update({ role }, { where: { role_id } });
 
     // Fetch the updated role
     const updatedRole = await db.Role.findOne({ where: { role_id } });
 
-    res.json(updatedRole);
+    sendResponse(res, 200, true, "Role updated successfully", updatedRole);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendResponse(res, 500, false, error.message);
   }
 };
 
 // Delete a role
-// const deleteRole = async (req, res) => {
-//   try {
-//     const { role_id } = req.body;
-//     await db.Role.destroy({ where: { role_id } });
-//     res.json({ message: "Role deleted successfully" });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };/
+
 const deleteRole = async (req, res) => {
   try {
     const { role_id } = req.body;
@@ -68,7 +57,7 @@ const deleteRole = async (req, res) => {
     // Fetch the role, including those marked as deleted (paranoid: false)
     const role = await db.Role.findOne({ where: { role_id }, paranoid: false });
     if (!role) {
-      return res.status(404).json({ message: "Role not found" });
+      return sendResponse(res, 404, false, "Role not found");
     }
 
     // Log the current state of the role
@@ -80,18 +69,18 @@ const deleteRole = async (req, res) => {
       role.status = true; // Update status after restoring
       await role.save(); // Save the changes
       console.log(`Restored role with ID ${role_id}`);
-      return res.json({ message: "Role restored successfully" });
+      return sendResponse(res, 200, true, "Role restored successfully");
     } else {
       // Soft delete the role
       role.status = false; // Update status before deleting
       await role.save(); // Save the status change
       await role.destroy(); // Soft delete the record
       console.log(`Soft deleted role with ID ${role_id}`);
-      return res.json({ message: "Role soft deleted successfully" });
+      return sendResponse(res, 200, true, "Role soft deleted successfully");
     }
   } catch (error) {
     console.error("Error in deleteRole function:", error);
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, false, error.message);
   }
 };
 
@@ -110,31 +99,12 @@ const viewRole = async (req, res) => {
 const getRoles = async (req, res) => {
   try {
     const roles = await db.Role.findAll({ paranoid: false });
-    res.json(roles);
+    return sendResponse(res, 200, true, "Roles retrieved successfully", roles);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in getRoles function:", error);
+    return sendResponse(res, 500, false, error.message);
   }
 };
-
-// Paginate roles
-// const paginateRoles = async (req, res) => {
-//   try {
-//     const { page = 1, limit = 10 } = req.body;
-//     const offset = (page - 1) * limit;
-//     const roles = await db.Role.findAndCountAll({
-//       paranoid: false,
-//       limit,
-//       offset,
-//     });
-//     res.json({
-//       data: roles.rows,
-//       totalPages: Math.ceil(roles.count / limit),
-//       currentPage: page,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 const paginateRoles = async (req, res) => {
   try {
@@ -171,14 +141,16 @@ const paginateRoles = async (req, res) => {
       paranoid: false,
     });
 
-    res.json({
+    const responseData = {
       data: roles.rows,
       totalPages: Math.ceil(roles.count / limit),
       currentPage: parseInt(page, 10),
       totalItems: roles.count,
-    });
+    };
+
+    sendResponse(res, 200, true, "Roles fetched successfully", responseData);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    sendResponse(res, 500, false, error.message);
   }
 };
 

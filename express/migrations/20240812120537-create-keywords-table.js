@@ -10,11 +10,13 @@ module.exports = {
       },
       language_id: {
         type: Sequelize.INTEGER,
+        allowNull: true,
         references: {
           model: "languages",
           key: "language_id",
         },
-        allowNull: true,
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       },
       keyword: {
         type: Sequelize.STRING(100),
@@ -37,6 +39,13 @@ module.exports = {
         allowNull: true,
       },
     });
+
+    // Add indexes
+    await queryInterface.addIndex("keywords", ["keyword"], {
+      unique: true,
+    });
+    await queryInterface.addIndex("keywords", ["regional_keyword"]);
+    await queryInterface.addIndex("keywords", ["language_id"]);
   },
 
   down: async (queryInterface, Sequelize) => {

@@ -10,6 +10,7 @@ const {
   resetPasswordValidation,
 } = require("../validations/authValidation");
 const { Validate } = require("../middleware/validationMiddleware");
+const upload = require("../middleware/multerMiddleware");
 
 router.post(
   "/login",
@@ -19,6 +20,7 @@ router.post(
 );
 router.post(
   "/updateProfile",
+  upload.single("avatar"), // Add multer middleware for handling file uploads
   updateProfileValidation,
   authMiddleware,
   authController.updateProfile

@@ -1,23 +1,7 @@
-// controllers/rolePermissionController.js
-
 const db = require("../models");
+const { sendResponse } = require("../services/responseService");
 
-const assignPermissionToRole = async (req, res) => {
-  const { roleId, abilityId } = req.body;
-
-  try {
-    const roleAbility = await db.RoleAbility.create({
-      role_id: roleId,
-      ability_id: abilityId,
-    });
-
-    res.status(201).json(roleAbility);
-  } catch (error) {
-    res.status(500).json({ error: "Error assigning permission to role" });
-  }
-};
-
-const removePermissionFromRole = async (req, res) => {
+const togglePermissionForRole = async (req, res) => {
   const { roleId, abilityId } = req.body;
 
   try {
@@ -28,20 +12,23 @@ const removePermissionFromRole = async (req, res) => {
       },
     });
 
-    if (!roleAbility) {
-      return res
-        .status(404)
-        .json({ error: "Permission not found for the role" });
+    if (roleAbility) {
+      // Permission exists, remove it
+      await roleAbility.destroy();
+      sendResponse(res, 200, true, "Permission removed from role successfully");
+    } else {
+      // Permission doesn't exist, assign it
+      const newRoleAbility = await db.RoleAbility.create({
+        role_id: roleId,
+        ability_id: abilityId,
+      });
+      sendResponse(res, 201, true, "Permission assigned to role successfully", {
+        newRoleAbility,
+      });
     }
-
-    await roleAbility.destroy();
-
-    res
-      .status(200)
-      .json({ message: "Permission removed from role successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Error removing permission from role" });
+    sendResponse(res, 500, false, "Error managing permission for role");
   }
 };
 
-module.exports = { assignPermissionToRole, removePermissionFromRole };
+module.exports = { togglePermissionForRole };

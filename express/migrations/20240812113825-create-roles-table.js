@@ -2,15 +2,15 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("languages", {
-      language_id: {
+    await queryInterface.createTable("roles", {
+      role_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      language: {
+      role: {
         type: Sequelize.STRING(100),
-        allowNull: true,
+        allowNull: false,
       },
       status: {
         type: Sequelize.BOOLEAN,
@@ -18,20 +18,25 @@ module.exports = {
       },
       created_at: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
+        allowNull: true,
       },
       updated_at: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
+        allowNull: true,
       },
       deleted_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },
     });
+
+    // Add index for unique role names
+    await queryInterface.addIndex("roles", ["role"], {
+      unique: true,
+    });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("languages");
+    await queryInterface.dropTable("roles");
   },
 };

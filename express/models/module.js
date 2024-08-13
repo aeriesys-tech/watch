@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
   Module.associate = (models) => {
     Module.hasMany(models.Ability, {
       foreignKey: "module_id",
-      as: "abilities", // Alias to be used in queries
+      as: "abilities",
     });
   };
 

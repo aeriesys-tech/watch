@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const roleAbilityController = require("../controllers/roleAbilityController");
 const authMiddleware = require("../middleware/authMiddleware");
+const { checkPermission } = require("../middleware/permissionsMiddleware");
 
 // Routes for role abilities
 router.post(
   "/importAbilities",
-  authMiddleware,
+  // authMiddleware,
+  // checkPermission("role_abilities.import"),
   roleAbilityController.importAbilities
 );
 router.post(
@@ -16,7 +18,8 @@ router.post(
 );
 router.post(
   "/getAbilities",
-  authMiddleware,
+  // authMiddleware,
+  // checkPermission("role_abilities.view"),
   roleAbilityController.getAbilities
 );
 

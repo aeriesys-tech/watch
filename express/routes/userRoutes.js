@@ -14,10 +14,10 @@ const { checkPermission } = require("../middleware/permissionsMiddleware");
 
 router.post(
   "/addUser",
-  authMiddleware,
+  // authMiddleware,
 
-  checkPermission("users.create"),
-  addUserValidation,
+  // checkPermission("users.create"),
+  // addUserValidation,
   userController.addUser
 );
 router.post(
@@ -45,6 +45,9 @@ router.post(
 router.post("/getUsers", authMiddleware, userController.getUsers);
 router.post(
   "/paginateUsers",
+  authMiddleware,
+  checkPermission("users.view"),
+  paginateUsersValidation,
   userController.paginateUsers
 );
 

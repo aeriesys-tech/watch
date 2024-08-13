@@ -13,15 +13,31 @@ const loginValidation = (req, res, next) => {
 // Validation for updating profile
 const updateProfileValidation = (req, res, next) => {
   return Validate([
-    check("name").optional().isString().withMessage("Name must be a string"),
+    check("name")
+      .optional()
+      .isString()
+      .withMessage("Name must be a string")
+      .trim()
+      .escape()
+      .notEmpty()
+      .withMessage("Name is required"),
     check("username")
       .optional()
       .isString()
-      .withMessage("Username must be a string"),
+      .withMessage("Username must be a string")
+      .trim()
+      .escape()
+      .notEmpty()
+      .withMessage("Username is required"),
+    ,
     check("mobile_no")
       .optional()
       .isMobilePhone()
-      .withMessage("Enter a valid mobile number"),
+      .trim()
+      .withMessage("Enter a valid mobile number")
+      .notEmpty()
+      .withMessage("Mobile number is required"),
+    ,
     check("address")
       .optional()
       .isString()

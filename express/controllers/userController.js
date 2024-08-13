@@ -1,33 +1,46 @@
 const db = require("../models");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
+const { sendResponse } = require("../services/responseService");
+const database = require("../config/database");
 
 // Add a new user
+
 const addUser = async (req, res) => {
   try {
-    const { name, email, username, password, mobile_no, role_id, address, device_id } = req.body;
+    const { name, email, username, password, mobile_no, role_id, address } =
+      req.body;
 
-    console.log("Received Request Body:", req.body);
+    // Check if the email, username, or mobile number already exists in the database
+    const existingUser = await db.User.findOne({
+      where: {
+        [Op.or]: [{ email }, { username }, { mobile_no }],
+      },
+    });
 
-    if (!password) {
-      return res.status(400).json({
-        message: "Password is required",
-        errors: { password: "Password is required" },
-      });
-    }
-
-    // Check if the email already exists in the database
-    const existingUser = await db.User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({
-        message: "User with same email already exists",
-        errors: { email: "User with same email already exists" },
-      });
+      const errors = {};
+      if (existingUser.email === email) {
+        errors.email = "User with the same email already exists";
+      }
+      if (existingUser.username === username) {
+        errors.username = "User with the same username already exists";
+      }
+      if (existingUser.mobile_no === mobile_no) {
+        errors.mobile_no = "User with the same mobile number already exists";
+      }
+      return sendResponse(
+        res,
+        400,
+        false,
+        "Validation Error",
+        null,
+        errors
+      );
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Hashed Password:", hashedPassword);
 
     // Create the new user
     const newUser = await db.User.create({
@@ -38,23 +51,45 @@ const addUser = async (req, res) => {
       mobile_no,
       role_id,
       address,
-      device_id,
     });
 
-    res.json(newUser);
+    return sendResponse(res, 201, true, "User created successfully", newUser);
   } catch (error) {
-    console.error("Error adding user:", error);
-    res.status(500).json({ error: error.message });
+    console.error("Error in addUser function:", error);
+    return sendResponse(res, 500, false, error.message);
   }
 };
 
 // // Update a user
+
 // const updateUser = async (req, res) => {
 //   try {
 //     const { user_id, name, email, username, mobile_no, role_id, address } =
 //       req.body;
 
 //     console.log(req.body); // Log the request body
+
+//     // Check if the email, username, or mobile number already exists in the database and belongs to a different user
+//     const existingUser = await db.User.findOne({
+//       where: {
+//         [Op.or]: [{ email }, { username }, { mobile_no }],
+//         user_id: { [Op.ne]: user_id }, // Exclude the current user from the check
+//       },
+//     });
+
+//     if (existingUser) {
+//       const errors = {};
+//       if (existingUser.email === email) {
+//         errors.email = "User with the same email already exists";
+//       }
+//       if (existingUser.username === username) {
+//         errors.username = "User with the same username already exists";
+//       }
+//       if (existingUser.mobile_no === mobile_no) {
+//         errors.mobile_no = "User with the same mobile number already exists";
+//       }
+//       return sendResponse(res, 400, false, "Validation Error", null, errors);
+//     }
 
 //     // Perform the update
 //     const [rowsUpdated] = await db.User.update(
@@ -66,7 +101,7 @@ const addUser = async (req, res) => {
 
 //     if (rowsUpdated === 0) {
 //       // If no rows were updated, send a 404 response
-//       return res.status(404).json({ error: "User not found" });
+//       return sendResponse(res, 404, false, "User not found", null, errors);
 //     }
 
 //     // Fetch the updated user
@@ -77,16 +112,35 @@ const addUser = async (req, res) => {
 
 //     if (!updatedUser) {
 //       // If the user was not found after update, send a 404 response
-//       return res.status(404).json({ error: "User not found" });
+//       return sendResponse(
+//         res,
+//         404,
+//         false,
+//         "User not found",
+//         null,
+
+//         errors
+//       );
 //     }
 
 //     // Send the updated user object
-//     res.json(updatedUser);
+//     return sendResponse(
+//       res,
+//       200,
+//       true,
+//       "User updated successfully",
+//       updatedUser,
+
+//       errors
+//     );
 //   } catch (error) {
-//     console.error(error.message); // Log the error message
-//     res.status(500).json({ error: error.message });
+//     console.error("Error in updateUser function:", error.message); // Log the error message
+//     return sendResponse(res, 500, false, error.message);
 //   }
 // };
+
+// Delete a user
+
 const updateUser = async (req, res) => {
   try {
     const { user_id, name, email, username, mobile_no, role_id, address } =
@@ -94,15 +148,26 @@ const updateUser = async (req, res) => {
 
     console.log(req.body); // Log the request body
 
-    // Check if the email already exists in the database and belongs to a different user
-    const existingUser = await db.User.findOne({ where: { email } });
-    if (existingUser && existingUser.user_id !== user_id) {
-      return res
-        .status(400)
-        .json({
-          message: "User with same email already exists",
-          errors: { email: "User with same email already exists" },
-        });
+    // Check if the email, username, or mobile number already exists in the database and belongs to a different user
+    const existingUser = await db.User.findOne({
+      where: {
+        [Op.or]: [{ email }, { username }, { mobile_no }],
+        user_id: { [Op.ne]: user_id }, // Exclude the current user from the check
+      },
+    });
+
+    if (existingUser) {
+      const errors = {};
+      if (existingUser.email === email) {
+        errors.email = "User with the same email already exists";
+      }
+      if (existingUser.username === username) {
+        errors.username = "User with the same username already exists";
+      }
+      if (existingUser.mobile_no === mobile_no) {
+        errors.mobile_no = "User with the same mobile number already exists";
+      }
+      return sendResponse(res, 400, false, "Validation Error", null, errors);
     }
 
     // Perform the update
@@ -114,8 +179,9 @@ const updateUser = async (req, res) => {
     console.log(`Rows updated: ${rowsUpdated}`); // Log the result of the update
 
     if (rowsUpdated === 0) {
-      // If no rows were updated, send a 404 response
-      return res.status(404).json({ error: "User not found" });
+      // Initialize the errors object
+      const errors = { user: "User not found" };
+      return sendResponse(res, 404, false, "User not found", null, errors);
     }
 
     // Fetch the updated user
@@ -125,19 +191,24 @@ const updateUser = async (req, res) => {
     });
 
     if (!updatedUser) {
-      // If the user was not found after update, send a 404 response
-      return res.status(404).json({ error: "User not found" });
+      // Initialize the errors object
+      const errors = { user: "User not found after update" };
+      return sendResponse(res, 404, false, "User not found", null, errors);
     }
 
     // Send the updated user object
-    res.json(updatedUser);
+    return sendResponse(
+      res,
+      200,
+      true,
+      "User updated successfully",
+      updatedUser
+    );
   } catch (error) {
-    console.error(error.message); // Log the error message
-    res.status(500).json({ error: error.message });
+    console.error("Error in updateUser function:", error.message); // Log the error message
+    return sendResponse(res, 500, false, error.message);
   }
 };
-
-// Delete a user
 
 const deleteUser = async (req, res) => {
   try {
@@ -146,7 +217,7 @@ const deleteUser = async (req, res) => {
     // Fetch the user, including those marked as deleted (paranoid: false)
     const user = await db.User.findOne({ where: { user_id }, paranoid: false });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return sendResponse(res, 404, false, "User not found");
     }
 
     // Log the current state of the user
@@ -158,18 +229,18 @@ const deleteUser = async (req, res) => {
       user.status = true; // Update status after restoring
       await user.save(); // Save the changes
       console.log(`Restored user with ID ${user_id}`);
-      return res.json({ message: "User restored successfully" });
+      return sendResponse(res, 200, true, "User restored successfully");
     } else {
       // Soft delete the user
       user.status = false; // Update status before deleting
       await user.save(); // Save the status change
       await user.destroy(); // Soft delete the record
       console.log(`Soft deleted user with ID ${user_id}`);
-      return res.json({ message: "User soft deleted successfully" });
+      return sendResponse(res, 200, true, "User soft deleted successfully");
     }
   } catch (error) {
-    console.error("Error in deleteUser function:", error);
-    res.status(500).json({ error: error.message });
+    console.error("Error in deleteUser function:", error.message);
+    return sendResponse(res, 500, false, error.message);
   }
 };
 
@@ -181,9 +252,15 @@ const viewUser = async (req, res) => {
       where: { user_id },
       attributes: { exclude: ["password"] },
     });
-    res.json(user);
+
+    if (!user) {
+      return sendResponse(res, 404, false, "User not found");
+    }
+
+    return sendResponse(res, 200, true, "User retrieved successfully", user);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in viewUser function:", error.message);
+    return sendResponse(res, 500, false, error.message);
   }
 };
 
@@ -193,32 +270,15 @@ const getUsers = async (req, res) => {
     const users = await db.User.findAll({
       attributes: { exclude: ["password"] },
     });
-    res.json(users);
+
+    return sendResponse(res, 200, true, "Users retrieved successfully", users);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in getUsers function:", error.message);
+    return sendResponse(res, 500, false, error.message);
   }
 };
 
 // Paginate users
-// const paginateUsers = async (req, res) => {
-//   try {
-//     const { page = 1, limit = 10 } = req.body;
-//     const offset = (page - 1) * limit;
-//     const users = await db.User.findAndCountAll({
-//       paranoid: false,
-//       limit,
-//       offset,
-//       attributes: { exclude: ["password"] },
-//     });
-//     res.json({
-//       data: users.rows,
-//       totalPages: Math.ceil(users.count / limit),
-//       currentPage: page,
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 const paginateUsers = async (req, res) => {
   try {
     const {
@@ -256,15 +316,23 @@ const paginateUsers = async (req, res) => {
       attributes: { exclude: ["password"] },
       paranoid: false,
     });
-
-    res.json({
+    const responseData = {
       data: users.rows,
       totalPages: Math.ceil(users.count / limit),
       currentPage: parseInt(page, 10),
       totalItems: users.count,
-    });
+    };
+
+    return sendResponse(
+      res,
+      200,
+      true,
+      "Users retrieved successfully",
+      responseData
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in paginateUsers function:", error.message);
+    return sendResponse(res, 500, false, error.message);
   }
 };
 
