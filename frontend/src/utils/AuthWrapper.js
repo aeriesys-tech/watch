@@ -1,9 +1,16 @@
 import axios from 'axios';
+import { getToken } from './TokenService';
 
 const authWrapper = async (endpoint, data, rawResponse = false) => {
+    const token = getToken();
     const headers = {
         'Content-Type': 'application/json',
     };
+
+    if (token) {
+        console.log(token)
+        headers['Authorization'] = `Bearer ${token}`;
+    }
 
     try {
         const response = await axios.post(

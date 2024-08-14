@@ -173,11 +173,11 @@ function Dashboard() {
                             <p class="fs-sm text-secondary">Premium Member</p>
 
                             <nav class="nav">
-                                <a href="s"><i class="ri-edit-2-line"></i> Profile</a>
+                                <a href=""><i class="ri-edit-2-line"></i> Profile</a>
                             </nav>
                             <hr />
                             <nav class="nav">
-                                <a href="s"><i class="ri-logout-box-r-line"></i> Log Out</a>
+                                <a href=""><i class="ri-logout-box-r-line"></i> Log Out</a>
                             </nav>
                         </div>
                     </div>

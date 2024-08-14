@@ -1,8 +1,49 @@
-import React from 'react'
+import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Updated from useHistory to useNavigate
+import { toast } from 'react-toastify'; // Assuming you are using react-toastify for notifications
 
-import Bespoke_logo_svg from "../../Assets/assets/img/Bespoke_logo_svg 1.png"
+import Bespoke_logo_svg from "../../Assets/assets/img/Bespoke_logo_svg 1.png";
+import authWrapper from '../../utils/AuthWrapper';
 
 function Sidebar() {
+    const navigate = useNavigate(); // Updated from useHistory to useNavigate
+
+    const handleLogout = async (event) => {
+        event.preventDefault();
+
+        try {
+            const token = sessionStorage.getItem('token'); // Retrieve the token from session storage
+            console.log(token)
+            if (!token) {
+                toast.error('No token found. Unable to logout.');
+                return;
+            }
+
+            const response = await authWrapper('/auth/logout', {}, {
+                headers: {
+                    'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+                }
+            });
+
+            if (response.status === 200) {
+                // Clear session storage
+                sessionStorage.removeItem('auth');
+                sessionStorage.removeItem('token');
+
+                console.log("Logout successful", response.data);
+
+                // Redirect to login page
+                navigate('/auth/login');
+            } else {
+                toast.error('Logout failed. Please try again.');
+                console.error("Logout failed", response);
+            }
+        } catch (err) {
+            toast.error('An unexpected error occurred during logout.');
+            console.error("Logout error:", err);
+        }
+    };
+
     return (
         <>
             <div className="sidebar">
@@ -163,7 +204,7 @@ function Sidebar() {
                     </div>
                 </div>
                 <div className="dropdown dropdown-profile ms-3 ms-xl-4">
-                    <a href="s" className="dropdown-link" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                    <a href="#" className="dropdown-link" data-bs-toggle="dropdown" data-bs-auto-close="outside">
                         <div className="avatar online"><img src="../assets/img/user.png" alt="" /></div>
                     </a>
                     <div className="dropdown-menu dropdown-menu-end mt-10-f">
@@ -173,18 +214,18 @@ function Sidebar() {
                             <p className="fs-sm text-secondary">Premium Member</p>
 
                             <nav className="nav">
-                                <a href="s"><i className="ri-edit-2-line"></i> Profile</a>
+                                <a href="#"><i className="ri-edit-2-line"></i> Profile</a>
                             </nav>
                             <hr />
                             <nav className="nav">
-                                <a href="s"><i className="ri-logout-box-r-line"></i> Log Out</a>
+                                <a href="#" onClick={handleLogout}><i className="ri-logout-box-r-line"></i> Log Out</a>
                             </nav>
                         </div>
                     </div>
                 </div>
             </div>
         </>
-    )
+    );
 }
 
-export default Sidebar
+export default Sidebar;

@@ -8,6 +8,9 @@ import Login from './Pages/Login/Login';
 import Sidebar from './Components/Sidebar/Sidebar';
 import User from './Pages/User';
 import Role from './Pages/Role';
+import Profile from './Pages/Login/Profile';
+import ChangePassword from './Pages/Login/ChangePassword';
+import ForgotPassword from './Pages/Login/ForgotPassword';
 
 
 
@@ -23,6 +26,9 @@ function App() {
           <Route path="/sidebar" element={<Sidebar />} />
           <Route path="/users" element={<User />} />
           <Route path="/roles" element={<Role />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/forget-password" element={<ForgotPassword />} />
         </Routes>
       </Router>
       {/* <Login /> */}

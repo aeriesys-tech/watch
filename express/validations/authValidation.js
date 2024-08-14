@@ -44,8 +44,8 @@ const updateProfileValidation = (req, res, next) => {
       .withMessage("Address must be a string"),
     check("avatar")
       .optional()
-      .isString()
-      .withMessage("Avatar must be a string"),
+    // .isString()
+    // .withMessage("Avatar must be a string"),
   ])(req, res, next);
 };
 
@@ -53,12 +53,21 @@ const updateProfileValidation = (req, res, next) => {
 const updatePasswordValidation = (req, res, next) => {
   return Validate([
     check("oldPassword")
+      .notEmpty()
+      .withMessage("Old password is required")
+      .bail() // Stops running validations if the previous one failed
       .isLength({ min: 6 })
       .withMessage("Old password must be at least 6 characters long"),
     check("newPassword")
+      .notEmpty()
+      .withMessage("New password is required")
+      .bail() // Stops running validations if the previous one failed
       .isLength({ min: 6 })
       .withMessage("New password must be at least 6 characters long"),
     check("confirmPassword")
+      .notEmpty()
+      .withMessage("Confirm password is required")
+      .bail() // Stops running validations if the previous one failed
       .isLength({ min: 6 })
       .withMessage("Confirm password must be at least 6 characters long"),
   ])(req, res, next);
