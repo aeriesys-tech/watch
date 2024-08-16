@@ -12,17 +12,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Database connection and synchronization
-
-db.sequelize
-  .sync({ force: false })
-  .then(() => {
-    console.log("Database connected and synced without dropping tables");
-  })
-  .catch((err) => {
-    console.error("Unable to connect to the database:", err);
-    process.exit(1); // Exit the process with failure code if database connection fails
-  });
+// Static file serving 
+app.use("/",express.static(path.join(__dirname, "../frontend/build")));
 
 // Routes
 app.use("/api", routes);
