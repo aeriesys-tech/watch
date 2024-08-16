@@ -39,7 +39,7 @@ const updateUnit = async (req, res) => {
         await Unit.update({ unit }, { where: { unit_id } });
 
         // Fetch the updated unit
-        const updatedUnit = await Unit.findOne({ where: { unit_id } });
+        const updatedUnit = await Unit.findByPk(unit_id);
         return responseService.success(req, res, "Unit updated successfully", updatedUnit);
     } catch (error) {
         console.error("Error in updateUnit function:", error.message);
@@ -53,7 +53,7 @@ const deleteUnit = async (req, res) => {
         const { unit_id } = req.body;
 
         // Fetch the unit, including those marked as deleted (paranoid: false)
-        const unit = await Unit.findOne({ where: { unit_id }, paranoid: false });
+        const unit = await Unit.findByPk(unit_id, { paranoid: false });
         if (!unit) {
             return responseService.error(req, res, "Unit not found", {}, 404);
         }
@@ -81,7 +81,7 @@ const deleteUnit = async (req, res) => {
 const viewUnit = async (req, res) => {
     try {
         const { unit_id } = req.body;
-        const unit = await Unit.findOne({ where: { unit_id } });
+        const unit = await Unit.findByPk(unit_id);
         if (!unit) {
             return responseService.error(req, res, "Unit not found", {}, 404);
         }
@@ -125,7 +125,6 @@ const paginateUnits = async (req, res) => {
             ...(search && {
                 [Op.or]: [
                     { unit: { [Op.like]: `%${search}%` } },
-                    // Add any other fields you want to search by
                 ],
             }),
             ...(status && { status: status === "active" ? true : false }),

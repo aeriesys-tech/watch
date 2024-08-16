@@ -39,7 +39,7 @@ const updateRole = async (req, res) => {
     await Role.update({ role }, { where: { role_id } });
 
     // Fetch the updated role
-    const updatedRole = await Role.findOne({ where: { role_id } });
+    const updatedRole = await Role.findByPk(role_id);
     return responseService.success(req, res, "Role updated successfully", updatedRole);
   } catch (error) {
     console.error("Error in updateRole function:", error.message);
@@ -53,7 +53,7 @@ const deleteRole = async (req, res) => {
     const { role_id } = req.body;
 
     // Fetch the role, including those marked as deleted (paranoid: false)
-    const role = await Role.findOne({ where: { role_id }, paranoid: false });
+    const role = await Role.findByPk(role_id, { paranoid: false });
     if (!role) {
       return responseService.error(req, res, "Role not found", {}, 404);
     }
@@ -86,7 +86,7 @@ const deleteRole = async (req, res) => {
 const viewRole = async (req, res) => {
   try {
     const { role_id } = req.body;
-    const role = await Role.findOne({ where: { role_id } });
+    const role = await Role.findByPk(role_id);
     if (!role) {
       return responseService.error(req, res, "Role not found", {}, 404);
     }

@@ -93,8 +93,7 @@ const updateUser = async (req, res) => {
     }
 
     // Fetch the updated user
-    const updatedUser = await User.findOne({
-      where: { user_id },
+    const updatedUser = await User.findByPk(user_id, {
       attributes: { exclude: ["password"] }, // Exclude the password
     });
 
@@ -116,7 +115,7 @@ const deleteUser = async (req, res) => {
     const { user_id } = req.body;
 
     // Fetch the user, including those marked as deleted (paranoid: false)
-    const user = await User.findOne({ where: { user_id }, paranoid: false });
+    const user = await User.findByPk(user_id, { paranoid: false });
     if (!user) {
       return responseService.error(req, res, "User not found", {}, 404);
     }
@@ -149,8 +148,7 @@ const deleteUser = async (req, res) => {
 const viewUser = async (req, res) => {
   try {
     const { user_id } = req.body;
-    const user = await User.findOne({
-      where: { user_id },
+    const user = await User.findByPk(user_id, {
       attributes: { exclude: ["password"] },
     });
 
