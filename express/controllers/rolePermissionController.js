@@ -1,11 +1,11 @@
-const db = require("../models");
-const { sendResponse } = require("../services/responseService");
+const { RoleAbility } = require("../models");
+const responseService = require("../services/responseService");
 
 const togglePermissionForRole = async (req, res) => {
   const { roleId, abilityId } = req.body;
 
   try {
-    const roleAbility = await db.RoleAbility.findOne({
+    const roleAbility = await RoleAbility.findOne({
       where: {
         role_id: roleId,
         ability_id: abilityId,
@@ -15,19 +15,18 @@ const togglePermissionForRole = async (req, res) => {
     if (roleAbility) {
       // Permission exists, remove it
       await roleAbility.destroy();
-      sendResponse(res, 200, true, "Permission removed from role successfully");
+      return responseService.success(req, res, "Permission removed from role successfully", null, 200);
     } else {
       // Permission doesn't exist, assign it
-      const newRoleAbility = await db.RoleAbility.create({
+      const newRoleAbility = await RoleAbility.create({
         role_id: roleId,
         ability_id: abilityId,
       });
-      sendResponse(res, 201, true, "Permission assigned to role successfully", {
-        newRoleAbility,
-      });
+      return responseService.success(req, res, "Permission assigned to role successfully", newRoleAbility, 201);
     }
   } catch (error) {
-    sendResponse(res, 500, false, "Error managing permission for role");
+    console.error("Error managing permission for role:", error.message);
+    return responseService.error(req, res, "Error managing permission for role", {}, 500);
   }
 };
 

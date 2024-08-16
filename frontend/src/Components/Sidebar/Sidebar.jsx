@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Updated from useHistory to useNavigate
+import { Link, useNavigate } from 'react-router-dom'; // Updated from useHistory to useNavigate
 import { toast } from 'react-toastify'; // Assuming you are using react-toastify for notifications
 
 import Bespoke_logo_svg from "../../Assets/assets/img/Bespoke_logo_svg 1.png";
@@ -214,7 +214,7 @@ function Sidebar() {
                             <p className="fs-sm text-secondary">Premium Member</p>
 
                             <nav className="nav">
-                                <a href="#"><i className="ri-edit-2-line"></i> Profile</a>
+                                <Link to="/profile"><i className="ri-edit-2-line"></i> Profile</Link>
                             </nav>
                             <hr />
                             <nav className="nav">

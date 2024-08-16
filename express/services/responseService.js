@@ -1,117 +1,47 @@
-// // services/responseService.js
+const { ApiLog } = require("../models"); // Assuming your ApiLog model is properly set up and exported
 
-// const sendResponse = (
-//   res,
-//   statusCode,
-//   success,
-//   message,
-//   data = null,
-//   // count = null,
-//   errors = null
-// ) => {
-//   const response = {
-//     success,
-//     message,
-//   };
+const responseService = {
+  success: async (req, res, message, data = {}, statusCode = 200) => {
+    // Log the response to the ApiLogs table
+    await logApiResponse(req, message, statusCode, data);
 
-//   if (data !== null) response.data = data;
-//   //  if (count !== null) response.count = count;
+    // Send the success response to the client
+    return res.status(statusCode).json({
+      status: "success",
+      message,
+      data,
+    });
+  },
 
-//   if (errors !== null) response.errors = errors;
+  error: async (req, res, message, errors = {}, statusCode = 500) => {
+    // Log the error response to the ApiLogs table
+    await logApiResponse(req, message, statusCode, errors);
 
-//   res.status(statusCode).json(response);
-// };
+    // Send the error response to the client
+    return res.status(statusCode).json({
+      status: "error",
+      message,
+      errors,
+    });
+  },
+};
 
-// module.exports = {
-//   sendResponse,
-// };
-// services/responseService.js
+// Helper function to log the API response
+async function logApiResponse(req, message, status, responseData) {
+  const { method, originalUrl, ip } = req;
+  const user_id = req.user ? req.user.user_id : null; // Assumes req.user is set after authentication
+  const apiRequest = JSON.stringify(req.body || {});
 
-// const db = require("../models"); // Import your models
-
-// const sendResponse = async (
-//   res,
-//   statusCode,
-//   success,
-//   message,
-//   data = null,
-//   errors = null
-// ) => {
-//   const response = {
-//     success,
-//     message,
-//   };
-
-//   if (data !== null) response.data = data;
-//   if (errors !== null) response.errors = errors;
-
-//   // Get API log details
-//   const apiLog = {
-//     user_id: res.locals.user ? res.locals.user.id : null, // Assuming you store user info in res.locals
-//     api_name: res.req.originalUrl, // API endpoint
-//     api_request: JSON.stringify(res.req.body), // Request payload
-//     status: statusCode,
-//     ip_address: res.req.ip, // Client IP address
-//     message: message,
-//     response: JSON.stringify(response),
-//     timestamp: new Date(),
-//   };
-
-//   try {
-//     // Store the log in the database
-//     await db.ApiLog.create(apiLog);
-//   } catch (error) {
-//     console.error("Failed to log API request:", error);
-//   }
-
-//   res.status(statusCode).json(response);
-// };
-
-// module.exports = {
-//   sendResponse,
-// };
-// services/responseService.js
-
-const db = require("../models"); // Import your models
-
-const sendResponse = async (
-  res,
-  statusCode,
-  success,
-  message,
-  data = null,
-  errors = null
-) => {
-  const response = {
-    success,
+  await ApiLog.create({
+    user_id,
+    api_name: `${method} ${originalUrl}`,
+    api_request: apiRequest,
+    status,
+    ip_address: ip,
     message,
-  };
-
-  if (data !== null) response.data = data;
-  if (errors !== null) response.errors = errors;
-
-  // Get API log details
-  const apiLog = {
-    user_id: res.locals.user ? res.locals.user.id : null, // Retrieve user ID from res.locals
-    api_name: res.req.originalUrl, // API endpoint
-    api_request: JSON.stringify(res.req.body), // Request payload
-    status: statusCode,
-    ip_address: res.req.ip, // Client IP address
-    message: message,
-    response: JSON.stringify(response),
+    response: JSON.stringify(responseData),
     timestamp: new Date(),
-  };
+  });
+}
 
-  try {
-    // Store the log in the database
-    await db.ApiLog.create(apiLog);
-  } catch (error) {
-    console.error("Failed to log API request:", error);
-  }
-
-  res.status(statusCode).json(response);
-};
-
-module.exports = {
-  sendResponse,
-};
+module.exports = responseService;

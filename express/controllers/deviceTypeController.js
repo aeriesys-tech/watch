@@ -1,6 +1,6 @@
-const db = require("../models");
+const { DeviceType } = require("../models");
 const { Op } = require("sequelize");
-const { sendResponse } = require("../services/responseService");
+const responseService = require("../services/responseService");
 
 // Add a new device type
 const addDeviceType = async (req, res) => {
@@ -8,18 +8,18 @@ const addDeviceType = async (req, res) => {
         const { device_type } = req.body;
 
         // Check if the device type already exists in the database
-        const existingDeviceType = await db.DeviceType.findOne({ where: { device_type } });
+        const existingDeviceType = await DeviceType.findOne({ where: { device_type } });
         if (existingDeviceType) {
-            return sendResponse(res, 400, false, "Device type already exists", null, {
-                device_type: "Device type already exists",
-            });
+            const errors = { device_type: "Device type already exists" };
+            return responseService.error(req, res, "Validation Error", errors, 400);
         }
 
         // Create the new device type if it does not exist
-        const newDeviceType = await db.DeviceType.create({ device_type });
-        sendResponse(res, 200, true, "Device type created successfully", newDeviceType);
+        const newDeviceType = await DeviceType.create({ device_type });
+        return responseService.success(req, res, "Device type created successfully", newDeviceType, 201);
     } catch (error) {
-        sendResponse(res, 500, false, error.message);
+        console.error("Error in addDeviceType function:", error.message);
+        return responseService.error(req, res, "Internal server error", null, 500);
     }
 };
 
@@ -29,37 +29,35 @@ const updateDeviceType = async (req, res) => {
         const { device_type_id, device_type } = req.body;
 
         // Check if the new device type name already exists in the database
-        const existingDeviceType = await db.DeviceType.findOne({ where: { device_type } });
+        const existingDeviceType = await DeviceType.findOne({ where: { device_type } });
         if (existingDeviceType && existingDeviceType.device_type_id !== device_type_id) {
-            return sendResponse(res, 400, false, "Device type already exists", null, {
-                device_type: "Device type already exists",
-            });
+            const errors = { device_type: "Device type already exists" };
+            return responseService.error(req, res, "Validation Error", errors, 400);
         }
 
         // Update the device type
-        await db.DeviceType.update({ device_type }, { where: { device_type_id } });
+        await DeviceType.update({ device_type }, { where: { device_type_id } });
 
         // Fetch the updated device type
-        const updatedDeviceType = await db.DeviceType.findOne({ where: { device_type_id } });
-
-        sendResponse(res, 200, true, "Device type updated successfully", updatedDeviceType);
+        const updatedDeviceType = await DeviceType.findOne({ where: { device_type_id } });
+        return responseService.success(req, res, "Device type updated successfully", updatedDeviceType);
     } catch (error) {
-        sendResponse(res, 500, false, error.message);
+        console.error("Error in updateDeviceType function:", error.message);
+        return responseService.error(req, res, "Internal server error", null, 500);
     }
 };
 
-// Delete a device type
+// Delete or restore a device type
 const deleteDeviceType = async (req, res) => {
     try {
         const { device_type_id } = req.body;
 
         // Fetch the device type, including those marked as deleted (paranoid: false)
-        const deviceType = await db.DeviceType.findOne({ where: { device_type_id }, paranoid: false });
+        const deviceType = await DeviceType.findOne({ where: { device_type_id }, paranoid: false });
         if (!deviceType) {
-            return sendResponse(res, 404, false, "Device type not found");
+            return responseService.error(req, res, "Device type not found", {}, 404);
         }
 
-        // Log the current state of the device type
         console.log(`Current state of device type ${device_type_id}:`, deviceType.toJSON());
 
         if (deviceType.deleted_at) {
@@ -68,18 +66,18 @@ const deleteDeviceType = async (req, res) => {
             deviceType.status = true; // Update status after restoring
             await deviceType.save(); // Save the changes
             console.log(`Restored device type with ID ${device_type_id}`);
-            return sendResponse(res, 200, true, "Device type restored successfully");
+            return responseService.success(req, res, "Device type restored successfully");
         } else {
             // Soft delete the device type
             deviceType.status = false; // Update status before deleting
             await deviceType.save(); // Save the status change
             await deviceType.destroy(); // Soft delete the record
             console.log(`Soft deleted device type with ID ${device_type_id}`);
-            return sendResponse(res, 200, true, "Device type soft deleted successfully");
+            return responseService.success(req, res, "Device type soft deleted successfully");
         }
     } catch (error) {
-        console.error("Error in deleteDeviceType function:", error);
-        return sendResponse(res, 500, false, error.message);
+        console.error("Error in deleteDeviceType function:", error.message);
+        return responseService.error(req, res, "Internal server error", null, 500);
     }
 };
 
@@ -87,21 +85,26 @@ const deleteDeviceType = async (req, res) => {
 const viewDeviceType = async (req, res) => {
     try {
         const { device_type_id } = req.body;
-        const deviceType = await db.DeviceType.findOne({ where: { device_type_id } });
-        res.json(deviceType);
+        const deviceType = await DeviceType.findOne({ where: { device_type_id } });
+        if (!deviceType) {
+            return responseService.error(req, res, "Device type not found", {}, 404);
+        }
+
+        return responseService.success(req, res, "Device type retrieved successfully", deviceType);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error in viewDeviceType function:", error.message);
+        return responseService.error(req, res, "Internal server error", null, 500);
     }
 };
 
 // Get all device types
 const getDeviceTypes = async (req, res) => {
     try {
-        const deviceTypes = await db.DeviceType.findAll({ paranoid: false });
-        return sendResponse(res, 200, true, "Device types retrieved successfully", deviceTypes);
+        const deviceTypes = await DeviceType.findAll({ paranoid: false });
+        return responseService.success(req, res, "Device types retrieved successfully", deviceTypes);
     } catch (error) {
-        console.error("Error in getDeviceTypes function:", error);
-        return sendResponse(res, 500, false, error.message);
+        console.error("Error in getDeviceTypes function:", error.message);
+        return responseService.error(req, res, "Internal server error", null, 500);
     }
 };
 
@@ -125,15 +128,12 @@ const paginateDeviceTypes = async (req, res) => {
         // Implement search and status filter
         const where = {
             ...(search && {
-                [Op.or]: [
-                    { device_type: { [Op.like]: `%${search}%` } },
-                    // Add any other fields you want to search by
-                ],
+                [Op.or]: [{ device_type: { [Op.like]: `%${search}%` } }],
             }),
             ...(status && { status: status === "active" ? true : false }),
         };
 
-        const deviceTypes = await db.DeviceType.findAndCountAll({
+        const deviceTypes = await DeviceType.findAndCountAll({
             where,
             limit: parseInt(limit, 10),
             offset: parseInt(offset, 10),
@@ -148,9 +148,10 @@ const paginateDeviceTypes = async (req, res) => {
             totalItems: deviceTypes.count,
         };
 
-        sendResponse(res, 200, true, "Device types fetched successfully", responseData);
+        return responseService.success(req, res, "Device types fetched successfully", responseData);
     } catch (error) {
-        sendResponse(res, 500, false, error.message);
+        console.error("Error in paginateDeviceTypes function:", error.message);
+        return responseService.error(req, res, "Internal server error", null, 500);
     }
 };
 

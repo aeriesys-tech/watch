@@ -3,6 +3,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from '../../Components/Sidebar/Sidebar';
 import authWrapper from '../../utils/AuthWrapper';
+import avatar from '../../Assets/assets/img/user.png'
 
 function Profile() {
     // State management for password update
@@ -149,7 +150,7 @@ function Profile() {
                                     </div>
                                     <div className="card-body">
                                         <div className="text-center">
-                                            <img height="100" alt="user image" src={avatar ? `${process.env.REACT_APP_BASE_API_URL1}/${avatar}` : "../assets/img/user.png"} />
+                                            <img height="100" alt="user" src={avatar ? `${process.env.REACT_APP_BASE_API_URL1}/${avatar}` : "../assets/img/user.png"} />
                                         </div>
                                         <div className="form-group">
                                             <label className="form-label" htmlFor="customFile">Choose file</label>

@@ -1,6 +1,6 @@
-const db = require("../models");
+const { Role } = require("../models");
 const { Op } = require("sequelize");
-const { sendResponse } = require("../services/responseService");
+const responseService = require("../services/responseService");
 
 // Add a new role
 const addRole = async (req, res) => {
@@ -8,18 +8,18 @@ const addRole = async (req, res) => {
     const { role } = req.body;
 
     // Check if the role already exists in the database
-    const existingRole = await db.Role.findOne({ where: { role } });
+    const existingRole = await Role.findOne({ where: { role } });
     if (existingRole) {
-      return sendResponse(res, 400, false, "Role already exists", null, {
-        role: "Role already exists",
-      });
+      const errors = { role: "Role already exists" };
+      return responseService.error(req, res, "Validation Error", errors, 400);
     }
 
     // Create the new role if it does not exist
-    const newRole = await db.Role.create({ role });
-    sendResponse(res, 200, true, "Role created successfully", newRole);
+    const newRole = await Role.create({ role });
+    return responseService.success(req, res, "Role created successfully", newRole, 201);
   } catch (error) {
-    sendResponse(res, 500, false, error.message);
+    console.error("Error in addRole function:", error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
@@ -29,35 +29,33 @@ const updateRole = async (req, res) => {
     const { role_id, role } = req.body;
 
     // Check if the new role name already exists in the database
-    const existingRole = await db.Role.findOne({ where: { role } });
+    const existingRole = await Role.findOne({ where: { role } });
     if (existingRole && existingRole.role_id !== role_id) {
-      return sendResponse(res, 400, false, "Role already exists", null, {
-        role: "Role already exists",
-      });
+      const errors = { role: "Role already exists" };
+      return responseService.error(req, res, "Validation Error", errors, 400);
     }
 
     // Update the role
-    await db.Role.update({ role }, { where: { role_id } });
+    await Role.update({ role }, { where: { role_id } });
 
     // Fetch the updated role
-    const updatedRole = await db.Role.findOne({ where: { role_id } });
-
-    sendResponse(res, 200, true, "Role updated successfully", updatedRole);
+    const updatedRole = await Role.findOne({ where: { role_id } });
+    return responseService.success(req, res, "Role updated successfully", updatedRole);
   } catch (error) {
-    sendResponse(res, 500, false, error.message);
+    console.error("Error in updateRole function:", error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
-// Delete a role
-
+// Delete or restore a role
 const deleteRole = async (req, res) => {
   try {
     const { role_id } = req.body;
 
     // Fetch the role, including those marked as deleted (paranoid: false)
-    const role = await db.Role.findOne({ where: { role_id }, paranoid: false });
+    const role = await Role.findOne({ where: { role_id }, paranoid: false });
     if (!role) {
-      return sendResponse(res, 404, false, "Role not found");
+      return responseService.error(req, res, "Role not found", {}, 404);
     }
 
     // Log the current state of the role
@@ -69,18 +67,18 @@ const deleteRole = async (req, res) => {
       role.status = true; // Update status after restoring
       await role.save(); // Save the changes
       console.log(`Restored role with ID ${role_id}`);
-      return sendResponse(res, 200, true, "Role restored successfully");
+      return responseService.success(req, res, "Role restored successfully");
     } else {
       // Soft delete the role
       role.status = false; // Update status before deleting
       await role.save(); // Save the status change
       await role.destroy(); // Soft delete the record
       console.log(`Soft deleted role with ID ${role_id}`);
-      return sendResponse(res, 200, true, "Role soft deleted successfully");
+      return responseService.success(req, res, "Role soft deleted successfully");
     }
   } catch (error) {
-    console.error("Error in deleteRole function:", error);
-    return sendResponse(res, 500, false, error.message);
+    console.error("Error in deleteRole function:", error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
@@ -88,24 +86,30 @@ const deleteRole = async (req, res) => {
 const viewRole = async (req, res) => {
   try {
     const { role_id } = req.body;
-    const role = await db.Role.findOne({ where: { role_id } });
-    res.json(role);
+    const role = await Role.findOne({ where: { role_id } });
+    if (!role) {
+      return responseService.error(req, res, "Role not found", {}, 404);
+    }
+
+    return responseService.success(req, res, "Role retrieved successfully", role);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error in viewRole function:", error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
 // Get all roles
 const getRoles = async (req, res) => {
   try {
-    const roles = await db.Role.findAll({ paranoid: false });
-    return sendResponse(res, 200, true, "Roles retrieved successfully", roles);
+    const roles = await Role.findAll({ paranoid: false });
+    return responseService.success(req, res, "Roles retrieved successfully", roles);
   } catch (error) {
-    console.error("Error in getRoles function:", error);
-    return sendResponse(res, 500, false, error.message);
+    console.error("Error in getRoles function:", error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
+// Paginate roles
 const paginateRoles = async (req, res) => {
   try {
     const {
@@ -125,15 +129,12 @@ const paginateRoles = async (req, res) => {
     // Implement search and status filter
     const where = {
       ...(search && {
-        [Op.or]: [
-          { role: { [Op.like]: `%${search}%` } },
-          // Add any other fields you want to search by
-        ],
+        [Op.or]: [{ role: { [Op.like]: `%${search}%` } }],
       }),
       ...(status && { status: status === "active" ? true : false }),
     };
 
-    const roles = await db.Role.findAndCountAll({
+    const roles = await Role.findAndCountAll({
       where,
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
@@ -148,9 +149,10 @@ const paginateRoles = async (req, res) => {
       totalItems: roles.count,
     };
 
-    sendResponse(res, 200, true, "Roles fetched successfully", responseData);
+    return responseService.success(req, res, "Roles fetched successfully", responseData);
   } catch (error) {
-    sendResponse(res, 500, false, error.message);
+    console.error("Error in paginateRoles function:", error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 

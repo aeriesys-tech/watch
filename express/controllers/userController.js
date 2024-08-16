@@ -1,18 +1,15 @@
-const db = require("../models");
+const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
-const { sendResponse } = require("../services/responseService");
-const database = require("../config/database");
+const responseService = require("../services/responseService");
 
 // Add a new user
-
 const addUser = async (req, res) => {
   try {
-    const { name, email, username, password, mobile_no, role_id, address } =
-      req.body;
+    const { name, email, username, password, mobile_no, role_id, address } = req.body;
 
     // Check if the email, username, or mobile number already exists in the database
-    const existingUser = await db.User.findOne({
+    const existingUser = await User.findOne({
       where: {
         [Op.or]: [{ email }, { username }, { mobile_no }],
       },
@@ -29,21 +26,14 @@ const addUser = async (req, res) => {
       if (existingUser.mobile_no === mobile_no) {
         errors.mobile_no = "User with the same mobile number already exists";
       }
-      return sendResponse(
-        res,
-        400,
-        false,
-        "Validation Error",
-        null,
-        errors
-      );
+      return responseService.error(req, res, "Validation Error", errors, 400);
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the new user
-    const newUser = await db.User.create({
+    const newUser = await User.create({
       name,
       email,
       username,
@@ -53,103 +43,22 @@ const addUser = async (req, res) => {
       address,
     });
 
-    return sendResponse(res, 201, true, "User created successfully", newUser);
+    return responseService.success(req, res, "User created successfully", newUser, 201);
   } catch (error) {
-    console.error("Error in addUser function:", error);
-    return sendResponse(res, 500, false, error.message);
+    console.error("Error in addUser function:", error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
-// // Update a user
-
-// const updateUser = async (req, res) => {
-//   try {
-//     const { user_id, name, email, username, mobile_no, role_id, address } =
-//       req.body;
-
-//     console.log(req.body); // Log the request body
-
-//     // Check if the email, username, or mobile number already exists in the database and belongs to a different user
-//     const existingUser = await db.User.findOne({
-//       where: {
-//         [Op.or]: [{ email }, { username }, { mobile_no }],
-//         user_id: { [Op.ne]: user_id }, // Exclude the current user from the check
-//       },
-//     });
-
-//     if (existingUser) {
-//       const errors = {};
-//       if (existingUser.email === email) {
-//         errors.email = "User with the same email already exists";
-//       }
-//       if (existingUser.username === username) {
-//         errors.username = "User with the same username already exists";
-//       }
-//       if (existingUser.mobile_no === mobile_no) {
-//         errors.mobile_no = "User with the same mobile number already exists";
-//       }
-//       return sendResponse(res, 400, false, "Validation Error", null, errors);
-//     }
-
-//     // Perform the update
-//     const [rowsUpdated] = await db.User.update(
-//       { name, email, username, mobile_no, role_id, address },
-//       { where: { user_id } }
-//     );
-
-//     console.log(`Rows updated: ${rowsUpdated}`); // Log the result of the update
-
-//     if (rowsUpdated === 0) {
-//       // If no rows were updated, send a 404 response
-//       return sendResponse(res, 404, false, "User not found", null, errors);
-//     }
-
-//     // Fetch the updated user
-//     const updatedUser = await db.User.findOne({
-//       where: { user_id },
-//       attributes: { exclude: ["password"] }, // Exclude the password
-//     });
-
-//     if (!updatedUser) {
-//       // If the user was not found after update, send a 404 response
-//       return sendResponse(
-//         res,
-//         404,
-//         false,
-//         "User not found",
-//         null,
-
-//         errors
-//       );
-//     }
-
-//     // Send the updated user object
-//     return sendResponse(
-//       res,
-//       200,
-//       true,
-//       "User updated successfully",
-//       updatedUser,
-
-//       errors
-//     );
-//   } catch (error) {
-//     console.error("Error in updateUser function:", error.message); // Log the error message
-//     return sendResponse(res, 500, false, error.message);
-//   }
-// };
-
-// Delete a user
-
+// Update a user
 const updateUser = async (req, res) => {
   try {
-    const { user_id, name, email, username, mobile_no, role_id, address } =
-      req.body;
+    const { user_id, name, email, username, mobile_no, role_id, address } = req.body;
 
     console.log(req.body); // Log the request body
 
     // Check if the email, username, or mobile number already exists in the database and belongs to a different user
-    const existingUser = await db.User.findOne({
+    const existingUser = await User.findOne({
       where: {
         [Op.or]: [{ email }, { username }, { mobile_no }],
         user_id: { [Op.ne]: user_id }, // Exclude the current user from the check
@@ -167,11 +76,11 @@ const updateUser = async (req, res) => {
       if (existingUser.mobile_no === mobile_no) {
         errors.mobile_no = "User with the same mobile number already exists";
       }
-      return sendResponse(res, 400, false, "Validation Error", null, errors);
+      return responseService.error(req, res, "Validation Error", errors, 400);
     }
 
     // Perform the update
-    const [rowsUpdated] = await db.User.update(
+    const [rowsUpdated] = await User.update(
       { name, email, username, mobile_no, role_id, address },
       { where: { user_id } }
     );
@@ -179,45 +88,37 @@ const updateUser = async (req, res) => {
     console.log(`Rows updated: ${rowsUpdated}`); // Log the result of the update
 
     if (rowsUpdated === 0) {
-      // Initialize the errors object
       const errors = { user: "User not found" };
-      return sendResponse(res, 404, false, "User not found", null, errors);
+      return responseService.error(req, res, "User not found", errors, 404);
     }
 
     // Fetch the updated user
-    const updatedUser = await db.User.findOne({
+    const updatedUser = await User.findOne({
       where: { user_id },
       attributes: { exclude: ["password"] }, // Exclude the password
     });
 
     if (!updatedUser) {
-      // Initialize the errors object
       const errors = { user: "User not found after update" };
-      return sendResponse(res, 404, false, "User not found", null, errors);
+      return responseService.error(req, res, "User not found", errors, 404);
     }
 
-    // Send the updated user object
-    return sendResponse(
-      res,
-      200,
-      true,
-      "User updated successfully",
-      updatedUser
-    );
+    return responseService.success(req, res, "User updated successfully", updatedUser);
   } catch (error) {
-    console.error("Error in updateUser function:", error.message); // Log the error message
-    return sendResponse(res, 500, false, error.message);
+    console.error("Error in updateUser function:", error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
+// Delete or restore a user
 const deleteUser = async (req, res) => {
   try {
     const { user_id } = req.body;
 
     // Fetch the user, including those marked as deleted (paranoid: false)
-    const user = await db.User.findOne({ where: { user_id }, paranoid: false });
+    const user = await User.findOne({ where: { user_id }, paranoid: false });
     if (!user) {
-      return sendResponse(res, 404, false, "User not found");
+      return responseService.error(req, res, "User not found", {}, 404);
     }
 
     // Log the current state of the user
@@ -229,18 +130,18 @@ const deleteUser = async (req, res) => {
       user.status = true; // Update status after restoring
       await user.save(); // Save the changes
       console.log(`Restored user with ID ${user_id}`);
-      return sendResponse(res, 200, true, "User restored successfully");
+      return responseService.success(req, res, "User restored successfully");
     } else {
       // Soft delete the user
       user.status = false; // Update status before deleting
       await user.save(); // Save the status change
       await user.destroy(); // Soft delete the record
       console.log(`Soft deleted user with ID ${user_id}`);
-      return sendResponse(res, 200, true, "User soft deleted successfully");
+      return responseService.success(req, res, "User soft deleted successfully");
     }
   } catch (error) {
     console.error("Error in deleteUser function:", error.message);
-    return sendResponse(res, 500, false, error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
@@ -248,33 +149,33 @@ const deleteUser = async (req, res) => {
 const viewUser = async (req, res) => {
   try {
     const { user_id } = req.body;
-    const user = await db.User.findOne({
+    const user = await User.findOne({
       where: { user_id },
       attributes: { exclude: ["password"] },
     });
 
     if (!user) {
-      return sendResponse(res, 404, false, "User not found");
+      return responseService.error(req, res, "User not found", {}, 404);
     }
 
-    return sendResponse(res, 200, true, "User retrieved successfully", user);
+    return responseService.success(req, res, "User retrieved successfully", user);
   } catch (error) {
     console.error("Error in viewUser function:", error.message);
-    return sendResponse(res, 500, false, error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
 // Get all users
 const getUsers = async (req, res) => {
   try {
-    const users = await db.User.findAll({
+    const users = await User.findAll({
       attributes: { exclude: ["password"] },
     });
 
-    return sendResponse(res, 200, true, "Users retrieved successfully", users);
+    return responseService.success(req, res, "Users retrieved successfully", users);
   } catch (error) {
     console.error("Error in getUsers function:", error.message);
-    return sendResponse(res, 500, false, error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
@@ -308,7 +209,7 @@ const paginateUsers = async (req, res) => {
       ...(status && { status: status === "active" ? true : false }),
     };
 
-    const users = await db.User.findAndCountAll({
+    const users = await User.findAndCountAll({
       where,
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
@@ -316,6 +217,7 @@ const paginateUsers = async (req, res) => {
       attributes: { exclude: ["password"] },
       paranoid: false,
     });
+
     const responseData = {
       data: users.rows,
       totalPages: Math.ceil(users.count / limit),
@@ -323,16 +225,10 @@ const paginateUsers = async (req, res) => {
       totalItems: users.count,
     };
 
-    return sendResponse(
-      res,
-      200,
-      true,
-      "Users retrieved successfully",
-      responseData
-    );
+    return responseService.success(req, res, "Users retrieved successfully", responseData);
   } catch (error) {
     console.error("Error in paginateUsers function:", error.message);
-    return sendResponse(res, 500, false, error.message);
+    return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
