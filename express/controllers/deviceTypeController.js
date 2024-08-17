@@ -39,7 +39,7 @@ const updateDeviceType = async (req, res) => {
         await DeviceType.update({ device_type }, { where: { device_type_id } });
 
         // Fetch the updated device type
-        const updatedDeviceType = await DeviceType.findOne({ where: { device_type_id } });
+        const updatedDeviceType = await DeviceType.findByPk(device_type_id);
         return responseService.success(req, res, "Device type updated successfully", updatedDeviceType);
     } catch (error) {
         console.error("Error in updateDeviceType function:", error.message);
@@ -53,7 +53,7 @@ const deleteDeviceType = async (req, res) => {
         const { device_type_id } = req.body;
 
         // Fetch the device type, including those marked as deleted (paranoid: false)
-        const deviceType = await DeviceType.findOne({ where: { device_type_id }, paranoid: false });
+        const deviceType = await DeviceType.findByPk(device_type_id, { paranoid: false });
         if (!deviceType) {
             return responseService.error(req, res, "Device type not found", {}, 404);
         }
@@ -85,7 +85,7 @@ const deleteDeviceType = async (req, res) => {
 const viewDeviceType = async (req, res) => {
     try {
         const { device_type_id } = req.body;
-        const deviceType = await DeviceType.findOne({ where: { device_type_id } });
+        const deviceType = await DeviceType.findByPk(device_type_id);
         if (!deviceType) {
             return responseService.error(req, res, "Device type not found", {}, 404);
         }

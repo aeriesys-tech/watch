@@ -19,11 +19,11 @@ const login = async (req, res) => {
           include: [
             {
               model: RoleAbility,
-              as: "roleAbilities", // Use the alias defined in the Role model
+              as: "roleAbilities",
               include: [
                 {
                   model: Ability,
-                  as: "ability", // Use the alias defined in the Ability model if needed
+                  as: "ability",
                 },
               ],
             },
@@ -84,7 +84,7 @@ const login = async (req, res) => {
       created_at: user.created_at,
       updated_at: user.updated_at,
       deleted_at: user.deleted_at,
-      abilities, // Add abilities directly here
+      abilities,
     };
 
     // Respond with token and user object
@@ -100,16 +100,16 @@ const login = async (req, res) => {
 
 // Update Profile function
 const updateProfile = async (req, res) => {
-  const userId = req.user.id; // Extract user ID from the authenticated user object
+  const userId = req.user.id;
   const { name, username, mobile_no, address } = req.body;
-  const avatar = req.file ? req.file.filename : null; // Get the uploaded file name if present
+  const avatar = req.file ? req.file.filename : null;
 
   try {
     // Check if the username or mobile number already exists in the database and belongs to a different user
     const existingUser = await User.findOne({
       where: {
         [Op.or]: [{ username }, { mobile_no }],
-        user_id: { [Op.ne]: userId }, // Exclude the current user from the check
+        user_id: { [Op.ne]: userId },
       },
     });
 
@@ -127,7 +127,7 @@ const updateProfile = async (req, res) => {
     // Update user details in the database
     const updateData = { name, username, mobile_no, address };
     if (avatar) {
-      updateData.avatar = avatar; // Add avatar to the update data if a file was uploaded
+      updateData.avatar = avatar;
     }
 
     await User.update(updateData, { where: { user_id: userId } });
@@ -141,7 +141,7 @@ const updateProfile = async (req, res) => {
 
     return responseService.success(req, res, "Profile updated successfully", user);
   } catch (error) {
-    console.error("Error in updateProfile function:", error.message); // Log the error message
+    console.error("Error in updateProfile function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
@@ -156,10 +156,9 @@ const transporter = nodemailer.createTransport({
 });
 
 const updatePassword = async (req, res) => {
-  const userId = req.user.id; // Extract user ID from the authenticated user object
+  const userId = req.user.id;
   const { oldPassword, newPassword, confirmPassword } = req.body;
 
-  // Validate the new password and confirm password
   if (newPassword !== confirmPassword) {
     return responseService.error(req, res, "New password and confirm password do not match", {}, 400);
   }
