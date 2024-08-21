@@ -4,8 +4,10 @@ import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "../../Components/Sidebar/Sidebar";
 import authWrapper from "../../utils/AuthWrapper";
 import avatar from "../../Assets/assets/img/user.png";
-
+import { updateUser } from "../../redux/user/UserSlice";
+import { useDispatch } from "react-redux";
 function Profile() {
+  const dispatch = useDispatch();
   // State management for password update
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -36,6 +38,7 @@ function Profile() {
         setMobileNo(data.mobile_no);
         setAddress(data.address);
         setAvatar(data.avatar);
+        return data;
       } else {
         toast.error("Failed to load user profile data");
       }
@@ -116,7 +119,21 @@ function Profile() {
       if (response.status === 200) {
         toast.success("Profile updated successfully");
         setAvatarFile(null);
-        fetchUserData();
+        const updatedUserData = await fetchUserData(); // This function should return the updated user data
+        // fetchUserData();
+        console.log("update", updatedUserData);
+
+        console.log("name>>>>>>>>>>>>", updatedUserData.name);
+        dispatch(
+          updateUser({
+            name: updatedUserData.name,
+            username: updatedUserData.username,
+            mobile_no: updatedUserData.mobile_no,
+            address: updatedUserData.address,
+            avatar: updatedUserData.avatar, // Use the updated avatar URL from the server
+          })
+        );
+
         // Refresh user data
       } else {
         toast.error(response.data.message || "Profile update failed");
