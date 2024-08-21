@@ -42,6 +42,7 @@ function Login() {
       // Navigate to the users page after login
       navigate("/users");
 
+<<<<<<< HEAD
       // Display a success toast message
       toast.success("Login successful!");
     } catch (err) {
@@ -94,6 +95,97 @@ function Login() {
                           alt="Third slide"
                         />
                       </div>
+=======
+    return (
+        <>
+            <ToastContainer position="top-right" autoClose={4000} theme="colored" />
+            <div className="page-sign">
+                <div className="container justify-content-center">
+                    <div className="row gx-0">
+                        <div className="col-8 col-lg-6 mb-5 mb-lg-0">
+                            <div className="card card-one card-sign bg-blue ml-auto">
+                                <div className="card-body">
+                                    <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            <div class="carousel-item active" data-bs-interval="10000">
+                                                <img src={frame1} class="d-block w-90 p-20 mt-4" alt="..." />
+                                                <div class="carousel-caption d-none d-md-block text-white">
+                                                    <h5>First slide label</h5>
+                                                    <p>Some representative placeholder content for the first slide.</p>
+                                                </div>
+                                            </div>
+                                            <div class="carousel-item" data-bs-interval="2000">
+                                                <img src={frame2} class="d-block w-90 p-20 mt-4" alt="..." />
+                                                <div class="carousel-caption d-none d-md-block text-white">
+                                                    <h5>Second slide label</h5>
+                                                    <p>Some representative placeholder content for the second slide.</p>
+                                                </div>
+                                            </div>
+                                            <div class="carousel-item">
+                                                <img src={frame3} class="d-block w-90 p-20 mt-4" alt="..." />
+                                                <div class="carousel-caption d-none d-md-block text-white">
+                                                    <h5>Third slide label</h5>
+                                                    <p>Some representative placeholder content for the third slide.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="carousel-indicators mb-0">
+                                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0"
+                                                class="active" aria-current="true" aria-label="Slide 1"></button>
+                                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1"
+                                                aria-label="Slide 2"></button>
+                                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2"
+                                                aria-label="Slide 3"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-lg-5 d-flex flex-column align-items-center">
+                            <div className="card card-one radius-form card-sign mr-auto">
+                                <div className="card-header text-center d-block pt-0">
+                                    <img className="text-center" src={talws} width="200px" alt="Logo" />
+                                    <a href="../" className="header-logo mb-4">Hello Admin!</a>
+                                    <p className="card-text">Please enter your email to login into your account.</p>
+                                </div>
+                                <div className="card-body">
+                                    <form onSubmit={handleLogin} className="needs-validation" noValidate autoComplete='on'>
+                                        <div className="mb-4">
+                                            <input
+                                                type="email"
+                                                className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                                                placeholder="Enter your email address"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                            />
+                                            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                                        </div>
+
+                                        <div className="mb-4">
+                                            <input
+                                                type="password"
+                                                className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                                                placeholder="Enter your password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                            />
+                                            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                                        </div>
+                                        <label class="form-label float-end">
+                                            <Link to="/forget-password">Forgot password?</Link>
+                                        </label>
+                                        <button type="submit" className="btn btn-primary btn-sign">Login</button>
+                                    </form>
+                                </div>
+                                <div className="card-footer">
+                                    <div className="d-flex justify-content-space-between">
+                                        <small>All rights reserved</small>
+                                        <small>Terms of use | Privacy Policy</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+>>>>>>> e3284503cdabfc159dca98cfde5fd311632ff83a
                     </div>
                     <div className="carousel-indicators mb-0">
                       <button

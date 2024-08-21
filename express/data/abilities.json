@@ -42,48 +42,6 @@
         ]
     },
     {
-        "module": "Languages",
-        "abilities": [
-            {
-                "ability": "languages.view",
-                "description": "View Languages"
-            },
-            {
-                "ability": "languages.create",
-                "description": "Create Languages"
-            },
-            {
-                "ability": "languages.update",
-                "description": "Edit Languages"
-            },
-            {
-                "ability": "languages.delete",
-                "description": "Delete Languages"
-            }
-        ]
-    },
-    {
-        "module": "Keywords",
-        "abilities": [
-            {
-                "ability": "keywords.view",
-                "description": "View Keywords"
-            },
-            {
-                "ability": "keywords.create",
-                "description": "Create Keywords"
-            },
-            {
-                "ability": "keywords.update",
-                "description": "Edit Keywords"
-            },
-            {
-                "ability": "keywords.delete",
-                "description": "Delete Keywords"
-            }
-        ]
-    },
-    {
         "module": "Abilities",
         "abilities": [
             {
