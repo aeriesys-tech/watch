@@ -16,9 +16,9 @@ const {
 // Routes for roles
 router.post(
   "/addRole",
-  // authMiddleware,
-  // checkPermission("roles.create"), // Check for create role permission
-  // addRoleValidation,
+  authMiddleware,
+  checkPermission("roles.create"), // Check for create role permission
+  addRoleValidation,
   roleController.addRole
 );
 

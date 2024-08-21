@@ -366,7 +366,7 @@ function User() {
                                         {errors.role_id && <div className="invalid-feedback">{errors.role_id}</div>}
                                     </div>
                                     <div className="col-md-12">
-                                        <label className="form-label">Address <span className="text-danger">*</span></label>
+                                        <label className="form-label">Address</label>
                                         <textarea rows="2" className={`form-control ${errors.address ? "is-invalid" : ""}`} name="address" value={newUser.address} onChange={handleInputChange} placeholder="Enter your address"></textarea>
                                         {errors.address && <div className="invalid-feedback">{errors.address}</div>}
                                     </div>

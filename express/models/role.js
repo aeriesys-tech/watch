@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
+      group: { // New field
+        type: DataTypes.STRING(100),
+        allowNull: false, // Adjust according to your requirement
+      },
       status: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
