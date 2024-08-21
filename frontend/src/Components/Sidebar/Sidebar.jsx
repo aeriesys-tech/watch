@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Updated from useHistory to useNavigate
 import { toast } from "react-toastify"; // Assuming you are using react-toastify for notifications
-
+import { useDispatch } from "react-redux";
+import { clearUser } from "../../redux/user/UserSlice";
 import Bespoke_logo_svg from "../../Assets/assets/img/Bespoke_logo_svg 1.png";
 import authWrapper from "../../utils/AuthWrapper";
-
+import { useSelector } from "react-redux";
 function Sidebar() {
+  const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -13,28 +16,43 @@ function Sidebar() {
   const [address, setAddress] = useState("");
   const [avatar, setAvatar] = useState(null);
   const navigate = useNavigate(); // Updated from useHistory to useNavigate
-  const fetchUserData = async () => {
-    try {
-      const response = await authWrapper("/auth/me", {}, true);
-      if (response.status === 200) {
-        const data = response.data.data;
-        setName(data.name);
-        setEmail(data.email);
-        setUsername(data.username);
-        setMobileNo(data.mobile_no);
-        setAddress(data.address);
-        setAvatar(data.avatar);
-      } else {
-        toast.error("Failed to load user profile data");
-      }
-    } catch (err) {
-      toast.error("An error occurred while fetching user data");
-    } finally {
+  // const fetchUserData = async () => {
+  //   try {
+  //     const response = await authWrapper("/auth/me", {}, true);
+  //     if (response.status === 200) {
+  //       const data = response.data.data;
+  //       setName(data.name);
+  //       setEmail(data.email);
+  //       setUsername(data.username);
+  //       setMobileNo(data.mobile_no);
+  //       setAddress(data.address);
+  //       setAvatar(data.avatar);
+  //     } else {
+  //       toast.error("Failed to load user profile data");
+  //     }
+  //   } catch (err) {
+  //     toast.error("An error occurred while fetching user data");
+  //   } finally {
+  //   }
+  // };
+
+  const fetchUserData = () => {
+    if (user) {
+      console.log(">>>>>>>>>>>>>>>", user.name);
+      setName(user.name);
+      setEmail(user.email);
+      setUsername(user.username);
+      setMobileNo(user.mobile_no);
+      setAddress(user.address);
+      setAvatar(user.avatar);
+    } else {
+      toast.error("User data not found in Redux store");
     }
   };
+
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [user]);
   const handleLogout = async (event) => {
     event.preventDefault();
 
@@ -61,6 +79,8 @@ function Sidebar() {
         sessionStorage.removeItem("auth");
         sessionStorage.removeItem("token");
 
+        // Clear Redux state
+        dispatch(clearUser());
         console.log("Logout successful", response.data);
 
         // Redirect to login page
@@ -333,7 +353,7 @@ function Sidebar() {
                   src={`${process.env.REACT_APP_BASE_API_URL}/uploads/avatars/${avatar}`}
                 />
               </div>
-              <h5 className="mb-1 text-dark fw-semibold">Shaira Diaz</h5>
+              <h5 className="mb-1 text-dark fw-semibold">{name}</h5>
               <p className="fs-sm text-secondary">Premium Member</p>
 
               <nav className="nav">
