@@ -1,19 +1,17 @@
-import React from 'react'
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import Dashboard from './Pages/Dashboard/Dashboard';
-import Login from './Pages/Login/Login';
-import Sidebar from './Components/Sidebar/Sidebar';
-import User from './Pages/User';
-import Role from './Pages/Role';
-import Profile from './Pages/Login/Profile';
-import ChangePassword from './Pages/Login/ChangePassword';
-import ForgotPassword from './Pages/Login/ForgotPassword';
-import Permission from './Pages/Permission';
-
-
+import Dashboard from "./Pages/Dashboard/Dashboard";
+import Login from "./Pages/Login/Login";
+import Sidebar from "./Components/Sidebar/Sidebar";
+import User from "./Pages/User";
+import Role from "./Pages/Role";
+import Profile from "./Pages/Login/Profile";
+import ChangePassword from "./Pages/Login/ChangePassword";
+import ForgotPassword from "./Pages/Login/ForgotPassword";
+import Permission from "./Pages/Permission";
 
 function App() {
   return (
@@ -33,8 +31,6 @@ function App() {
           <Route path="/permission" element={<Permission />} />
         </Routes>
       </Router>
-      {/* <Login /> */}
-      {/* <Dashboard /> */}
     </div>
   );
 }

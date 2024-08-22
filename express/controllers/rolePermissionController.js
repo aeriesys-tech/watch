@@ -2,31 +2,48 @@ const { RoleAbility } = require("../models");
 const responseService = require("../services/responseService");
 
 const togglePermissionForRole = async (req, res) => {
-  const { roleId, abilityId } = req.body;
+  const permissions = req.body; // Assuming this is the array of permissions
 
   try {
-    const roleAbility = await RoleAbility.findOne({
-      where: {
-        role_id: roleId,
-        ability_id: abilityId,
-      },
-    });
+    // Loop through each permission object in the array
+    for (const permission of permissions) {
+      const { roleId, abilityId, status } = permission;
 
-    if (roleAbility) {
-      // Permission exists, remove it
-      await roleAbility.destroy();
-      return responseService.success(req, res, "Permission removed from role successfully", null, 200);
-    } else {
-      // Permission doesn't exist, assign it
-      const newRoleAbility = await RoleAbility.create({
-        role_id: roleId,
-        ability_id: abilityId,
+      const roleAbility = await RoleAbility.findOne({
+        where: {
+          role_id: roleId,
+          ability_id: abilityId,
+        },
       });
-      return responseService.success(req, res, "Permission assigned to role successfully", newRoleAbility, 201);
+
+      if (roleAbility && !status) {
+        // Permission exists and the status is false, remove it
+        await roleAbility.destroy();
+      } else if (!roleAbility && status) {
+        // Permission doesn't exist and the status is true, assign it
+        await RoleAbility.create({
+          role_id: roleId,
+          ability_id: abilityId,
+        });
+      }
     }
+
+    return responseService.success(
+      req,
+      res,
+      "Permissions updated successfully",
+      null,
+      200
+    );
   } catch (error) {
-    console.error("Error managing permission for role:", error.message);
-    return responseService.error(req, res, "Error managing permission for role", {}, 500);
+    console.error("Error managing permissions for role:", error.message);
+    return responseService.error(
+      req,
+      res,
+      "Error managing permissions for role",
+      {},
+      500
+    );
   }
 };
 
