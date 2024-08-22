@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import authWrapper from "../../utils/AuthWrapper";
@@ -64,58 +64,37 @@ function Login() {
                         <div className="col-8 col-lg-6 mb-5 mb-lg-0">
                             <div className="card card-one card-sign bg-blue ml-auto">
                                 <div className="card-body">
-                                    <div
-                                        id="carouselExampleDark"
-                                        className="carousel carousel-dark slide"
-                                        data-bs-ride="carousel"
-                                    >
-                                        <div className="carousel-inner">
-                                            <div
-                                                className="carousel-item active"
-                                                data-bs-interval="10000"
-                                            >
-                                                <img
-                                                    src={frame1}
-                                                    className="d-block w-90 p-20 pt-5"
-                                                    alt="First slide"
-                                                />
+                                    <div id="carouselExampleDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            <div class="carousel-item active" data-bs-interval="2000">
+                                                <img src={frame1} class="d-block w-90 p-20 pt-5" alt="..." />
+                                                <div class="carousel-caption d-none d-md-block text-white">
+                                                    <h5>First slide label</h5>
+                                                    <p>Some representative placeholder content for the first slide.</p>
+                                                </div>
                                             </div>
-                                            <div className="carousel-item" data-bs-interval="2000">
-                                                <img
-                                                    src={frame2}
-                                                    className="d-block w-90 p-20 pt-5"
-                                                    alt="Second slide"
-                                                />
+                                            <div class="carousel-item" data-bs-interval="2000">
+                                                <img src={frame2} class="d-block w-90 p-20 pt-5" alt="..." />
+                                                <div class="carousel-caption d-none d-md-block text-white">
+                                                    <h5>Second slide label</h5>
+                                                    <p>Some representative placeholder content for the second slide.</p>
+                                                </div>
                                             </div>
-                                            <div className="carousel-item">
-                                                <img
-                                                    src={frame3}
-                                                    className="d-block w-90 p-20 pt-5"
-                                                    alt="Third slide"
-                                                />
+                                            <div class="carousel-item" data-bs-interval="2000">
+                                                <img src={frame3} class="d-block w-90 p-20 pt-5" alt="..." />
+                                                <div class="carousel-caption d-none d-md-block text-white">
+                                                    <h5>Third slide label</h5>
+                                                    <p>Some representative placeholder content for the third slide.</p>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="carousel-indicators mb-0">
-                                            <button
-                                                type="button"
-                                                data-bs-target="#carouselExampleDark"
-                                                data-bs-slide-to="0"
-                                                className="active"
-                                                aria-current="true"
-                                                aria-label="Slide 1"
-                                            ></button>
-                                            <button
-                                                type="button"
-                                                data-bs-target="#carouselExampleDark"
-                                                data-bs-slide-to="1"
-                                                aria-label="Slide 2"
-                                            ></button>
-                                            <button
-                                                type="button"
-                                                data-bs-target="#carouselExampleDark"
-                                                data-bs-slide-to="2"
-                                                aria-label="Slide 3"
-                                            ></button>
+                                        <div class="carousel-indicators mb-0">
+                                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0"
+                                                class="active" aria-current="true" aria-label="Slide 1"></button>
+                                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="1"
+                                                aria-label="Slide 2"></button>
+                                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="2"
+                                                aria-label="Slide 3"></button>
                                         </div>
                                     </div>
                                 </div>
@@ -172,6 +151,9 @@ function Login() {
                                                 </div>
                                             )}
                                         </div>
+                                        <label class="form-label float-end">
+                                            <Link to="/auth/forgetPassword">Forgot password?</Link>
+                                        </label>
                                         <button type="submit" className="btn btn-primary btn-sign">
                                             Login
                                         </button>

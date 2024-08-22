@@ -26,6 +26,7 @@ function Role() {
     const [newRole, setNewRole] = useState({
         role_id: null,
         role: '',
+        group: '',
         status: true
     });
 
@@ -118,6 +119,7 @@ function Role() {
         setNewRole({
             role_id: role.role_id,
             role: role.role,
+            group: role.group,
             status: role.status,
         });
     };
@@ -161,6 +163,7 @@ function Role() {
         setNewRole({
             role_id: null,
             role: '',
+            group: '',
             status: '',
         });
         setErrors({});
@@ -228,8 +231,18 @@ function Role() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                {/* <th>Mobile No <i className="ri-arrow-down-fill"></i></th>
-                                                <th className="w-24" onClick={() => handleSortChange("email")}> Email
+                                                <th className="w-24" onClick={() => handleSortChange("group")}> Group
+                                                    {sortBy.field === "group" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                {/* <th className="w-24" onClick={() => handleSortChange("email")}> Email
                                                     {sortBy.field === "email" && (
                                                         <span style={{ display: "inline-flex" }}>
                                                             {sortBy.order === "asc" ? (
@@ -251,6 +264,7 @@ function Role() {
                                                     {/* <td className="text-center"><input className="form-check-input" type="checkbox" value="" /></td> */}
                                                     <td className="text-center">{startIndex + index}</td> {/* Serial number */}
                                                     <td>{role.role}</td>
+                                                    <td>{role.group}</td>
                                                     <td>{role.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
@@ -305,10 +319,27 @@ function Role() {
                         <div className="modal-body">
                             <form onSubmit={editingRole ? handleUpdateRole : handleAddRole}>
                                 <div className="row g-3">
-                                    <div className="col-md-12">
+                                    <div className="col-md-6">
                                         <label className="form-label">Role Name <span className="text-danger">*</span></label>
                                         <input type="text" className={`form-control ${errors.role ? "is-invalid" : ""}`} name="role" value={newRole.role} onChange={handleInputChange} placeholder="Enter Role" />
                                         {errors.role && <div className="invalid-feedback">{errors.role}</div>}
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">
+                                            Group <span className="text-danger">*</span>
+                                        </label>
+                                        <select
+                                            className={`form-control ${errors.group ? "is-invalid" : ""}`}
+                                            name="group"
+                                            value={newRole.group}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="">Select Group</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="Client">Client</option>
+                                            <option value="Subscriber">Subscriber</option>
+                                        </select>
+                                        {errors.group && <div className="invalid-feedback">{errors.group}</div>}
                                     </div>
                                 </div>
                                 <div className="modal-footer d-block border-top-0">

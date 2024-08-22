@@ -10,6 +10,12 @@ const addRoleValidation = (req, res, next) => {
       .trim()
       .notEmpty()
       .withMessage("Role name is required"),
+    body("group")
+      .isString()
+      .withMessage("Group name must be a string")
+      .trim()
+      .notEmpty()
+      .withMessage("Group name is required"),
   ])(req, res, next);
 };
 
@@ -25,6 +31,11 @@ const updateRoleValidation = (req, res, next) => {
       .optional()
       .isString()
       .withMessage("Role name must be a string")
+      .trim(),
+    body("group")
+      .optional()
+      .isString()
+      .withMessage("Group name must be a string")
       .trim(),
   ])(req, res, next);
 };

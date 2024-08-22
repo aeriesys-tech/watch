@@ -5,17 +5,25 @@ const responseService = require("../services/responseService");
 // Add a new role
 const addRole = async (req, res) => {
   try {
-    const { role } = req.body;
+    const { role, group } = req.body;
 
-    // Check if the role already exists in the database
-    const existingRole = await Role.findOne({ where: { role } });
+    // Check if both role and group are provided
+    if (!role || !group) {
+      const errors = {};
+      if (!role) errors.role = "Role is required";
+      if (!group) errors.group = "Group is required";
+      return responseService.error(req, res, "Validation Error", errors, 400);
+    }
+
+    // Check if the role and group combination already exists in the database
+    const existingRole = await Role.findOne({ where: { role, group } });
     if (existingRole) {
-      const errors = { role: "Role already exists" };
+      const errors = { role: "Role with this group already exists" };
       return responseService.error(req, res, "Validation Error", errors, 400);
     }
 
     // Create the new role if it does not exist
-    const newRole = await Role.create({ role });
+    const newRole = await Role.create({ role, group });
     return responseService.success(req, res, "Role created successfully", newRole, 201);
   } catch (error) {
     console.error("Error in addRole function:", error.message);
@@ -26,17 +34,25 @@ const addRole = async (req, res) => {
 // Update a role
 const updateRole = async (req, res) => {
   try {
-    const { role_id, role } = req.body;
+    const { role_id, role, group } = req.body;
 
-    // Check if the new role name already exists in the database
+    // Validate that role and group are provided
+    if (!role || !group) {
+      const errors = {};
+      if (!role) errors.role = "Role is required";
+      if (!group) errors.group = "Group is required";
+      return responseService.error(req, res, "Validation Error", errors, 400);
+    }
+
+    // Check if the role name already exists in the database
     const existingRole = await Role.findOne({ where: { role } });
     if (existingRole && existingRole.role_id !== role_id) {
       const errors = { role: "Role already exists" };
       return responseService.error(req, res, "Validation Error", errors, 400);
     }
 
-    // Update the role
-    await Role.update({ role }, { where: { role_id } });
+    // Update the role and group
+    await Role.update({ role, group }, { where: { role_id } });
 
     // Fetch the updated role
     const updatedRole = await Role.findByPk(role_id);
@@ -46,6 +62,7 @@ const updateRole = async (req, res) => {
     return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
+
 
 // Delete or restore a role
 const deleteRole = async (req, res) => {
