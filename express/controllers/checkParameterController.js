@@ -1,7 +1,6 @@
-const { CheckParameter } = require("../models");
 const { Op } = require("sequelize");
 const responseService = require("../services/responseService");
-
+const { CheckParameter, DeviceType, CheckGroup, Unit } = require("../models");
 // Add a new check parameter
 const addCheckParameter = async (req, res) => {
   try {
@@ -283,16 +282,37 @@ const paginateCheckParameters = async (req, res) => {
         [Op.or]: [
           { parameter_code: { [Op.like]: `%${search}%` } },
           { parameter_name: { [Op.like]: `%${search}%` } },
+          { "$deviceType.device_type$": { [Op.like]: `%${search}%` } }, // Search by device type
+          { "$checkGroup.check_group$": { [Op.like]: `%${search}%` } }, // Search by check group name
+          { "$unit.unit$": { [Op.like]: `%${search}%` } }, // Search by unit name
         ],
       }),
       ...(status && { status: status === "active" ? true : false }),
     };
 
+    // Fetch paginated check parameters with related models
     const checkParameters = await CheckParameter.findAndCountAll({
       where,
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
       order: sort,
+      include: [
+        {
+          model: DeviceType,
+          as: "deviceType",
+          attributes: ["device_type_id", "device_type"], // Include device_type for search
+        },
+        {
+          model: CheckGroup,
+          as: "checkGroup",
+          attributes: ["check_group_id", "check_group"], // Include check_group for search
+        },
+        {
+          model: Unit,
+          as: "unit",
+          attributes: ["unit_id", "unit"], // Include unit for search
+        },
+      ],
       paranoid: false,
     });
 
@@ -310,7 +330,7 @@ const paginateCheckParameters = async (req, res) => {
       responseData
     );
   } catch (error) {
-    console.error("Error in paginateCheckParameters function:", error.message);
+    console.error("Error in paginateCheckParameters function:", error); // Log detailed error
     return responseService.error(req, res, "Internal Server Error", {}, 500);
   }
 };

@@ -200,8 +200,15 @@ const paginateDevices = async (req, res) => {
 
     const offset = (page - 1) * limit;
 
-    // Build the sort object dynamically
-    const sort = [[sortBy, order.toUpperCase()]];
+    // Build the sort object
+    let sort = [[sortBy, order.toUpperCase()]];
+
+    // Handle sorting by related models like client_name
+    if (sortBy === "client") {
+      sort = [
+        [{ model: Client, as: "client" }, "client_name", order.toUpperCase()],
+      ];
+    }
 
     // Implement search and status filter
     const where = {
@@ -210,17 +217,32 @@ const paginateDevices = async (req, res) => {
           { serial_no: { [Op.like]: `%${search}%` } },
           { mobile_no: { [Op.like]: `%${search}%` } },
           { port_no: { [Op.like]: `%${search}%` } },
+          { "$client.client_name$": { [Op.like]: `%${search}%` } },
+          { "$deviceType.device_type$": { [Op.like]: `%${search}%` } }, // Search by device_type
         ],
       }),
       ...(status && { status: status === "active" ? true : false }),
     };
 
+    // Fetch paginated devices with related models
     const devices = await Device.findAndCountAll({
       where,
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
       order: sort,
-      paranoid: false,
+      include: [
+        {
+          model: Client,
+          as: "client",
+          attributes: ["client_id", "client_name"], // Including client details for search and sorting
+        },
+        {
+          model: DeviceType,
+          as: "deviceType", // Make sure deviceType is properly included for searching
+          attributes: ["device_type_id", "device_type"], // Include device_type field for search
+        },
+      ],
+      paranoid: false, // Include soft-deleted entries if needed
     });
 
     const responseData = {
@@ -230,6 +252,9 @@ const paginateDevices = async (req, res) => {
       totalItems: devices.count,
     };
 
+    // Check if there are any records
+
+    // Return success response with paginated data
     return responseService.success(
       req,
       res,
