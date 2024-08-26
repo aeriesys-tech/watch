@@ -20,6 +20,7 @@ import ClientUser from "./Pages/ClientUser";
 import CheckParameter from "./Pages/CheckParameter";
 import Device from "./Pages/Device";
 import DeviceUser from "./Pages/DeviceUser";
+import ClientDetail from "./Pages/ClientDetail";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="/checkParameters" element={<CheckParameter />} />
           <Route path="/devices" element={<Device />} />
           <Route path="/deviceUsers" element={<DeviceUser />} />
+          <Route path="/client/:client_id" element={<ClientDetail />} />
         </Routes>
       </Router>
     </div>
