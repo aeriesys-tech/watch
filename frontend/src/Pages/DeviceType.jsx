@@ -11,7 +11,7 @@ function DeviceType() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
     const [search, setSearch] = useState('');
@@ -108,6 +108,8 @@ function DeviceType() {
     };
 
     const handleEditDeviceType = (deviceType) => {
+        setErrors({}); // Reset errors on new submission
+
         setEditingDeviceType(deviceType);
         setNewDeviceType({
             device_type_id: deviceType.device_type_id,
@@ -159,6 +161,8 @@ function DeviceType() {
 
     // Function to close the modal
     const closeModal = () => {
+        setErrors({}); // Reset errors on new submission
+
         const modalElement = document.getElementById('addDeviceTypeModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
@@ -218,7 +222,17 @@ function DeviceType() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th>Status</th>
+                                                <th className="w-24" onClick={() => handleSortChange("status")}>Status
+                                                    {sortBy.field === "status" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
                                                 <th className="text-center">Action</th>
                                             </tr>
                                         </thead>

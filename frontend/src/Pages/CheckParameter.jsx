@@ -14,7 +14,7 @@ function CheckParameter() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
     const [search, setSearch] = useState('');
@@ -151,6 +151,8 @@ function CheckParameter() {
     };
 
     const handleEditCheckParameter = (checkParameter) => {
+        setErrors({}); // Reset errors on new submission
+
         setEditingCheckParameter(checkParameter);
         setNewCheckParameter({
             check_parameter_id: checkParameter.check_parameter_id,
@@ -212,6 +214,8 @@ function CheckParameter() {
 
     // Function to close the modal
     const closeModal = () => {
+        setErrors({}); // Reset errors on new submission
+
         const modalElement = document.getElementById('addCheckParameterModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
@@ -260,13 +264,73 @@ function CheckParameter() {
                                         <thead className="bg-light">
                                             <tr>
                                                 <th className="text-center">#ID</th>
-                                                <th>Parameter Code</th>
-                                                <th>Parameter Name</th>
-                                                <th>Device Type</th>
-                                                <th>Check Group</th>
-                                                <th>Unit</th>
-                                                <th>Icon</th>
-                                                <th>Status</th>
+                                                <th className="w-24" onClick={() => handleSortChange("parameter_code")}>Parameter Code
+                                                    {sortBy.field === "parameter_code" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("parameter_name")}>Parameter Name
+                                                    {sortBy.field === "parameter_name" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("device_type_id")}>Device Type
+                                                    {sortBy.field === "device_type_id" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("check_group_id")}>Check Group
+                                                    {sortBy.field === "check_group_id" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("unit_id")}>Unit
+                                                    {sortBy.field === "unit_id" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                {/* <th>Icon</th> */}
+                                                <th className="w-24" onClick={() => handleSortChange("status")}>Status
+                                                    {sortBy.field === "status" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
                                                 <th className="text-center">Action</th>
                                             </tr>
                                         </thead>
@@ -279,7 +343,7 @@ function CheckParameter() {
                                                     <td>{deviceTypes.find(device => device.device_type_id === checkParameter.device_type_id)?.device_type || ''}</td>
                                                     <td>{checkGroups.find(group => group.check_group_id === checkParameter.check_group_id)?.check_group || ''}</td>
                                                     <td>{units.find(unit => unit.unit_id === checkParameter.unit_id)?.unit || ''}</td>
-                                                    <td>{checkParameter.icon}</td>
+                                                    {/* <td>{checkParameter.icon}</td> */}
                                                     <td>{checkParameter.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">

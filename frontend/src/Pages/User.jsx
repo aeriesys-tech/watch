@@ -12,7 +12,7 @@ function User() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
     const [search, setSearch] = useState('');
@@ -129,6 +129,8 @@ function User() {
     };
 
     const handleEditUser = (user) => {
+        setErrors({}); // Reset errors on new submission
+
         setEditingUser(user);
         setNewUser({
             user_id: user.user_id,
@@ -192,6 +194,8 @@ function User() {
 
     // Function to close the modal
     const closeModal = () => {
+        setErrors({}); // Reset errors on new submission
+
         const modalElement = document.getElementById('addUserModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
@@ -251,7 +255,17 @@ function User() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th>Mobile No</th>
+                                                <th className="w-24" onClick={() => handleSortChange("mobile_no")}> Mobile No.
+                                                    {sortBy.field === "mobile_no" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
                                                 <th className="w-24" onClick={() => handleSortChange("email")}> Email
                                                     {sortBy.field === "email" && (
                                                         <span style={{ display: "inline-flex" }}>
@@ -263,7 +277,17 @@ function User() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th>Status</th>
+                                                <th className="w-24" onClick={() => handleSortChange("status")}> Status
+                                                    {sortBy.field === "status" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
                                                 <th className="text-center">Action</th>
                                             </tr>
                                         </thead>

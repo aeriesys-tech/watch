@@ -13,7 +13,7 @@ function Device() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
     const [search, setSearch] = useState('');
@@ -134,6 +134,8 @@ function Device() {
     };
 
     const handleEditDevice = (device) => {
+        setErrors({}); // Reset errors on new submission
+
         setEditingDevice(device);
         setNewDevice({
             device_id: device.device_id,
@@ -192,6 +194,8 @@ function Device() {
 
     // Function to close the modal
     const closeModal = () => {
+        setErrors({}); // Reset errors on new submission
+
         const modalElement = document.getElementById('addDeviceModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
@@ -240,12 +244,72 @@ function Device() {
                                         <thead className="bg-light">
                                             <tr>
                                                 <th className="text-center">#ID</th>
-                                                <th>Client</th>
-                                                <th>Device Type</th>
-                                                <th>Serial No</th>
-                                                <th>Mobile No</th>
-                                                <th>Port No</th>
-                                                <th>Status</th>
+                                                <th className="w-24" onClick={() => handleSortChange("client")}> Client
+                                                    {sortBy.field === "client" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("device_type_id")}> Device Type
+                                                    {sortBy.field === "device_type_id" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("serial_no")}> Serial No.
+                                                    {sortBy.field === "serial_no" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("mobile_no")}> Mobile No.
+                                                    {sortBy.field === "mobile_no" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("port_no")}> Port No.
+                                                    {sortBy.field === "port_no" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("status")}> Status
+                                                    {sortBy.field === "status" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
                                                 <th className="text-center">Action</th>
                                             </tr>
                                         </thead>

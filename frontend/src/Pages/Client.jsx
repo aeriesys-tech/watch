@@ -11,7 +11,7 @@ function Client() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
     const [search, setSearch] = useState('');
@@ -114,6 +114,8 @@ function Client() {
     };
 
     const handleEditClient = (client) => {
+        setErrors({}); // Reset errors on new submission
+
         setEditingClient(client);
         setNewClient({
             client_id: client.client_id,
@@ -126,6 +128,11 @@ function Client() {
             logo: client.logo,
             status: client.status,
         });
+    };
+
+    const handleViewClient = (client_id) => {
+        // Navigate to ClientDetail page with client_id
+        navigate(`/client/${client_id}`);
     };
 
     const handleUpdateClient = async (e) => {
@@ -177,6 +184,8 @@ function Client() {
 
     // Function to close the modal
     const closeModal = () => {
+        setErrors({}); // Reset errors on new submission
+
         const modalElement = document.getElementById('addClientModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
@@ -225,23 +234,11 @@ function Client() {
                                         <thead className="bg-light">
                                             <tr>
                                                 <th className="text-center">#ID</th>
-                                                <th className="w-24" onClick={() => handleSortChange("client_name")}>Client Name
-                                                    {sortBy.field === "client_name" && (
-                                                        <span style={{ display: "inline-flex" }}>
-                                                            {sortBy.order === "asc" ? (
-                                                                <i className="ri-arrow-up-fill"></i>
-                                                            ) : (
-                                                                <i className="ri-arrow-down-fill"></i>
-                                                            )}
-                                                        </span>
-                                                    )}
-                                                </th>
+                                                <th>Client Name</th>
                                                 <th>Client Code</th>
                                                 <th>Contact Person</th>
-                                                <th>Mobile No</th>
+                                                <th>Mobile No.</th>
                                                 <th>Email</th>
-                                                <th>Address</th>
-                                                {/* <th>Logo</th> */}
                                                 <th>Status</th>
                                                 <th className="text-center">Action</th>
                                             </tr>
@@ -255,19 +252,24 @@ function Client() {
                                                     <td>{client.contact_person}</td>
                                                     <td>{client.mobile_no}</td>
                                                     <td>{client.email}</td>
-                                                    <td>{client.address}</td>
-                                                    {/* <td>{client.logo}</td> */}
                                                     <td>{client.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
+                                                            <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/client/${client.client_id}`)}>
+                                                                <i className="ri-eye-line"></i>
+                                                            </a>
+
+
                                                             {client.status && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditClient(client)} data-bs-toggle="modal" data-bs-target="#addClientModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
+
                                                             <div className="form-check form-switch me-2">
                                                                 <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${client.client_id}`} checked={client.status} onChange={() => handleToggleStatus(client)} />
                                                             </div>
+
                                                         </div>
                                                     </td>
                                                 </tr>
