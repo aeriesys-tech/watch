@@ -24,7 +24,13 @@ const addRole = async (req, res) => {
 
     // Create the new role if it does not exist
     const newRole = await Role.create({ role, group });
-    return responseService.success(req, res, "Role created successfully", newRole, 201);
+    return responseService.success(
+      req,
+      res,
+      "Role created successfully",
+      newRole,
+      201
+    );
   } catch (error) {
     console.error("Error in addRole function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
@@ -56,13 +62,17 @@ const updateRole = async (req, res) => {
 
     // Fetch the updated role
     const updatedRole = await Role.findByPk(role_id);
-    return responseService.success(req, res, "Role updated successfully", updatedRole);
+    return responseService.success(
+      req,
+      res,
+      "Role updated successfully",
+      updatedRole
+    );
   } catch (error) {
     console.error("Error in updateRole function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
-
 
 // Delete or restore a role
 const deleteRole = async (req, res) => {
@@ -91,7 +101,11 @@ const deleteRole = async (req, res) => {
       await role.save(); // Save the status change
       await role.destroy(); // Soft delete the record
       console.log(`Soft deleted role with ID ${role_id}`);
-      return responseService.success(req, res, "Role soft deleted successfully");
+      return responseService.success(
+        req,
+        res,
+        "Role soft deleted successfully"
+      );
     }
   } catch (error) {
     console.error("Error in deleteRole function:", error.message);
@@ -108,7 +122,12 @@ const viewRole = async (req, res) => {
       return responseService.error(req, res, "Role not found", {}, 404);
     }
 
-    return responseService.success(req, res, "Role retrieved successfully", role);
+    return responseService.success(
+      req,
+      res,
+      "Role retrieved successfully",
+      role
+    );
   } catch (error) {
     console.error("Error in viewRole function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
@@ -119,7 +138,12 @@ const viewRole = async (req, res) => {
 const getRoles = async (req, res) => {
   try {
     const roles = await Role.findAll({ paranoid: false });
-    return responseService.success(req, res, "Roles retrieved successfully", roles);
+    return responseService.success(
+      req,
+      res,
+      "Roles retrieved successfully",
+      roles
+    );
   } catch (error) {
     console.error("Error in getRoles function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
@@ -166,7 +190,12 @@ const paginateRoles = async (req, res) => {
       totalItems: roles.count,
     };
 
-    return responseService.success(req, res, "Roles fetched successfully", responseData);
+    return responseService.success(
+      req,
+      res,
+      "Roles fetched successfully",
+      responseData
+    );
   } catch (error) {
     console.error("Error in paginateRoles function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
