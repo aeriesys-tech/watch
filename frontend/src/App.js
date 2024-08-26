@@ -12,6 +12,14 @@ import Profile from "./Pages/Login/Profile";
 import ChangePassword from "./Pages/Login/ChangePassword";
 import ForgotPassword from "./Pages/Login/ForgotPassword";
 import Permission from "./Pages/Permission";
+import Unit from "./Pages/Unit";
+import DeviceType from "./Pages/DeviceType";
+import CheckGroup from "./Pages/CheckGroup";
+import Client from "./Pages/Client";
+import ClientUser from "./Pages/ClientUser";
+import CheckParameter from "./Pages/CheckParameter";
+import Device from "./Pages/Device";
+import DeviceUser from "./Pages/DeviceUser";
 
 function App() {
   return (
@@ -28,7 +36,15 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/forget-password" element={<ForgotPassword />} />
-          <Route path="/permission" element={<Permission />} />
+          <Route path="/permissions" element={<Permission />} />
+          <Route path="/units" element={<Unit />} />
+          <Route path="/deviceTypes" element={<DeviceType />} />
+          <Route path="/checkGroups" element={<CheckGroup />} />
+          <Route path="/clients" element={<Client />} />
+          <Route path="/clientUsers" element={<ClientUser />} />
+          <Route path="/checkParameters" element={<CheckParameter />} />
+          <Route path="/devices" element={<Device />} />
+          <Route path="/deviceUsers" element={<DeviceUser />} />
         </Routes>
       </Router>
     </div>

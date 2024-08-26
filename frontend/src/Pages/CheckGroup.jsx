@@ -6,8 +6,8 @@ import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
 
-function Role() {
-    const [roles, setRoles] = useState([]);
+function CheckGroup() {
+    const [checkGroups, setCheckGroups] = useState([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
@@ -22,19 +22,17 @@ function Role() {
 
     const navigate = useNavigate(); // Use navigate for redirecting if needed
 
-    // State for new role form
-    const [newRole, setNewRole] = useState({
-        role_id: null,
-        role: '',
-        group: '',
+    // State for new check group form
+    const [newCheckGroup, setNewCheckGroup] = useState({
+        check_group_id: null,
+        check_group: '',
         status: true
     });
 
-
     const [errors, setErrors] = useState({});
 
-    // State for editing role
-    const [editingRole, setEditingRole] = useState(null);
+    // State for editing check group
+    const [editingCheckGroup, setEditingCheckGroup] = useState(null);
 
     const startIndex = (page - 1) * pageSize + 1;
     const endIndex = Math.min(page * pageSize, totalItems);
@@ -47,30 +45,26 @@ function Role() {
         }));
     };
 
-
-    const fetchRoles = async () => {
+    const fetchCheckGroups = async () => {
         const queryString = `?page=${page}&limit=${pageSize}&sortBy=${sortBy.field}&order=${sortBy.order}&search=${search}`;
         try {
             setLoading(true);
-            const data = await axiosWrapper(`/roles/paginateRoles${queryString}`, {}, navigate);
-            console.log('API Response:', data.data);
+            const data = await axiosWrapper(`/checkGroup/paginateCheckGroup${queryString}`, {}, navigate);
 
-            setRoles(data.data.data);
+            setCheckGroups(data.data.data);
             setTotalPages(data.data.totalPages || 0);
             setCurrentPage(data.data.currentPage || 1);
             setTotalItems(data.data.totalItems || 0);
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            console.error('Error fetching role data:', error);
-            toast.error('Error fetching role data');
+            toast.error('Error fetching check groups');
         }
     };
 
     useEffect(() => {
-        fetchRoles();
+        fetchCheckGroups();
     }, [page, pageSize, search, sortBy]);
-
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
@@ -88,23 +82,22 @@ function Role() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewRole((prevRole) => ({ ...prevRole, [name]: value }));
+        setNewCheckGroup((prevCheckGroup) => ({ ...prevCheckGroup, [name]: value }));
     };
 
-    const handleAddRole = async (e) => {
+    const handleAddCheckGroup = async (e) => {
         e.preventDefault();
         setErrors({}); // Reset errors on new submission
 
-        const { status, ...roleData } = newRole; // Exclude 'status' from the data sent to backend
+        const { status, ...checkGroupData } = newCheckGroup; // Exclude 'status' from the data sent to backend
 
         try {
-            await axiosWrapper('/roles/addRole', { data: roleData }, navigate);
-            toast.success('Role added successfully');
+            await axiosWrapper('/checkGroup/addCheckGroup', { data: checkGroupData }, navigate);
+            toast.success('Check group added successfully');
             resetForm();
-            fetchRoles();
+            fetchCheckGroups();
             closeModal();
         } catch (error) {
-            console.error('Error adding role:', error);
             if (error.response && error.response.data.errors) {
                 setErrors(error.response.data.errors);
                 toast.error(error.response.data.message || 'An error occurred');
@@ -114,29 +107,26 @@ function Role() {
         }
     };
 
-    const handleEditRole = (role) => {
-        setEditingRole(role);
-        setNewRole({
-            role_id: role.role_id,
-            role: role.role,
-            group: role.group,
-            status: role.status,
+    const handleEditCheckGroup = (checkGroup) => {
+        setEditingCheckGroup(checkGroup);
+        setNewCheckGroup({
+            check_group_id: checkGroup.check_group_id,
+            check_group: checkGroup.check_group,
+            status: checkGroup.status,
         });
     };
 
-
-    const handleUpdateRole = async (e) => {
+    const handleUpdateCheckGroup = async (e) => {
         e.preventDefault();
         setErrors({}); // Reset errors on new submission
 
         try {
-            await axiosWrapper('/roles/updateRole', { data: newRole }, navigate);
-            toast.success('Role updated successfully');
+            await axiosWrapper('/checkGroup/updateCheckGroup', { data: newCheckGroup }, navigate);
+            toast.success('Check group updated successfully');
             resetForm();
-            fetchRoles();
+            fetchCheckGroups();
             closeModal(); // Close the modal after successful update
         } catch (error) {
-            console.error('Error updating role:', error);
             if (error.message && error.message.errors) {
                 setErrors(error.message.errors);
                 toast.error(error.message.message || 'An error occurred');
@@ -146,31 +136,30 @@ function Role() {
         }
     };
 
-    const handleToggleStatus = async (role) => {
+    const handleToggleStatus = async (checkGroup) => {
         try {
-            const updatedStatus = !role.status;
-            await axiosWrapper('/roles/deleteRole', { data: { role_id: role.role_id, status: updatedStatus } }, navigate);
-            toast.success(`Role ${updatedStatus ? 'restored' : 'deleted'} successfully`);
-            fetchRoles();
+            const updatedStatus = !checkGroup.status;
+            await axiosWrapper('/checkGroup/deleteCheckGroup', { data: { check_group_id: checkGroup.check_group_id, status: updatedStatus } }, navigate);
+            toast.success(`Check group ${updatedStatus ? 'restored' : 'deleted'} successfully`);
+            fetchCheckGroups();
         } catch (error) {
-            console.error('Error toggling role status:', error);
-            toast.error('An error occurred while updating the role status');
+            toast.error('An error occurred while updating the check group status');
         }
     };
 
     const resetForm = () => {
-        setEditingRole(null);
-        setNewRole({
-            role_id: null,
-            role: '',
-            group: '',
+        setEditingCheckGroup(null);
+        setNewCheckGroup({
+            check_group_id: null,
+            check_group: '',
             status: '',
         });
         setErrors({});
     };
+
     // Function to close the modal
     const closeModal = () => {
-        const modalElement = document.getElementById('addRoleModal');
+        const modalElement = document.getElementById('addCheckGroupModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
             modal.hide();
@@ -186,13 +175,13 @@ function Role() {
                     <div>
                         <ol className="breadcrumb fs-sm mb-1">
                             <li className="breadcrumb-item"><a href="#">Dashboard</a></li>
-                            <li className="breadcrumb-item active" aria-current="page">Roles</li>
+                            <li className="breadcrumb-item active" aria-current="page">Check Groups</li>
                         </ol>
-                        <h4 className="main-title mb-0">Roles</h4>
+                        <h4 className="main-title mb-0">Check Groups</h4>
                     </div>
                     <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addRoleModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Role
+                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addCheckGroupModal" onClick={resetForm}>
+                            <i className="ri-add-line fs-18 lh-1"></i>Add New Check Group
                         </button>
                     </div>
                 </div>
@@ -212,16 +201,14 @@ function Role() {
                                         <option value="20">20</option>
                                         <option value="30">30</option>
                                     </select>
-
                                 </div>
                                 <div className="table-responsive">
                                     <table className="table table-bordered text-nowrap">
                                         <thead className="bg-light">
                                             <tr>
-                                                {/* <th className="text-center"><input className="form-check-input" type="checkbox" value="" /></th> */}
                                                 <th className="text-center">#ID</th>
-                                                <th className="w-24" onClick={() => handleSortChange("role")}> Role
-                                                    {sortBy.field === "role" && (
+                                                <th className="w-24" onClick={() => handleSortChange("check_group")}>Check Group
+                                                    {sortBy.field === "check_group" && (
                                                         <span style={{ display: "inline-flex" }}>
                                                             {sortBy.order === "asc" ? (
                                                                 <i className="ri-arrow-up-fill"></i>
@@ -231,57 +218,32 @@ function Role() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="w-24" onClick={() => handleSortChange("group")}> Group
-                                                    {sortBy.field === "group" && (
-                                                        <span style={{ display: "inline-flex" }}>
-                                                            {sortBy.order === "asc" ? (
-                                                                <i className="ri-arrow-up-fill"></i>
-                                                            ) : (
-                                                                <i className="ri-arrow-down-fill"></i>
-                                                            )}
-                                                        </span>
-                                                    )}
-                                                </th>
-                                                {/* <th className="w-24" onClick={() => handleSortChange("email")}> Email
-                                                    {sortBy.field === "email" && (
-                                                        <span style={{ display: "inline-flex" }}>
-                                                            {sortBy.order === "asc" ? (
-                                                                <i className="ri-arrow-up-fill"></i>
-                                                            ) : (
-                                                                <i className="ri-arrow-down-fill"></i>
-                                                            )}
-                                                        </span>
-                                                    )}
-                                                </th>
-                                                <th>Device ID</th> */}
                                                 <th>Status</th>
                                                 <th className="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {Array.isArray(roles) && roles.length > 0 ? roles.map((role, index) => (
-                                                <tr key={role.id} style={{ opacity: role.status ? 1 : 0.5 }}>
-                                                    {/* <td className="text-center"><input className="form-check-input" type="checkbox" value="" /></td> */}
+                                            {Array.isArray(checkGroups) && checkGroups.length > 0 ? checkGroups.map((checkGroup, index) => (
+                                                <tr key={checkGroup.id} style={{ opacity: checkGroup.status ? 1 : 0.5 }}>
                                                     <td className="text-center">{startIndex + index}</td> {/* Serial number */}
-                                                    <td>{role.role}</td>
-                                                    <td>{role.group}</td>
-                                                    <td>{role.status ? 'Active' : 'Inactive'}</td>
+                                                    <td>{checkGroup.check_group}</td>
+                                                    <td>{checkGroup.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {role.status && (
-                                                                <a href="#" className="text-success me-2" onClick={() => handleEditRole(role)} data-bs-toggle="modal" data-bs-target="#addRoleModal">
+                                                            {checkGroup.status && (
+                                                                <a href="#" className="text-success me-2" onClick={() => handleEditCheckGroup(checkGroup)} data-bs-toggle="modal" data-bs-target="#addCheckGroupModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
                                                             <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${role.id}`} checked={role.status} onChange={() => handleToggleStatus(role)} />
+                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${checkGroup.id}`} checked={checkGroup.status} onChange={() => handleToggleStatus(checkGroup)} />
                                                             </div>
                                                         </div>
                                                     </td>
                                                 </tr>
                                             )) : (
                                                 <tr>
-                                                    <td colSpan="8" className="text-center">No users found</td>
+                                                    <td colSpan="8" className="text-center">No check groups found</td>
                                                 </tr>
                                             )}
                                         </tbody>
@@ -290,7 +252,7 @@ function Role() {
                             </div>
                             <div className="card-footer p-2">
                                 <div className="d-flex justify-content-between align-items-center px-2">
-                                    <span>Showing {startIndex} to {endIndex} of {totalItems} roles</span>
+                                    <span>Showing {startIndex} to {endIndex} of {totalItems} check groups</span>
                                     <Pagination
                                         currentPage={page}
                                         totalPages={totalPages}
@@ -309,43 +271,26 @@ function Role() {
             </div>
 
             {/* ADD/EDIT MODAL */}
-            <div className="modal fade" id="addRoleModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal fade" id="addCheckGroupModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header bg-primary text-white">
-                            <h5 className="modal-title" id="exampleModalLabel">{editingRole ? "Edit User" : "Add New User"}</h5>
+                            <h5 className="modal-title" id="exampleModalLabel">{editingCheckGroup ? "Edit Check Group" : "Add New Check Group"}</h5>
                             <button type="button" className="btn-close modal_close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <form onSubmit={editingRole ? handleUpdateRole : handleAddRole}>
+                            <form onSubmit={editingCheckGroup ? handleUpdateCheckGroup : handleAddCheckGroup}>
                                 <div className="row g-3">
-                                    <div className="col-md-6">
-                                        <label className="form-label">Role Name <span className="text-danger">*</span></label>
-                                        <input type="text" className={`form-control ${errors.role ? "is-invalid" : ""}`} name="role" value={newRole.role} onChange={handleInputChange} placeholder="Enter Role" />
-                                        {errors.role && <div className="invalid-feedback">{errors.role}</div>}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">
-                                            Group <span className="text-danger">*</span>
-                                        </label>
-                                        <select
-                                            className={`form-control ${errors.group ? "is-invalid" : ""}`}
-                                            name="group"
-                                            value={newRole.group}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="">Select Group</option>
-                                            <option value="Admin">Admin</option>
-                                            <option value="Client">Client</option>
-                                            <option value="Subscriber">Subscriber</option>
-                                        </select>
-                                        {errors.group && <div className="invalid-feedback">{errors.group}</div>}
+                                    <div className="col-md-12">
+                                        <label className="form-label">Check Group <span className="text-danger">*</span></label>
+                                        <input type="text" className={`form-control ${errors.check_group ? "is-invalid" : ""}`} name="check_group" value={newCheckGroup.check_group} onChange={handleInputChange} placeholder="Enter Check Group" />
+                                        {errors.check_group && <div className="invalid-feedback">{errors.check_group}</div>}
                                     </div>
                                 </div>
                                 <div className="modal-footer d-block border-top-0">
                                     <div className="d-flex gap-2 mb-1 mt-2">
                                         <button type="button" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" className="btn btn-primary flex-fill">{editingRole ? "Update" : "Save"}</button>
+                                        <button type="submit" className="btn btn-primary flex-fill">{editingCheckGroup ? "Update" : "Save"}</button>
                                     </div>
                                 </div>
                             </form>
@@ -357,4 +302,4 @@ function Role() {
     );
 }
 
-export default Role;
+export default CheckGroup;
