@@ -70,9 +70,14 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "client_id",
       as: "client",
     });
+    // Device.belongsTo(models.DeviceType, {
+    //   foreignKey: "device_type_id",
+    //   as: "deviceType",
+    // });
+    // Device model definition
     Device.belongsTo(models.DeviceType, {
-      foreignKey: "device_type_id",
       as: "deviceType",
+      foreignKey: "device_type_id",
     });
   };
 
