@@ -152,6 +152,7 @@ const paginateClientUsers = async (req, res) => {
       order = "asc",
       search = "",
       status,
+      client_id, // Adding client_id from query parameters
     } = req.query;
 
     const offset = (page - 1) * limit;
@@ -166,7 +167,7 @@ const paginateClientUsers = async (req, res) => {
       sort = [[sortBy, order.toUpperCase()]];
     }
 
-    // Implement search and status filter
+    // Implement search, status filter, and client_id filter
     const where = {
       ...(search && {
         [Op.or]: [
@@ -177,6 +178,7 @@ const paginateClientUsers = async (req, res) => {
         ],
       }),
       ...(status && { status: status === "active" ? true : false }),
+      ...(client_id && { client_id }), // Adding client_id filter
     };
 
     console.log("Constructed where clause:", where); // Debugging line

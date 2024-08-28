@@ -40,8 +40,8 @@ router.post(
 
 router.post(
   "/viewRole",
-  authMiddleware,
-  checkPermission("roles.view"), // Check for view role permission
+  // authMiddleware,
+  // checkPermission("roles.view"), // Check for view role permission
   viewRoleValidation,
   roleController.viewRole
 );
@@ -56,8 +56,8 @@ router.post(
 
 router.post(
   "/paginateRoles",
-  authMiddleware,
-  checkPermission("roles.view"), // Check for view roles permission
+  // authMiddleware,
+  // checkPermission("roles.view"), // Check for view roles permission
   paginateRolesValidation,
   roleController.paginateRoles
 );

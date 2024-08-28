@@ -1,41 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Updated from useHistory to useNavigate
 import { toast } from "react-toastify"; // Assuming you are using react-toastify for notifications
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "../../redux/user/UserSlice";
 import Bespoke_logo_svg from "../../Assets/assets/img/Bespoke_logo_svg 1.png";
 import authWrapper from "../../utils/AuthWrapper";
-import { useSelector } from "react-redux";
+
 function Sidebar() {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const [name, setName] = useState("");
+  const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [mobileNo, setMobileNo] = useState("");
   const [address, setAddress] = useState("");
   const [avatar, setAvatar] = useState(null);
   const navigate = useNavigate(); // Updated from useHistory to useNavigate
-  // const fetchUserData = async () => {
-  //   try {
-  //     const response = await authWrapper("/auth/me", {}, true);
-  //     if (response.status === 200) {
-  //       const data = response.data.data;
-  //       setName(data.name);
-  //       setEmail(data.email);
-  //       setUsername(data.username);
-  //       setMobileNo(data.mobile_no);
-  //       setAddress(data.address);
-  //       setAvatar(data.avatar);
-  //     } else {
-  //       toast.error("Failed to load user profile data");
-  //     }
-  //   } catch (err) {
-  //     toast.error("An error occurred while fetching user data");
-  //   } finally {
-  //   }
-  // };
 
+  const [isSidebarHidden, setIsSidebarHidden] = useState(false);
+  const [isConfigOpen, setIsConfigOpen] = useState(false); // State to toggle "Configure" section
+  const [isReportsOpen, setIsReportsOpen] = useState(false); // State to toggle "Reports" section
+
+  // Fetch user data from Redux store
   const fetchUserData = () => {
     if (user) {
       console.log(">>>>>>>>>>>>>>>", user.name);
@@ -45,6 +32,7 @@ function Sidebar() {
       setMobileNo(user.mobile_no);
       setAddress(user.address);
       setAvatar(user.avatar);
+      setRole(user.role);
     } else {
       toast.error("User data not found in Redux store");
     }
@@ -53,6 +41,7 @@ function Sidebar() {
   useEffect(() => {
     fetchUserData();
   }, [user]);
+
   const handleLogout = async (event) => {
     event.preventDefault();
 
@@ -95,69 +84,106 @@ function Sidebar() {
     }
   };
 
+  // Toggle function to change the sidebar visibility state
+  const toggleSidebar = () => {
+    setIsSidebarHidden((prevState) => !prevState);
+  };
+
+  useEffect(() => {
+    const bodyElement = document.body;
+
+    if (isSidebarHidden) {
+      bodyElement.classList.add("sidebar-hide");
+    } else {
+      bodyElement.classList.remove("sidebar-hide");
+    }
+  }, [isSidebarHidden]);
+
+  // Function to toggle "Configure" section
+  const toggleConfig = () => {
+    setIsConfigOpen((prevState) => !prevState);
+  };
+
+  // Function to toggle "Reports" section
+  const toggleReports = () => {
+    setIsReportsOpen((prevState) => !prevState);
+  };
+
   return (
     <>
-      <div className="sidebar">
+      <div className={`sidebar ${isSidebarHidden ? "sidebar-hide" : ""}`}>
         <div className="sidebar-header">
           <img src={Bespoke_logo_svg} alt="" />
         </div>
         <div id="sidebarMenu" className="sidebar-body">
           <div className="nav-group">
-            <a href="/dashboard" className="nav-label no_icon">
+            <Link to="/dashboard" className="nav-label no_icon">
               <i className="ri-dashboard-line"></i>
-              <span>Sidebar</span>
-            </a>
+              <span>Dashboard</span>
+            </Link>
           </div>
+
           <div className="nav-group">
-            <a href="gds" className="nav-label">
+            <a href="#!" className="nav-label" onClick={toggleConfig}>
               <i className="ri-user-settings-line"></i>
-              <span>Configue</span>
+              <span>Configure</span>
             </a>
-            <ul className="nav nav-sidebar">
-              <li className="nav-item">
-                <a href="../dashboard/finance.html" className="nav-link">
-                  <i className="ri-pie-chart-2-line"></i>{" "}
-                  <span>Finance Monitoring</span>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a href="../dashboard/events.html" className="nav-link">
-                  <i className="ri-calendar-todo-line"></i>{" "}
-                  <span>Events Management</span>
-                </a>
-              </li>
-            </ul>
+            {isConfigOpen && (
+              <ul className="nav nav-sidebar">
+                <li className="nav-item">
+                  <Link to="../dashboard/finance.html" className="nav-link">
+                    <i className="ri-pie-chart-2-line"></i>{" "}
+                    <span>Finance Monitoring</span>
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="../dashboard/events.html" className="nav-link">
+                    <i className="ri-calendar-todo-line"></i>{" "}
+                    <span>Events Management</span>
+                  </Link>
+                </li>
+              </ul>
+            )}
           </div>
+
           <div className="nav-group">
-            <a href="Users.html" className="nav-label no_icon">
+            <Link to="/users" className="nav-label no_icon">
               <i className="ri-group-line"></i>
               <span>Users</span>
-            </a>
+            </Link>
           </div>
+
           <div className="nav-group">
-            <a href="asd" className="nav-label">
+            <a href="#!" className="nav-label" onClick={toggleReports}>
               <i className="ri-file-text-line"></i>
               <span>Reports</span>
             </a>
-            <ul className="nav nav-sidebar">
-              <li className="nav-item">
-                <a href="../dashboard/finance.html" className="nav-link">
-                  <i className="ri-pie-chart-2-line"></i>{" "}
-                  <span>Finance Monitoring</span>
-                </a>
-              </li>
-              <li className="nav-item">
-                <a href="../dashboard/events.html" className="nav-link">
-                  <i className="ri-calendar-todo-line"></i>{" "}
-                  <span>Events Management</span>
-                </a>
-              </li>
-            </ul>
+            {isReportsOpen && (
+              <ul className="nav nav-sidebar">
+                <li className="nav-item">
+                  <Link to="../dashboard/finance.html" className="nav-link">
+                    <i className="ri-pie-chart-2-line"></i>{" "}
+                    <span>Finance Monitoring</span>
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="../dashboard/events.html" className="nav-link">
+                    <i className="ri-calendar-todo-line"></i>{" "}
+                    <span>Events Management</span>
+                  </Link>
+                </li>
+              </ul>
+            )}
           </div>
         </div>
       </div>
       <div className="header-main px-3 px-lg-4">
-        <a id="menuSidebar" href="#" className="menu-link me-3 me-lg-4">
+        <a
+          id="menuSidebar"
+          href="#"
+          className="menu-link me-3 me-lg-4"
+          onClick={toggleSidebar} // Attach the toggle function to the click event
+        >
           <i className="ri-menu-2-fill"></i>
         </a>
         <div className="me-auto">
@@ -354,7 +380,7 @@ function Sidebar() {
                 />
               </div>
               <h5 className="mb-1 text-dark fw-semibold">{name}</h5>
-              <p className="fs-sm text-secondary">Premium Member</p>
+              <h6 className="fs-sm text-secondary">{role}</h6>
 
               <nav className="nav">
                 <Link to="/profile">

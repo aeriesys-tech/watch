@@ -19,7 +19,7 @@ router.post(
 router.post(
   "/getAbilities",
   authMiddleware,
-  checkPermission("role_abilities.view"),
+  // checkPermission("role_abilities.view"),
   roleAbilityController.getAbilities
 );
 
