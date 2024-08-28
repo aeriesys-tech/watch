@@ -8,8 +8,8 @@ const { checkPermission } = require("../middleware/permissionsMiddleware");
 
 router.post(
   "/togglePermissionForRole",
-  // authMiddleware,
-  // checkPermission("role_abilities.change"),
+  authMiddleware,
+  checkPermission("role_abilities.change"),
   rolePermissionController.togglePermissionForRole
 );
 

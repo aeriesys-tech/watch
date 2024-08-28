@@ -7,8 +7,8 @@ const { checkPermission } = require("../middleware/permissionsMiddleware");
 // Routes for role abilities
 router.post(
   "/importAbilities",
-  // authMiddleware,
-  // checkPermission("role_abilities.import"),
+  authMiddleware,
+  checkPermission("role_abilities.import"),
   roleAbilityController.importAbilities
 );
 router.post(
@@ -18,8 +18,8 @@ router.post(
 );
 router.post(
   "/getAbilities",
-  // authMiddleware,
-  // checkPermission("role_abilities.view"),
+  authMiddleware,
+  checkPermission("role_abilities.view"),
   roleAbilityController.getAbilities
 );
 

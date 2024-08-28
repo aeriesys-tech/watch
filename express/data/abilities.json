@@ -21,6 +21,27 @@
         ]
     },
     {
+        "module": "Units",
+        "abilities": [
+            {
+                "ability": "units.view",
+                "description": "View Units"
+            },
+            {
+                "ability": "units.create",
+                "description": "Create Units"
+            },
+            {
+                "ability": "units.update",
+                "description": "Edit Units"
+            },
+            {
+                "ability": "units.delete",
+                "description": "Delete Units"
+            }
+        ]
+    },
+    {
         "module": "Users",
         "abilities": [
             {
