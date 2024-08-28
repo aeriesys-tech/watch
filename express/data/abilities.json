@@ -63,6 +63,153 @@
         ]
     },
     {
+        "module": "Device Users",
+        "abilities": [
+            {
+                "ability": "device_users.view",
+                "description": "View Device Users"
+            },
+            {
+                "ability": "device_users.create",
+                "description": "Create Device Users"
+            },
+            {
+                "ability": "device_users.update",
+                "description": "Edit Device Users"
+            },
+            {
+                "ability": "device_users.delete",
+                "description": "Delete Device Users"
+            }
+        ]
+    },
+    {
+        "module": "Devices",
+        "abilities": [
+            {
+                "ability": "devices.view",
+                "description": "View Devices"
+            },
+            {
+                "ability": "devices.create",
+                "description": "Create Devices"
+            },
+            {
+                "ability": "devices.update",
+                "description": "Edit Devices"
+            },
+            {
+                "ability": "devices.delete",
+                "description": "Delete Devices"
+            }
+        ]
+    },
+    {
+        "module": "Client Users",
+        "abilities": [
+            {
+                "ability": "client_users.view",
+                "description": "View Client Users"
+            },
+            {
+                "ability": "client_users.create",
+                "description": "Create Client Users"
+            },
+            {
+                "ability": "client_users.update",
+                "description": "Edit Client Users"
+            },
+            {
+                "ability": "client_users.delete",
+                "description": "Delete Client Users"
+            }
+        ]
+    },
+    {
+        "module": "Device Types",
+        "abilities": [
+            {
+                "ability": "device_types.view",
+                "description": "View Device Types"
+            },
+            {
+                "ability": "device_types.create",
+                "description": "Create Device Types"
+            },
+            {
+                "ability": "device_types.update",
+                "description": "Edit Device Types"
+            },
+            {
+                "ability": "device_types.delete",
+                "description": "Delete Device Types"
+            }
+        ]
+    },
+    {
+        "module": "Clients",
+        "abilities": [
+            {
+                "ability": "clients.view",
+                "description": "View Clients"
+            },
+            {
+                "ability": "clients.create",
+                "description": "Create Clients"
+            },
+            {
+                "ability": "clients.update",
+                "description": "Edit Clients"
+            },
+            {
+                "ability": "clients.delete",
+                "description": "Delete Clients"
+            }
+        ]
+    },
+    {
+        "module": "Check Parameters",
+        "abilities": [
+            {
+                "ability": "check_parameters.view",
+                "description": "View Check Parameters"
+            },
+            {
+                "ability": "check_parameters.create",
+                "description": "Create Check Parameters"
+            },
+            {
+                "ability": "check_parameters.update",
+                "description": "Edit Check Parameters"
+            },
+            {
+                "ability": "check_parameters.delete",
+                "description": "Delete Check Parameters"
+            }
+        ]
+    },
+    {
+        "module": "Check Groups",
+        "abilities": [
+            {
+                "ability": "check_groups.view",
+                "description": "View Check Groups"
+            },
+            {
+                "ability": "check_groups.create",
+                "description": "Create Check Groups"
+            },
+            {
+                "ability": "check_groups.update",
+                "description": "Edit Check Groups"
+            },
+            {
+                "ability": "check_groups.delete",
+                "description": "Delete Check Groups"
+            }
+        ]
+    },
+    {
         "module": "Abilities",
         "abilities": [
             {

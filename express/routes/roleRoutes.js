@@ -48,8 +48,8 @@ router.post(
 
 router.post(
   "/getRoles",
-  authMiddleware,
-  checkPermission("roles.view"), // Check for view roles permission
+  // authMiddleware,
+  // checkPermission("roles.view"), // Check for view roles permission
   getRolesValidation,
   roleController.getRoles
 );
