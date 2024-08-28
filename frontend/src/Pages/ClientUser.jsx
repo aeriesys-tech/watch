@@ -13,7 +13,7 @@ function ClientUser() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
     const [search, setSearch] = useState('');
@@ -140,6 +140,8 @@ function ClientUser() {
     };
 
     const handleEditClientUser = (clientUser) => {
+        setErrors({}); // Reset errors on new submission
+
         setEditingClientUser(clientUser);
         setNewClientUser({
             client_user_id: clientUser.client_user_id,
@@ -191,6 +193,8 @@ function ClientUser() {
 
     // Function to close the modal
     const closeModal = () => {
+        setErrors({}); // Reset errors on new submission
+
         const modalElement = document.getElementById('addClientUserModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
@@ -199,6 +203,8 @@ function ClientUser() {
     };
 
     const closeDeleteModal = () => {
+        setErrors({}); // Reset errors on new submission
+
         const modalElement = document.getElementById('deleteUserModal');
         const modal = window.bootstrap.Modal.getInstance(modalElement);
         if (modal) {
@@ -258,7 +264,17 @@ function ClientUser() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th>User Name</th>
+                                                <th className="w-24" onClick={() => handleSortChange("user")}>User Name
+                                                    {sortBy.field === "user" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
                                                 <th className="text-center">Action</th>
                                             </tr>
                                         </thead>
