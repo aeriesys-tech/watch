@@ -21,6 +21,7 @@ import CheckParameter from "./Pages/CheckParameter";
 import Device from "./Pages/Device";
 import DeviceUser from "./Pages/DeviceUser";
 import ClientDetail from "./Pages/ClientDetail";
+import CombinedDeviceClientUser from "./Pages/CombinedDeviceClientUser";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           <Route path="/devices" element={<Device />} />
           <Route path="/deviceUsers" element={<DeviceUser />} />
           <Route path="/client/:client_id" element={<ClientDetail />} />
+          <Route path="/combinedDeviceClientUser/:client_id" element={<CombinedDeviceClientUser />} />
         </Routes>
       </Router>
     </div>

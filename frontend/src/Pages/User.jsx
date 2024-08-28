@@ -6,6 +6,8 @@ import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
 
+import { hasPermission } from "../Services/authUtils";
+
 function User() {
     const [users, setUsers] = useState([]);
     const [roles, setRoles] = useState([]); // State to store the roles
@@ -216,11 +218,13 @@ function User() {
                         </ol>
                         <h4 className="main-title mb-0">All Users</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUserModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New User
-                        </button>
-                    </div>
+                    {hasPermission(["users.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUserModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New User
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -301,14 +305,16 @@ function User() {
                                                     <td>{user.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {user.status && (
+                                                            {user.status && hasPermission(["users.update"]) && (
                                                                 <a href="" className="text-success me-2" onClick={() => handleEditUser(user)} data-bs-toggle="modal" data-bs-target="#addUserModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${user.id}`} checked={user.status} onChange={() => handleToggleStatus(user)} />
-                                                            </div>
+                                                            {hasPermission(["users.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${user.id}`} checked={user.status} onChange={() => handleToggleStatus(user)} />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
