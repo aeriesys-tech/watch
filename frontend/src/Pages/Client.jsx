@@ -255,7 +255,7 @@ function Client() {
                                                     <td>{client.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/client/${client.client_id}`)}>
+                                                            <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/combinedDeviceClientUser/${client.client_id}`)}>
                                                                 <i className="ri-eye-line"></i>
                                                             </a>
 
