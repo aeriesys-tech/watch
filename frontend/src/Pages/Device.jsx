@@ -187,7 +187,7 @@ function Device() {
             serial_no: '',
             mobile_no: '',
             port_no: '',
-            status: '',
+            status: true,
         });
         setErrors({});
     };
