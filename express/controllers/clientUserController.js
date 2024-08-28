@@ -157,7 +157,14 @@ const paginateClientUsers = async (req, res) => {
     const offset = (page - 1) * limit;
 
     // Build the sort object dynamically
-    const sort = [[sortBy, order.toUpperCase()]];
+    let sort;
+    if (sortBy === "user") {
+      // Sorting by associated User's name
+      sort = [[{ model: User, as: "user" }, "name", order.toUpperCase()]];
+    } else {
+      // Default sorting
+      sort = [[sortBy, order.toUpperCase()]];
+    }
 
     // Implement search and status filter
     const where = {

@@ -6,7 +6,8 @@ const responseService = require("../services/responseService");
 // Add a new user
 const addUser = async (req, res) => {
   try {
-    const { name, email, username, password, mobile_no, role_id, address } = req.body;
+    const { name, email, username, password, mobile_no, role_id, address } =
+      req.body;
 
     // Check if the email, username, or mobile number already exists in the database
     const existingUser = await User.findOne({
@@ -43,7 +44,13 @@ const addUser = async (req, res) => {
       address,
     });
 
-    return responseService.success(req, res, "User created successfully", newUser, 201);
+    return responseService.success(
+      req,
+      res,
+      "User created successfully",
+      newUser,
+      201
+    );
   } catch (error) {
     console.error("Error in addUser function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
@@ -53,7 +60,8 @@ const addUser = async (req, res) => {
 // Update a user
 const updateUser = async (req, res) => {
   try {
-    const { user_id, name, email, username, mobile_no, role_id, address } = req.body;
+    const { user_id, name, email, username, mobile_no, role_id, address } =
+      req.body;
 
     console.log(req.body); // Log the request body
 
@@ -102,7 +110,12 @@ const updateUser = async (req, res) => {
       return responseService.error(req, res, "User not found", errors, 404);
     }
 
-    return responseService.success(req, res, "User updated successfully", updatedUser);
+    return responseService.success(
+      req,
+      res,
+      "User updated successfully",
+      updatedUser
+    );
   } catch (error) {
     console.error("Error in updateUser function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
@@ -136,7 +149,11 @@ const deleteUser = async (req, res) => {
       await user.save(); // Save the status change
       await user.destroy(); // Soft delete the record
       console.log(`Soft deleted user with ID ${user_id}`);
-      return responseService.success(req, res, "User soft deleted successfully");
+      return responseService.success(
+        req,
+        res,
+        "User soft deleted successfully"
+      );
     }
   } catch (error) {
     console.error("Error in deleteUser function:", error.message);
@@ -156,7 +173,12 @@ const viewUser = async (req, res) => {
       return responseService.error(req, res, "User not found", {}, 404);
     }
 
-    return responseService.success(req, res, "User retrieved successfully", user);
+    return responseService.success(
+      req,
+      res,
+      "User retrieved successfully",
+      user
+    );
   } catch (error) {
     console.error("Error in viewUser function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
@@ -170,7 +192,12 @@ const getUsers = async (req, res) => {
       attributes: { exclude: ["password"] },
     });
 
-    return responseService.success(req, res, "Users retrieved successfully", users);
+    return responseService.success(
+      req,
+      res,
+      "Users retrieved successfully",
+      users
+    );
   } catch (error) {
     console.error("Error in getUsers function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
@@ -201,7 +228,7 @@ const paginateUsers = async (req, res) => {
           { name: { [Op.like]: `%${search}%` } },
           { email: { [Op.like]: `%${search}%` } },
           { username: { [Op.like]: `%${search}%` } },
-          // Add any other fields you want to search by
+          { mobile_no: { [Op.like]: `%${search}%` } },
         ],
       }),
       ...(status && { status: status === "active" ? true : false }),
@@ -223,7 +250,12 @@ const paginateUsers = async (req, res) => {
       totalItems: users.count,
     };
 
-    return responseService.success(req, res, "Users retrieved successfully", responseData);
+    return responseService.success(
+      req,
+      res,
+      "Users retrieved successfully",
+      responseData
+    );
   } catch (error) {
     console.error("Error in paginateUsers function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);

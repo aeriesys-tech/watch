@@ -170,7 +170,10 @@ const paginateRoles = async (req, res) => {
     // Implement search and status filter
     const where = {
       ...(search && {
-        [Op.or]: [{ role: { [Op.like]: `%${search}%` } }],
+        [Op.or]: [
+          { role: { [Op.like]: `%${search}%` } },
+          { group: { [Op.like]: `%${search}%` } },
+        ],
       }),
       ...(status && { status: status === "active" ? true : false }),
     };

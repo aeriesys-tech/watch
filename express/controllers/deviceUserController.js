@@ -282,12 +282,9 @@ const paginateDeviceUsers = async (req, res) => {
       search = "",
       status,
     } = req.query;
-
     const offset = (page - 1) * limit;
-
     // Build the sort object dynamically
     const sort = [[sortBy, order.toUpperCase()]];
-
     // Build the where clause dynamically based on search and status
     const where = {
       ...(search && {
@@ -295,11 +292,12 @@ const paginateDeviceUsers = async (req, res) => {
           { client_id: { [Op.like]: `%${search}%` } },
           { device_id: { [Op.like]: `%${search}%` } },
           { user_id: { [Op.like]: `%${search}%` } },
+          { "$client.client_name$": { [Op.like]: `%${search}%` } },
+          { "$device.serial_no$": { [Op.like]: `%${search}%` } },
         ],
       }),
       ...(status && { status: status === "active" ? true : false }),
     };
-
     // Fetch paginated device users with related models
     const deviceUsers = await DeviceUser.findAndCountAll({
       where,
@@ -325,18 +323,13 @@ const paginateDeviceUsers = async (req, res) => {
       ],
       paranoid: false, // Include soft-deleted entries if needed
     });
-
     const responseData = {
       data: deviceUsers.rows,
       totalPages: Math.ceil(deviceUsers.count / limit),
       currentPage: parseInt(page, 10),
       totalItems: deviceUsers.count,
     };
-
     // Check if there are any records
-    if (!deviceUsers.rows.length) {
-      return responseService.error(req, res, "No Device Users found", {}, 404);
-    }
 
     // Return success response with paginated data
     return responseService.success(
