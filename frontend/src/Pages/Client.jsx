@@ -5,6 +5,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
 
 function Client() {
     const [clients, setClients] = useState([]);
@@ -206,11 +207,13 @@ function Client() {
                         </ol>
                         <h4 className="main-title mb-0">Clients</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addClientModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Client
-                        </button>
-                    </div>
+                    {hasPermission(["clients.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addClientModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New Client
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -240,7 +243,9 @@ function Client() {
                                                 <th>Mobile No.</th>
                                                 <th>Email</th>
                                                 <th>Status</th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["clients.update"]) || hasPermission(["clients.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -255,21 +260,24 @@ function Client() {
                                                     <td>{client.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/combinedDeviceClientUser/${client.client_id}`)}>
+                                                            {/* View Option (no permission check needed if all users can view) */}
+                                                            <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/client/${client.client_id}`)}>
                                                                 <i className="ri-eye-line"></i>
                                                             </a>
 
-
-                                                            {client.status && (
+                                                            {/* Permission check for 'clients.update' before showing edit option */}
+                                                            {client.status && hasPermission(["clients.update"]) && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditClient(client)} data-bs-toggle="modal" data-bs-target="#addClientModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
 
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${client.client_id}`} checked={client.status} onChange={() => handleToggleStatus(client)} />
-                                                            </div>
-
+                                                            {/* Permission check for 'clients.delete' before showing toggle switch */}
+                                                            {hasPermission(["clients.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${client.client_id}`} checked={client.status} onChange={() => handleToggleStatus(client)} />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

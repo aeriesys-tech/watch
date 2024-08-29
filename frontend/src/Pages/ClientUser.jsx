@@ -5,6 +5,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
 
 function ClientUser() {
     const [clientUsers, setClientUsers] = useState([]);
@@ -225,11 +226,13 @@ function ClientUser() {
                         </ol>
                         <h4 className="main-title mb-0">Client Users</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addClientUserModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Client User
-                        </button>
-                    </div>
+                    {hasPermission(["client_users.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addClientUserModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New Client User
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -275,7 +278,9 @@ function ClientUser() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["client_users.update"]) || hasPermission(["client_users.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -287,12 +292,18 @@ function ClientUser() {
                                                     <td>{clientUser.user?.name || 'No User Name'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            <a href="#" className="text-success me-2" onClick={() => handleEditClientUser(clientUser)} data-bs-toggle="modal" data-bs-target="#addClientUserModal">
-                                                                <i className="ri-pencil-line fs-18 lh-1"></i>
-                                                            </a>
-                                                            <a href="#" className="text-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal" onClick={() => setDeletingClientUserId(clientUser.client_user_id)}>
-                                                                <i className="ri-delete-bin-line fs-18 lh-1"></i>
-                                                            </a>
+                                                            {/* Permission check for 'client_users.update' before showing edit option */}
+                                                            {hasPermission(["client_users.update"]) && (
+                                                                <a href="#" className="text-success me-2" onClick={() => handleEditClientUser(clientUser)} data-bs-toggle="modal" data-bs-target="#addClientUserModal">
+                                                                    <i className="ri-pencil-line fs-18 lh-1"></i>
+                                                                </a>
+                                                            )}
+                                                            {/* Permission check for 'client_users.delete' before showing delete option */}
+                                                            {hasPermission(["client_users.delete"]) && (
+                                                                <a href="#" className="text-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal" onClick={() => setDeletingClientUserId(clientUser.client_user_id)}>
+                                                                    <i className="ri-delete-bin-line fs-18 lh-1"></i>
+                                                                </a>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

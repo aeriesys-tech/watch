@@ -5,6 +5,8 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
+
 
 function DeviceUser() {
     const [deviceUsers, setDeviceUsers] = useState([]);
@@ -228,11 +230,13 @@ function DeviceUser() {
                         </ol>
                         <h4 className="main-title mb-0">Device Users</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addDeviceUserModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Device User
-                        </button>
-                    </div>
+                    {hasPermission(["device_users.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addDeviceUserModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New Device User
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -322,7 +326,9 @@ function DeviceUser() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["device_users.update"]) || hasPermission(["device_users.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -337,14 +343,18 @@ function DeviceUser() {
                                                     <td>{deviceUser.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {deviceUser.status && (
+                                                            {/* Permission check for 'device_users.update' before showing edit option */}
+                                                            {deviceUser.status && hasPermission(["device_users.update"]) && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditDeviceUser(deviceUser)} data-bs-toggle="modal" data-bs-target="#addDeviceUserModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${deviceUser.device_user_id}`} checked={deviceUser.status} onChange={() => handleToggleStatus(deviceUser)} />
-                                                            </div>
+                                                            {/* Permission check for 'device_users.delete' before showing toggle switch */}
+                                                            {hasPermission(["device_users.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${deviceUser.device_user_id}`} checked={deviceUser.status} onChange={() => handleToggleStatus(deviceUser)} />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

@@ -5,6 +5,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
 
 function CheckGroup() {
     const [checkGroups, setCheckGroups] = useState([]);
@@ -182,11 +183,13 @@ function CheckGroup() {
                         </ol>
                         <h4 className="main-title mb-0">Check Groups</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addCheckGroupModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Check Group
-                        </button>
-                    </div>
+                    {hasPermission(["check_groups.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addCheckGroupModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New Check Group
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -232,7 +235,9 @@ function CheckGroup() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["check_groups.update"]) || hasPermission(["check_groups.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -243,16 +248,21 @@ function CheckGroup() {
                                                     <td>{checkGroup.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {checkGroup.status && (
+                                                            {/* Permission check for 'check_groups.update' before showing edit option */}
+                                                            {checkGroup.status && hasPermission(["check_groups.update"]) && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditCheckGroup(checkGroup)} data-bs-toggle="modal" data-bs-target="#addCheckGroupModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${checkGroup.id}`} checked={checkGroup.status} onChange={() => handleToggleStatus(checkGroup)} />
-                                                            </div>
+                                                            {/* Permission check for 'check_groups.delete' before showing toggle switch */}
+                                                            {hasPermission(["check_groups.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${checkGroup.id}`} checked={checkGroup.status} onChange={() => handleToggleStatus(checkGroup)} />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
+
                                                 </tr>
                                             )) : (
                                                 <tr>

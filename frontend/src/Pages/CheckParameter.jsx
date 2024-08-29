@@ -5,6 +5,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
 
 function CheckParameter() {
     const [checkParameters, setCheckParameters] = useState([]);
@@ -236,11 +237,13 @@ function CheckParameter() {
                         </ol>
                         <h4 className="main-title mb-0">Check Parameters</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addCheckParameterModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Check Parameter
-                        </button>
-                    </div>
+                    {hasPermission(["check_parameters.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addCheckParameterModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New Check Parameter
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -331,7 +334,9 @@ function CheckParameter() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["check_parameters.update"]) || hasPermission(["check_parameters.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -347,14 +352,18 @@ function CheckParameter() {
                                                     <td>{checkParameter.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {checkParameter.status && (
+                                                            {/* Permission check for 'check_parameters.update' before showing edit option */}
+                                                            {checkParameter.status && hasPermission(["check_parameters.update"]) && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditCheckParameter(checkParameter)} data-bs-toggle="modal" data-bs-target="#addCheckParameterModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${checkParameter.check_parameter_id}`} checked={checkParameter.status} onChange={() => handleToggleStatus(checkParameter)} />
-                                                            </div>
+                                                            {/* Permission check for 'check_parameters.delete' before showing toggle switch */}
+                                                            {hasPermission(["check_parameters.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${checkParameter.check_parameter_id}`} checked={checkParameter.status} onChange={() => handleToggleStatus(checkParameter)} />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
