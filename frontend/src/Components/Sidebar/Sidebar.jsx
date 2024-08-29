@@ -111,69 +111,63 @@ function Sidebar() {
 
   return (
     <>
-      <div className={`sidebar ${isSidebarHidden ? "sidebar-hide" : ""}`}>
-        <div className="sidebar-header">
-          <img src={Bespoke_logo_svg} alt="" />
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <img src={Bespoke_logo_svg} />
         </div>
-        <div id="sidebarMenu" className="sidebar-body">
-          <div className="nav-group">
-            <Link to="/dashboard" className="nav-label no_icon">
-              <i className="ri-dashboard-line"></i>
+
+        <div id="sidebarMenu" class="sidebar-body">
+          <div class="nav-group">
+            <a href="/dashboard" class="nav-label no_icon">
+              <i class="ri-dashboard-line"></i>
               <span>Dashboard</span>
-            </Link>
-          </div>
-
-          <div className="nav-group">
-            <a href="#!" className="nav-label" onClick={toggleConfig}>
-              <i className="ri-user-settings-line"></i>
-              <span>Configure</span>
             </a>
-            {isConfigOpen && (
-              <ul className="nav nav-sidebar">
-                <li className="nav-item">
-                  <Link to="../dashboard/finance.html" className="nav-link">
-                    <i className="ri-pie-chart-2-line"></i>{" "}
-                    <span>Finance Monitoring</span>
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to="../dashboard/events.html" className="nav-link">
-                    <i className="ri-calendar-todo-line"></i>{" "}
-                    <span>Events Management</span>
-                  </Link>
-                </li>
-              </ul>
-            )}
           </div>
-
-          <div className="nav-group">
-            <Link to="/users" className="nav-label no_icon">
-              <i className="ri-group-line"></i>
+          <div class="nav-group">
+            <a href="#" class="nav-label">
+              <i class="ri-user-settings-line"></i>
+              <span>Configue</span>
+            </a>
+            <ul class="nav nav-sidebar">
+              <li class="nav-item">
+                <a href="../dashboard/finance.html" class="nav-link">
+                  <i class="ri-pie-chart-2-line"></i>{" "}
+                  <span>Finance Monitoring</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="../dashboard/events.html" class="nav-link">
+                  <i class="ri-calendar-todo-line"></i>{" "}
+                  <span>Events Management</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <a href="Users.html" class="nav-label no_icon">
+              <i class="ri-group-line"></i>
               <span>Users</span>
-            </Link>
+            </a>
           </div>
-
-          <div className="nav-group">
-            <a href="#!" className="nav-label" onClick={toggleReports}>
-              <i className="ri-file-text-line"></i>
+          <div class="nav-group">
+            <a href="#" class="nav-label">
+              <i class="ri-file-text-line"></i>
               <span>Reports</span>
             </a>
-            {isReportsOpen && (
-              <ul className="nav nav-sidebar">
-                <li className="nav-item">
-                  <Link to="../dashboard/finance.html" className="nav-link">
-                    <i className="ri-pie-chart-2-line"></i>{" "}
-                    <span>Finance Monitoring</span>
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link to="../dashboard/events.html" className="nav-link">
-                    <i className="ri-calendar-todo-line"></i>{" "}
-                    <span>Events Management</span>
-                  </Link>
-                </li>
-              </ul>
-            )}
+            <ul className="nav nav-sidebar" style={{ display: "block" }}>
+              <li class="nav-item">
+                <a href="../dashboard/finance.html" class="nav-link">
+                  <i class="ri-pie-chart-2-line"></i>{" "}
+                  <span>Finance Monitoring</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="../dashboard/events.html" class="nav-link">
+                  <i class="ri-calendar-todo-line"></i>{" "}
+                  <span>Events Management</span>
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
