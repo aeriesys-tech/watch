@@ -40,7 +40,7 @@ function Login() {
       );
 
       // Navigate to the users page after login
-      navigate("/users");
+      navigate("/dashboard");
 
       // Display a success toast message
       toast.success("Login successful!");

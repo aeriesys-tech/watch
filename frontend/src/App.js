@@ -22,6 +22,8 @@ import Device from "./Pages/Device";
 import DeviceUser from "./Pages/DeviceUser";
 import ClientDetail from "./Pages/ClientDetail";
 import CombinedDeviceClientUser from "./Pages/CombinedDeviceClientUser";
+import Unauthorized from "./Pages/Unauthorized ";
+import PermissionBasedRoute from "./Services/PermissionBasedRoute";
 
 function App() {
   return (
@@ -33,22 +35,122 @@ function App() {
           <Route path="/auth/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/sidebar" element={<Sidebar />} />
-          <Route path="/users" element={<User />} />
-          <Route path="/roles" element={<Role />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/users"
+            element={
+              <PermissionBasedRoute requiredPermissions={["users.view"]}>
+                <User />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/roles"
+            element={
+              <PermissionBasedRoute requiredPermissions={["roles.view"]}>
+                <Role />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PermissionBasedRoute requiredPermissions={["users.view"]}>
+                <Profile />
+              </PermissionBasedRoute>
+            }
+          />
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/forget-password" element={<ForgotPassword />} />
-          <Route path="/permissions" element={<Permission />} />
-          <Route path="/units" element={<Unit />} />
-          <Route path="/deviceTypes" element={<DeviceType />} />
-          <Route path="/checkGroups" element={<CheckGroup />} />
-          <Route path="/clients" element={<Client />} />
-          <Route path="/clientUsers" element={<ClientUser />} />
-          <Route path="/checkParameters" element={<CheckParameter />} />
-          <Route path="/devices" element={<Device />} />
-          <Route path="/deviceUsers" element={<DeviceUser />} />
-          <Route path="/client/:client_id" element={<ClientDetail />} />
-          <Route path="/combinedDeviceClientUser/:client_id" element={<CombinedDeviceClientUser />} />
+          <Route
+            path="/permissions"
+            element={
+              <PermissionBasedRoute
+                requiredPermissions={["role_abilities.view"]}
+              >
+                <Permission />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/units"
+            element={
+              <PermissionBasedRoute requiredPermissions={["units.view"]}>
+                <Unit />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/deviceTypes"
+            element={
+              <PermissionBasedRoute requiredPermissions={["device_types.view"]}>
+                <DeviceType />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/checkGroups"
+            element={
+              <PermissionBasedRoute requiredPermissions={["check_groups.view"]}>
+                <CheckGroup />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/clients"
+            element={
+              <PermissionBasedRoute requiredPermissions={["clients.view"]}>
+                <Client />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/clientUsers"
+            element={
+              <PermissionBasedRoute requiredPermissions={["client_users.view"]}>
+                <ClientUser />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/checkParameters"
+            element={
+              <PermissionBasedRoute
+                requiredPermissions={["check_parameters.view"]}
+              >
+                <CheckParameter />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/devices"
+            element={
+              <PermissionBasedRoute requiredPermissions={["devices.view"]}>
+                <Device />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/deviceUsers"
+            element={
+              <PermissionBasedRoute requiredPermissions={["device_users.view"]}>
+                <DeviceUser />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/client/:client_id"
+            element={
+              <PermissionBasedRoute requiredPermissions={["clients.view"]}>
+                <CombinedDeviceClientUser />
+              </PermissionBasedRoute>
+            }
+          />
+          <Route
+            path="/client/:client_id"
+            element={<CombinedDeviceClientUser />}
+          />
+          <Route path="/unauthorized" element={<Unauthorized />} />{" "}
+          <Route path="*" element={<Unauthorized />} />
         </Routes>
       </Router>
     </div>
