@@ -292,7 +292,9 @@ function User() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["users.update"]) || hasPermission(["users.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>

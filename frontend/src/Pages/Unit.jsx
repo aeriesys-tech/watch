@@ -5,6 +5,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
 
 function Unit() {
     const [units, setUnits] = useState([]);
@@ -185,11 +186,13 @@ function Unit() {
                         </ol>
                         <h4 className="main-title mb-0">Units</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUnitModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Unit
-                        </button>
-                    </div>
+                    {hasPermission(["units.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUnitModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New Unit
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -235,7 +238,9 @@ function Unit() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["units.update"]) || hasPermission(["units.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -246,14 +251,18 @@ function Unit() {
                                                     <td>{unit.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {unit.status && (
+                                                            {/* Permission check for 'units.update' before showing edit option */}
+                                                            {unit.status && hasPermission(["units.update"]) && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditUnit(unit)} data-bs-toggle="modal" data-bs-target="#addUnitModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${unit.id}`} checked={unit.status} onChange={() => handleToggleStatus(unit)} />
-                                                            </div>
+                                                            {/* Permission check for 'units.delete' before showing toggle switch */}
+                                                            {hasPermission(["units.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${unit.id}`} checked={unit.status} onChange={() => handleToggleStatus(unit)} />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

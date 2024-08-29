@@ -5,6 +5,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate, useParams } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
 
 function CombinedDeviceClientUser() {
 
@@ -13,9 +14,8 @@ function CombinedDeviceClientUser() {
     const [pageSizeDevices, setPageSizeDevices] = useState(5);
     const [searchDevices, setSearchDevices] = useState('');
 
-    // Client user table states
     const [pageClientUsers, setPageClientUsers] = useState(1);
-    const [pageSizeClientUsers, setPageSizeClientUsers] = useState(10);
+    const [pageSizeClientUsers, setPageSizeClientUsers] = useState(5);
     const [searchClientUsers, setSearchClientUsers] = useState('');
 
 
@@ -511,24 +511,30 @@ function CombinedDeviceClientUser() {
                                 <h4 className="main-title mb-0">Devices</h4>
                             </div>
                             <div className="mt-3 mt-md-0 d-flex gap-2">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary d-flex align-items-center gap-2"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#addDeviceModal"
-                                    onClick={resetDeviceForm}
-                                >
-                                    <i className="ri-add-line fs-18 lh-1"></i>Add New Device
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary d-flex align-items-center gap-2"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#addClientUserModal"
-                                    onClick={resetClientUserForm}
-                                >
-                                    <i className="ri-add-line fs-18 lh-1"></i>Add New Client User
-                                </button>
+                                {/* Permission check for 'devices.create' before showing the "Add New Device" button */}
+                                {hasPermission(["devices.create"]) && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary d-flex align-items-center gap-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addDeviceModal"
+                                        onClick={resetDeviceForm}
+                                    >
+                                        <i className="ri-add-line fs-18 lh-1"></i>Add New Device
+                                    </button>
+                                )}
+                                {/* Permission check for 'client_users.create' before showing the "Add New Client User" button */}
+                                {hasPermission(["client_users.create"]) && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary d-flex align-items-center gap-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#addClientUserModal"
+                                        onClick={resetClientUserForm}
+                                    >
+                                        <i className="ri-add-line fs-18 lh-1"></i>Add New Client User
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -555,7 +561,7 @@ function CombinedDeviceClientUser() {
                                                 <thead className="bg-light">
                                                     <tr>
                                                         <th className="text-center">#ID</th>
-                                                        <th className="w-24" onClick={() => handleSortChangeDevice("client")}> Client
+                                                        {/* <th className="w-24" onClick={() => handleSortChangeDevice("client")}> Client
                                                             {sortByDevice.field === "client" && (
                                                                 <span style={{ display: "inline-flex" }}>
                                                                     {sortByDevice.order === "asc" ? (
@@ -565,7 +571,7 @@ function CombinedDeviceClientUser() {
                                                                     )}
                                                                 </span>
                                                             )}
-                                                        </th>
+                                                        </th> */}
                                                         <th className="w-24" onClick={() => handleSortChangeDevice("device_type_id")}> Device Type
                                                             {sortByDevice.field === "device_type_id" && (
                                                                 <span style={{ display: "inline-flex" }}>
@@ -621,14 +627,16 @@ function CombinedDeviceClientUser() {
                                                                 </span>
                                                             )}
                                                         </th>
-                                                        <th className="text-center">Action</th>
+                                                        {(hasPermission(["devices.update"]) || hasPermission(["devices.delete"])) && (
+                                                            <th className="text-center">Action</th>
+                                                        )}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {Array.isArray(devices) && devices.length > 0 ? devices.map((device, index) => (
                                                         <tr key={device.device_id} style={{ opacity: device.status ? 1 : 0.5 }}>
                                                             <td className="text-center">{index + 1}</td>
-                                                            <td>{clients.find(client => client.client_id === device.client_id)?.client_name || ''}</td>
+                                                            {/* <td>{clients.find(client => client.client_id === device.client_id)?.client_name || ''}</td> */}
                                                             <td>{deviceTypes.find(type => type.device_type_id === device.device_type_id)?.device_type || ''}</td>
                                                             <td>{device.serial_no}</td>
                                                             <td>{device.mobile_no}</td>
@@ -636,14 +644,18 @@ function CombinedDeviceClientUser() {
                                                             <td>{device.status ? 'Active' : 'Inactive'}</td>
                                                             <td className="text-center">
                                                                 <div className="d-flex align-items-center justify-content-center">
-                                                                    {device.status && (
+                                                                    {/* Permission check for 'devices.update' before showing edit option */}
+                                                                    {device.status && hasPermission(["devices.update"]) && (
                                                                         <a href="#" className="text-success me-2" onClick={() => handleEditDevice(device)} data-bs-toggle="modal" data-bs-target="#addDeviceModal">
                                                                             <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                         </a>
                                                                     )}
-                                                                    <div className="form-check form-switch me-2">
-                                                                        <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${device.device_id}`} checked={device.status} onChange={() => handleToggleStatusDevice(device)} />
-                                                                    </div>
+                                                                    {/* Permission check for 'devices.delete' before showing toggle switch */}
+                                                                    {hasPermission(["devices.delete"]) && (
+                                                                        <div className="form-check form-switch me-2">
+                                                                            <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${device.device_id}`} checked={device.status} onChange={() => handleToggleStatusDevice(device)} />
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -706,7 +718,7 @@ function CombinedDeviceClientUser() {
                                                 <thead className="bg-light">
                                                     <tr>
                                                         <th className="text-center">#ID</th>
-                                                        <th className="w-24" onClick={() => handleSortChangeClientUser("client_id")}>Client Name
+                                                        {/* <th className="w-24" onClick={() => handleSortChangeClientUser("client_id")}>Client Name
                                                             {sortByClientUser.field === "client_id" && (
                                                                 <span style={{ display: "inline-flex" }}>
                                                                     {sortByClientUser.order === "asc" ? (
@@ -716,7 +728,7 @@ function CombinedDeviceClientUser() {
                                                                     )}
                                                                 </span>
                                                             )}
-                                                        </th>
+                                                        </th> */}
                                                         <th className="w-24" onClick={() => handleSortChangeClientUser("user")}>User Name
                                                             {sortByClientUser.field === "user" && (
                                                                 <span style={{ display: "inline-flex" }}>
@@ -728,7 +740,9 @@ function CombinedDeviceClientUser() {
                                                                 </span>
                                                             )}
                                                         </th>
-                                                        <th className="text-center">Action</th>
+                                                        {(hasPermission(["users.update"]) || hasPermission(["users.delete"])) && (
+                                                            <th className="text-center">Action</th>
+                                                        )}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -739,24 +753,30 @@ function CombinedDeviceClientUser() {
                                                         return (
                                                             <tr key={clientUser.client_user_id}>
                                                                 <td className="text-center">{index + 1}</td>
-                                                                <td>{clientUser.client?.client_name || 'No Client Name'}</td>
+                                                                {/* <td>{clientUser.client?.client_name || 'No Client Name'}</td> */}
                                                                 <td>{user?.name || 'No User Name'}</td> {/* Display the user name from the users list */}
                                                                 <td className="text-center">
                                                                     <div className="d-flex align-items-center justify-content-center">
-                                                                        <a href="#"
-                                                                            className="text-success me-2"
-                                                                            onClick={() => handleEditUser(user)}  // Pass the user from the users list
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#addClientUserModal">
-                                                                            <i className="ri-pencil-line fs-18 lh-1"></i>
-                                                                        </a>
-                                                                        <a href="#"
-                                                                            className="text-danger"
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#deleteUserModal"
-                                                                            onClick={() => setDeletingClientUserId(clientUser.client_user_id)}>
-                                                                            <i className="ri-delete-bin-line fs-18 lh-1"></i>
-                                                                        </a>
+                                                                        {/* Permission check for 'users.update' before showing edit option */}
+                                                                        {hasPermission(["users.update"]) && (
+                                                                            <a href="#"
+                                                                                className="text-success me-2"
+                                                                                onClick={() => handleEditUser(user)}  // Pass the user from the users list
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addClientUserModal">
+                                                                                <i className="ri-pencil-line fs-18 lh-1"></i>
+                                                                            </a>
+                                                                        )}
+                                                                        {/* Permission check for 'users.delete' before showing delete option */}
+                                                                        {hasPermission(["users.delete"]) && (
+                                                                            <a href="#"
+                                                                                className="text-danger"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#deleteUserModal"
+                                                                                onClick={() => setDeletingClientUserId(clientUser.client_user_id)}>
+                                                                                <i className="ri-delete-bin-line fs-18 lh-1"></i>
+                                                                            </a>
+                                                                        )}
                                                                     </div>
                                                                 </td>
                                                             </tr>

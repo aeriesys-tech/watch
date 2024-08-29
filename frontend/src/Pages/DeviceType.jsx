@@ -5,6 +5,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
 
 function DeviceType() {
     const [deviceTypes, setDeviceTypes] = useState([]);
@@ -183,11 +184,13 @@ function DeviceType() {
                         </ol>
                         <h4 className="main-title mb-0">Device Types</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addDeviceTypeModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Device Type
-                        </button>
-                    </div>
+                    {hasPermission(["device_types.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addDeviceTypeModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New Device Type
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -233,7 +236,9 @@ function DeviceType() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["device_types.update"]) || hasPermission(["device_types.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -244,14 +249,18 @@ function DeviceType() {
                                                     <td>{deviceType.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {deviceType.status && (
+                                                            {/* Permission check for 'device_types.update' before showing edit option */}
+                                                            {deviceType.status && hasPermission(["device_types.update"]) && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditDeviceType(deviceType)} data-bs-toggle="modal" data-bs-target="#addDeviceTypeModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${deviceType.id}`} checked={deviceType.status} onChange={() => handleToggleStatus(deviceType)} />
-                                                            </div>
+                                                            {/* Permission check for 'device_types.delete' before showing toggle switch */}
+                                                            {hasPermission(["device_types.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${deviceType.id}`} checked={deviceType.status} onChange={() => handleToggleStatus(deviceType)} />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

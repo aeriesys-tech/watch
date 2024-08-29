@@ -5,6 +5,7 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
+import { hasPermission } from "../Services/authUtils";
 
 function Role() {
     const [roles, setRoles] = useState([]);
@@ -194,11 +195,13 @@ function Role() {
                         </ol>
                         <h4 className="main-title mb-0">Roles</h4>
                     </div>
-                    <div className="mt-3 mt-md-0">
-                        <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addRoleModal" onClick={resetForm}>
-                            <i className="ri-add-line fs-18 lh-1"></i>Add New Role
-                        </button>
-                    </div>
+                    {hasPermission(["roles.create"]) && (
+                        <div className="mt-3 mt-md-0">
+                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addRoleModal" onClick={resetForm}>
+                                <i className="ri-add-line fs-18 lh-1"></i>Add New Role
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className="row g-3">
                     <div className="col-xl-12">
@@ -257,7 +260,9 @@ function Role() {
                                                         </span>
                                                     )}
                                                 </th>
-                                                <th className="text-center">Action</th>
+                                                {(hasPermission(["roles.update"]) || hasPermission(["roles.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -270,14 +275,18 @@ function Role() {
                                                     <td>{role.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {role.status && (
+                                                            {/* Permission check for 'roles.update' before showing edit option */}
+                                                            {role.status && hasPermission(["roles.update"]) && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditRole(role)} data-bs-toggle="modal" data-bs-target="#addRoleModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${role.id}`} checked={role.status} onChange={() => handleToggleStatus(role)} />
-                                                            </div>
+                                                            {/* Permission check for 'roles.delete' before showing toggle switch */}
+                                                            {hasPermission(["roles.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${role.id}`} checked={role.status} onChange={() => handleToggleStatus(role)} />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

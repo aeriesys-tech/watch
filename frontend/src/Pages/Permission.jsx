@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Loader from "../Components/LoaderAndSpinner/Loader";
 import "react-toastify/dist/ReactToastify.css";
+import { hasPermission } from "../Services/authUtils";
 
 function Permission() {
   const [permissions, setPermissions] = useState([]);
@@ -42,6 +43,7 @@ function Permission() {
       console.error("Error fetching permissions:", error);
     }
   };
+
   const handleChangeStatus = (abilityId, currentStatus) => {
     setLocalToggledPermissions((prevState) => ({
       ...prevState,
@@ -60,26 +62,6 @@ function Permission() {
     );
   };
 
-  // const handleChangeStatus = async (abilityId) => {
-  //     setLoading(true);
-  //     try {
-  //         const response = await axiosWrapper(`/rolePermissions/togglePermissionForRole`, {
-  //             data: JSON.stringify({
-  //                 roleId: roleId,
-  //                 abilityId: abilityId
-  //             })
-  //         }, navigate);
-  //         toast.success(response.message);
-  //         fetchPermissions();
-  //     } catch (error) {
-  //         console.error(error);
-  //         toast.error('Error toggling permission');
-  //     } finally {
-  //         setLoading(false);
-  //     }
-  // };
-
-  // Function to handle "Add Permissions" button click
   const handleAddPermissions = async () => {
     if (!roleId) {
       toast.error("Please select a role before adding permissions");
@@ -143,6 +125,20 @@ function Permission() {
     }
   };
 
+  const groupRoles = () => {
+    const groupedRoles = roles.reduce((acc, role) => {
+      const group = role.group || "Other"; // Default group name if no group is defined
+      if (!acc[group]) {
+        acc[group] = [];
+      }
+      acc[group].push(role);
+      return acc;
+    }, {});
+    return groupedRoles;
+  };
+
+  const groupedRoles = groupRoles();
+
   return (
     <div>
       <Sidebar />
@@ -180,28 +176,26 @@ function Permission() {
                 onChange={(e) => setRoleId(e.target.value)}
               >
                 <option value="">Select Role</option>
-                {roles.map((role) => (
-                  <option key={role.role_id} value={role.role_id}>
-                    {role.role}
-                  </option>
+                {Object.keys(groupedRoles).map((groupLabel) => (
+                  <optgroup key={groupLabel} label={groupLabel}>
+                    {groupedRoles[groupLabel].map((role) => (
+                      <option key={role.role_id} value={role.role_id}>
+                        {role.role}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
-            {/* <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleAddPermissions} // Trigger the API call on click
-            >
-              Add Permissions
-            </button> */}
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleSubmitChanges}
-              //   disabled={Object.keys(localToggledPermissions).length === 0}
-            >
-              Submit Changes
-            </button>
+            {hasPermission(["role_abilities.change"]) && (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSubmitChanges}
+              >
+                Submit Changes
+              </button>
+            )}
           </div>
         </div>
         <div className="row g-3">
