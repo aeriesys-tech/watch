@@ -14,7 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Static file serving
-app.use("/", express.static(path.join(__dirname, "../frontend/build")));
+app.use("/", express.static(path.join(__dirname, "../react/build")));
 
 // Routes
 app.use("/api", routes);
