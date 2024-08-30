@@ -1,0 +1,11 @@
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD="arh112358!@#"
+DB_NAME=bespoke
+DB_DIALECT=mysql
+
+
+JWT_SECRET=dh347gnh8283825ylaudavunnhieuhg384ylasun5t3metuwnh873r
+EMAIL_USER=noreply@akxatech.com
+EMAIL_PASS=NR@nr@2022
+TOKEN_EXPIRY=24h

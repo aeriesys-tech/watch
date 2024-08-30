@@ -16,7 +16,7 @@ const addClient = async (req, res) => {
       status,
     } = req.body;
 
-    // Object to collect validation errors
+    // Object to collect validation errors 
     const errors = {};
 
     // Check if the client code already exists in the database
