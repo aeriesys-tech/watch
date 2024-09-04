@@ -5,88 +5,38 @@ import Sidebar from '../Components/Sidebar/Sidebar';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
-
+import { useSelector } from "react-redux";
 import { hasPermission } from "../Services/authUtils";
+// import Loader from "../Components/LoaderAndSpinner/Loader";
 
-function User() {
-    const [users, setUsers] = useState([]);
-    const [roles, setRoles] = useState([]); // State to store the roles
-    const [loading, setLoading] = useState(false);
+function Subscribers(){
+    const user = useSelector((state) => state.user.user);
+    // console.log('user:----', user)
+    const [subscribers, setSubscribers] = useState()
+    const [roles, setRoles] = useState([]);
+    // const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
-    const [totalItems, setTotalItems] = useState(0);
+    const [totalItems, setTotalItems] = useState(0)
+
     const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState({
         field: "created_at",
         order: "asc",
     });
 
-    const navigate = useNavigate(); // Use navigate for redirecting if needed
-
-    // State for new user form
-    const [newUser, setNewUser] = useState({
-        user_id: null,
-        name: '',
-        email: '',
-        username: '',
-        password: '',
-        mobile_no: '',
-        role_id: '',
-        address: '',
-    });
+    const navigate = useNavigate();    
 
     // State for form errors
     const [errors, setErrors] = useState({});
 
-    // State for editing user
-    const [editingUser, setEditingUser] = useState(null);
+    // // State for editing user
+    const [editingSubscriber, setEditingSubscriber] = useState(null);
 
     const startIndex = (page - 1) * pageSize + 1;
-    const endIndex = Math.min(page * pageSize, totalItems);
-
-    useEffect(() => {
-        fetchUsers();
-        fetchRoles(); // Fetch roles when the component mounts
-    }, [page, pageSize, search, sortBy]);
-
-    const handleSortChange = (field) => {
-        setSortBy((prevSort) => ({
-            field,
-            order:
-                prevSort.field === field && prevSort.order === "asc" ? "desc" : "asc",
-        }));
-    };
-
-    const fetchUsers = async () => {
-        const queryString = `?page=${page}&limit=${pageSize}&sortBy=${sortBy.field}&order=${sortBy.order}&search=${search}`;
-        try {
-            setLoading(true);
-            const data = await axiosWrapper(`/users/paginateUsers${queryString}`, {}, navigate);
-            console.log('API Response:', data.data.data);
-
-            setUsers(data.data.data);
-            setTotalPages(data.data.totalPages || 0);
-            setCurrentPage(data.data.currentPage || 1);
-            setTotalItems(data.data.totalItems || 0);
-            setLoading(false);
-        } catch (error) {
-            setLoading(false);
-            console.error('Error fetching user data:', error);
-            toast.error('Error fetching user data');
-        }
-    };
-
-    const fetchRoles = async () => {
-        try {
-            const data = await axiosWrapper(`/roles/getRoles`, {}, navigate);
-            console.log("roles data", data);
-            setRoles(data.data); // Store roles in the state
-        } catch (error) {
-            console.error('Error fetching roles data:', error);
-        }
-    };
+    const endIndex = Math.min(page * pageSize, totalItems);    
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
@@ -101,26 +51,110 @@ function User() {
         setSearch(event.target.value);
         setPage(1);
     };
+    const handleSortChange = (field) => {
+        setSortBy((prevSort) => ({
+            field,
+            order:
+                prevSort.field === field && prevSort.order === "asc" ? "desc" : "asc",
+        }));
+    };
+    const handleToggleStatus = async (subscriber) => {
+        try {
+            const updatedStatus = !subscriber.status;
+            await axiosWrapper('/subscriber/deleteSubscriber', { data: { user_id: subscriber.user_id, status: updatedStatus } }, navigate);
+            toast.success(`Subscriber ${updatedStatus ? 'restored' : 'deleted'} successfully`);
+            fetchSubscribers();
+        } catch (error) {
+            console.error('Error toggling user status:', error);
+            toast.error('An error occurred while updating the subscriber status');
+        }
+    };
+
+    // Function to close the modal
+    const closeModal = () => {
+        setErrors({}); // Reset errors on new submission
+
+        const modalElement = document.getElementById('addSubscriberModal');
+        const modal = window.bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+    };
+    
+    // State for new user form
+    const [newSubscriber, setNewSubscriber] = useState({
+        user_id: null,
+        name: '',
+        email: '',
+        username: '',
+        password: '',
+        mobile_no: '',
+        role_id: '',
+        address: '',
+        client_id: '',
+    });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewUser((prevUser) => ({ ...prevUser, [name]: value }));
+        setNewSubscriber((prevUser) => ({ ...prevUser, [name]: value }));
+        if(!editingSubscriber){
+            console.log('inside editingSubscriber')
+            setNewSubscriber(prevState => ({...prevState, ['role_id']: roles.role_id }));
+            setNewSubscriber(prevState => ({...prevState,  ['client_id']: user?.clientUserInfo?.client_id }));
+        }
+        
+        console.log('handleInputChange:----', newSubscriber)
     };
 
-    const handleAddUser = async (e) => {
+    useEffect(() => {
+        fetchSubscribers();
+        fetchRoles();
+    }, [page, pageSize, search, sortBy]);
+
+    const fetchRoles = async () => {
+        const queryString = `?search=${'Subscriber'}`;
+        try {
+            const data = await axiosWrapper(`/roles/paginateRoles${queryString}`, {}, navigate);
+            // console.log("roles data", data.data.data[0]);
+            setRoles(data.data.data[0]);
+        } catch (error) {
+            console.error('Error fetching roles data:', error);
+        }
+    };   
+
+
+    const fetchSubscribers = async () => {
+        // setLoading(true);
+        const queryString = `?client_id=${user?.clientUserInfo?.client_id}&page=${page}&limit=${pageSize}&sortBy=${sortBy.field}&order=${sortBy.order}&search=${search}`;
+        try {
+            const data = await axiosWrapper(`/subscriber/paginateSubscribers${queryString}`, {}, navigate);
+            console.log('data.data.sub:----', data.data)
+            setSubscribers(data.data || []);
+            setTotalPages(data.data.totalPages || 0);
+            setCurrentPage(data.data.currentPage || 1);
+            setTotalItems(data.data.totalItems || 0);
+            // setLoading(false);
+        } catch (error) {
+            toast.error('Error fetching Subscribers');
+            setSubscribers([]);
+            // setLoading(false);
+        }
+    };    
+
+    const handleAddSubscriber = async (e) => {
         e.preventDefault();
         setErrors({}); // Reset errors on new submission
 
-        try {
-            await axiosWrapper('/users/addUser', { data: newUser }, navigate).then((respo) => {
+        try {            
+            await axiosWrapper('/subscriber/addSubscriber', { data: newSubscriber }, navigate).then((respo) => {
                 console.log(respo);
             });
-            toast.success('User added successfully');
+            toast.success('Subscriber added successfully');
             resetForm();
-            fetchUsers();
+            fetchSubscribers();
             closeModal();
         } catch (error) {
-            console.error('Error adding user:', error);
+            console.error('Error adding subscriber:', error);
             if (error.message && error.message.errors) {
                 setErrors(error.message.errors);
                 toast.error(error.message.message || 'An error occurred');
@@ -130,34 +164,35 @@ function User() {
         }
     };
 
-    const handleEditUser = (user) => {
-        setErrors({}); // Reset errors on new submission
-
-        setEditingUser(user);
-        setNewUser({
+    const handleEditSubscriber = (user) => {
+        setErrors({}); // Reset errors on new submission        
+        setEditingSubscriber(user);
+        setNewSubscriber({
             user_id: user.user_id,
             name: user.name,
             email: user.email,
             username: user.username,
             password: '',
             mobile_no: user.mobile_no,
-            role_id: user.role_id,
+            role_id: user.Role.role_id,
             address: user.address,
+            client_id: user?.client?.client_id,
         });
+        console.log('newSubscriber:----', newSubscriber)
     };
 
-    const handleUpdateUser = async (e) => {
+    const handleUpdateSubscriber = async (e) => {
         e.preventDefault();
         setErrors({}); // Reset errors on new submission
 
         try {
-            await axiosWrapper('/users/updateUser', { data: newUser }, navigate);
-            toast.success('User updated successfully');
+            await axiosWrapper('/subscriber/updateSubscriber', { data: newSubscriber }, navigate);
+            toast.success('Subscriber updated successfully');
             resetForm();
-            fetchUsers();
+            fetchSubscribers();
             closeModal(); // Close the modal after successful update
         } catch (error) {
-            console.error('Error updating user:', error);
+            console.error('Error updating subscriber:', error);
             if (error.message && error.message.errors) {
                 setErrors(error.message.errors);
                 toast.error(error.message.message || 'An error occurred');
@@ -167,21 +202,9 @@ function User() {
         }
     };
 
-    const handleToggleStatus = async (user) => {
-        try {
-            const updatedStatus = !user.status;
-            await axiosWrapper('/users/deleteUser', { data: { user_id: user.user_id, status: updatedStatus } }, navigate);
-            toast.success(`User ${updatedStatus ? 'restored' : 'deleted'} successfully`);
-            fetchUsers();
-        } catch (error) {
-            console.error('Error toggling user status:', error);
-            toast.error('An error occurred while updating the user status');
-        }
-    };
-
     const resetForm = () => {
-        setEditingUser(null);
-        setNewUser({
+        setEditingSubscriber(null);
+        setNewSubscriber({
             user_id: null,
             name: '',
             email: '',
@@ -190,42 +213,35 @@ function User() {
             mobile_no: '',
             role_id: '',
             address: '',
+            client_id: user?.client?.client_id,
         });
         setErrors({});
     };
 
-    // Function to close the modal
-    const closeModal = () => {
-        setErrors({}); // Reset errors on new submission
-
-        const modalElement = document.getElementById('addUserModal');
-        const modal = window.bootstrap.Modal.getInstance(modalElement);
-        if (modal) {
-            modal.hide();
-        }
-    };
-
     return (
         <div>
+            {/* {loading && <Loader />} */}
             <Sidebar />
             <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" />
-            <div className="main main-app p-3 p-lg-4">
-                <div className="d-md-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <ol className="breadcrumb fs-sm mb-1">
-                            <li className="breadcrumb-item"><a href="#">User Management</a></li>
-                            <li className="breadcrumb-item active" aria-current="page">Users</li>
-                        </ol>
-                        <h4 className="main-title mb-0">All Users</h4>
-                    </div>
-                    {hasPermission(["users.create"]) && (
-                        <div className="mt-3 mt-md-0">
-                            <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUserModal" onClick={resetForm}>
-                                <i className="ri-add-line fs-18 lh-1"></i>Add New User
-                            </button>
-                        </div>
-                    )}
+            
+            <div className="main main-app p-3 p-lg-4">                
+            <div className="d-md-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <ol className="breadcrumb fs-sm mb-1">
+                        <li className="breadcrumb-item"><a href="#">Subscribers</a></li>
+                    </ol>
+                    <h4 className="main-title mb-0">All Subscribers</h4>
                 </div>
+                
+                <div className="mt-3 mt-md-0">
+                    <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addSubscriberModal" onClick={resetForm}>
+                        <i className="ri-add-line fs-18 lh-1"></i>Add New Subscriber
+                    </button>
+                </div>
+            </div>
+
+
+                {/* paginate Subscribers */}
                 <div className="row g-3">
                     <div className="col-xl-12">
                         <div className="card card-one">
@@ -281,6 +297,17 @@ function User() {
                                                         </span>
                                                     )}
                                                 </th>
+                                                <th className="w-24" onClick={() => handleSortChange("role")}> Role
+                                                    {sortBy.field === "role" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
                                                 <th className="w-24" onClick={() => handleSortChange("status")}> Status
                                                     {sortBy.field === "status" && (
                                                         <span style={{ display: "inline-flex" }}>
@@ -291,38 +318,44 @@ function User() {
                                                             )}
                                                         </span>
                                                     )}
-                                                </th>
-                                                {(hasPermission(["users.update"]) || hasPermission(["users.delete"])) && (
-                                                    <th className="text-center">Action</th>
-                                                )}
+                                                </th>                                                
+                                                <th className="text-center">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {Array.isArray(users) && users.length > 0 ? users.map((user, index) => (
-                                                <tr key={user.id} style={{ opacity: user.status ? 1 : 0.5 }}>
-                                                    <td className="text-center">{startIndex + index}</td> {/* Serial number */}
-                                                    <td>{user.name}</td>
-                                                    <td>{user.mobile_no}</td>
-                                                    <td>{user.email}</td>
-                                                    <td>{user.status ? 'Active' : 'Inactive'}</td>
-                                                    <td className="text-center">
+
+                                            {Array.isArray(subscribers?.data) && subscribers?.data?.length > 0 ? (
+                                                subscribers?.data.map((user, index) => (
+                                                    <tr key={user.id} style={{ opacity: user.status ? 1 : 0.5 }}>
+                                                        <td className="text-center">{startIndex + index}</td>
+                                                        <td>{user.name}</td>
+                                                        <td>{user.mobile_no}</td>
+                                                        <td>{user.email}</td>
+                                                        <td>{user.Role.role}</td>
+                                                        <td>{user.status ? 'Active' : 'Inactive'}</td>
+                                                        <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {user.status && hasPermission(["users.update"]) && (
-                                                                <a href="" className="text-success me-2" onClick={() => handleEditUser(user)} data-bs-toggle="modal" data-bs-target="#addUserModal">
-                                                                    <i className="ri-pencil-line fs-18 lh-1"></i>
+                                                            {user.status  && (   
+                                                                <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/subscribers/${user.user_id}`)}>
+                                                                    <i className="ri-eye-line"></i>&nbsp;&nbsp;
                                                                 </a>
                                                             )}
-                                                            {hasPermission(["users.delete"]) && (
-                                                                <div className="form-check form-switch me-2">
-                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${user.id}`} checked={user.status} onChange={() => handleToggleStatus(user)} />
-                                                                </div>
+                                                            {user.status  && (                                                                
+                                                                <a href="" className="text-success me-2" onClick={() => handleEditSubscriber(user)} data-bs-toggle="modal" data-bs-target="#addSubscriberModal">
+                                                                    <i className="ri-pencil-line fs-18 lh-1"></i>&nbsp;&nbsp;
+                                                                </a>
                                                             )}
+                                                            
+                                                            <div className="form-check form-switch me-2">
+                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${user.id}`} checked={user.status} onChange={() => handleToggleStatus(user)} />
+                                                            </div>
                                                         </div>
                                                     </td>
-                                                </tr>
-                                            )) : (
+                                                    </tr>
+                                                ))
+                                            ) : (
                                                 <tr>
-                                                    <td colSpan="8" className="text-center">No users found</td>
+                                                    <td className="text-center" colSpan="7">No subscribers found</td>
                                                 </tr>
                                             )}
                                         </tbody>
@@ -348,65 +381,63 @@ function User() {
                     </div>
                 </div>
             </div>
+            
 
-            {/* ADD/EDIT MODAL */}
-            <div className="modal fade" id="addUserModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+            <div className="modal fade" id="addSubscriberModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header bg-primary text-white">
-                            <h5 className="modal-title" id="exampleModalLabel">{editingUser ? "Edit User" : "Add New User"}</h5>
+                            <h5 className="modal-title" id="exampleModalLabel">{editingSubscriber ? "Edit Subscriber" : "Add New Subscriber"}</h5>
                             <button type="button" className="btn-close modal_close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <form onSubmit={editingUser ? handleUpdateUser : handleAddUser}>
+                            <form onSubmit={editingSubscriber ? handleUpdateSubscriber : handleAddSubscriber} autocomplete="off">
                                 <div className="row g-3">
                                     <div className="col-md-6">
                                         <label className="form-label">Name <span className="text-danger">*</span></label>
-                                        <input type="text" className={`form-control ${errors.name ? "is-invalid" : ""}`} name="name" value={newUser.name} onChange={handleInputChange} placeholder="Enter your name" />
+                                        <input type="text" className={`form-control ${errors.name ? "is-invalid" : ""}`} name="name" value={newSubscriber.name} onChange={handleInputChange} placeholder="Enter your name" />
                                         {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">Email <span className="text-danger">*</span></label>
-                                        <input type="email" className={`form-control ${errors.email ? "is-invalid" : ""}`} name="email" value={newUser.email} onChange={handleInputChange} placeholder="Enter your email" />
+                                        <input type="email" className={`form-control ${errors.email ? "is-invalid" : ""}`} name="email" value={newSubscriber.email} onChange={handleInputChange} placeholder="Enter your email" />
                                         {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                     </div>
                                     <div className="col-md-6">
                                         <label className="form-label">Username <span className="text-danger">*</span></label>
-                                        <input type="text" className={`form-control ${errors.username ? "is-invalid" : ""}`} name="username" value={newUser.username} onChange={handleInputChange} placeholder="Enter your username" />
+                                        <input type="text" className={`form-control ${errors.username ? "is-invalid" : ""}`} name="username" value={newSubscriber.username} onChange={handleInputChange} placeholder="Enter your username" />
                                         {errors.username && <div className="invalid-feedback">{errors.username}</div>}
                                     </div>
-                                    {!editingUser && (
+                                    {!editingSubscriber && (
                                         <div className="col-md-6">
                                             <label className="form-label">Password <span className="text-danger">*</span></label>
-                                            <input type="password" className={`form-control ${errors.password ? "is-invalid" : ""}`} name="password" value={newUser.password} onChange={handleInputChange} placeholder="Enter your password" />
+                                            <input type="password" className={`form-control ${errors.password ? "is-invalid" : ""}`} name="password" value={newSubscriber.password} onChange={handleInputChange} placeholder="Enter your password" />
                                             {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                                         </div>
                                     )}
                                     <div className="col-md-6">
                                         <label className="form-label">Mobile No. <span className="text-danger">*</span></label>
-                                        <input type="text" className={`form-control ${errors.mobile_no ? "is-invalid" : ""}`} name="mobile_no" value={newUser.mobile_no} onChange={handleInputChange} placeholder="Enter your mobile no." />
+                                        <input type="text" className={`form-control ${errors.mobile_no ? "is-invalid" : ""}`} name="mobile_no" value={newSubscriber.mobile_no} onChange={handleInputChange} placeholder="Enter your mobile no." />
                                         {errors.mobile_no && <div className="invalid-feedback">{errors.mobile_no}</div>}
                                     </div>
-                                    <div className="col-md-6">
+                                    {/* <div className="col-md-6">
                                         <label className="form-label">Role <span className="text-danger">*</span></label>
-                                        <select className={`form-control ${errors.role_id ? "is-invalid" : ""}`} name="role_id" value={newUser.role_id} onChange={handleInputChange}>
-                                            <option value="">Select a role</option>
-                                            {roles.map(role => (
-                                                <option key={role.role_id} value={role.role_id}>{role.role}</option>
-                                            ))}
+                                        <select className={`form-control ${errors.role_id ? "is-invalid" : ""}`} name="role_id" value={newSubscriber.role_id} onChange={handleInputChange}>
+                                            <option key={roles.role_id} value={roles.role_id}>{roles.role}</option>
                                         </select>
                                         {errors.role_id && <div className="invalid-feedback">{errors.role_id}</div>}
-                                    </div>
+                                    </div> */}
                                     <div className="col-md-12">
                                         <label className="form-label">Address</label>
-                                        <textarea rows="2" className={`form-control ${errors.address ? "is-invalid" : ""}`} name="address" value={newUser.address} onChange={handleInputChange} placeholder="Enter your address"></textarea>
+                                        <textarea rows="2" className={`form-control ${errors.address ? "is-invalid" : ""}`} name="address" value={newSubscriber.address} onChange={handleInputChange} placeholder="Enter your address"></textarea>
                                         {errors.address && <div className="invalid-feedback">{errors.address}</div>}
                                     </div>
                                 </div>
                                 <div className="modal-footer d-block border-top-0">
                                     <div className="d-flex gap-2 mb-4">
                                         <button type="button" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" className="btn btn-primary flex-fill">{editingUser ? "Update" : "Save"}</button>
+                                        <button type="submit" className="btn btn-primary flex-fill">{editingSubscriber ? "Update" : "Save"}</button>
                                     </div>
                                 </div>
                             </form>
@@ -414,8 +445,11 @@ function User() {
                     </div>
                 </div>
             </div>
-        </div>
-    );
+        </div>            
+    )
+
 }
 
-export default User;
+
+
+export default Subscribers;

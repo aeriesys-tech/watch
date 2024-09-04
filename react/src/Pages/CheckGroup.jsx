@@ -178,7 +178,7 @@ function CheckGroup() {
                 <div className="d-md-flex align-items-center justify-content-between mb-3">
                     <div>
                         <ol className="breadcrumb fs-sm mb-1">
-                            <li className="breadcrumb-item"><a href="#">Dashboard</a></li>
+                            <li className="breadcrumb-item"><a href="#">Configuration</a></li>
                             <li className="breadcrumb-item active" aria-current="page">Check Groups</li>
                         </ol>
                         <h4 className="main-title mb-0">Check Groups</h4>

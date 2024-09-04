@@ -160,7 +160,7 @@ function Permission() {
           <div>
             <ol className="breadcrumb fs-sm mb-1">
               <li className="breadcrumb-item">
-                <a href="#">Dashboard</a>
+                <a href="#">Configuration</a>
               </li>
               <li className="breadcrumb-item active" aria-current="page">
                 Permissions

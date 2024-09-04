@@ -14,6 +14,8 @@ function ChangePassword() {
   const navigate = useNavigate();
   const location = useLocation();
   const otpRef = useRef(null);
+  const [intervalTimeout, setIntervalTimeout] = useState(30);
+  const [resendOtp, setResendOtp] = useState(false);
 
   useEffect(() => {
     // Extract the email from the URL query parameters
@@ -23,6 +25,61 @@ function ChangePassword() {
       setEmail(emailParam);
     }
   }, [location]);
+
+  const timeoutReset = () => {
+    let seconds_id = setInterval(() => {
+      setIntervalTimeout(prevTime => {
+        if (prevTime <= 1) {
+          setResendOtp(true);
+          clearInterval(seconds_id);
+          return 0; // Stop the countdown at 0
+        } else {
+          setResendOtp(false);
+          return prevTime - 1; // Decrement the time
+        }
+      });
+    }, 1000);
+  
+    // Clean up the interval on component unmount
+    return () => clearInterval(seconds_id);
+  }
+  
+
+  useEffect(() => {
+    timeoutReset();
+  }, []);
+
+
+  const resendOTP = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setErrors({});
+
+    try {
+      const response = await authWrapper("/auth/forgotPassword", { email });
+
+      if (response) {
+        toast.success(
+          "A link to reset your password has been sent to your email."
+        );
+        setIntervalTimeout(30)
+        timeoutReset()
+        // setTimeout(() => {
+        //   navigate(`/change-password?email=${encodeURIComponent(email)}`);
+        // }, 1000);
+      }
+    } catch (error) {
+      console.error("Error occurred:", error);
+      if (error.response && error.response.data.errors) {
+        setErrors(error.response.data.errors);
+        toast.error(error.response.data.message || "An error occurred");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChangePassword = async (event) => {
     event.preventDefault();
@@ -140,6 +197,9 @@ function ChangePassword() {
                   </button>
                 </div>
               </div>
+              {resendOtp === false && <p className="card-text text-center">RESEND OTP (0:{intervalTimeout})</p> }
+              {resendOtp && <p className="card-text text-center" > <a href="#" onClick={resendOTP} >RESEND OTP</a></p> }
+              
               <div className="text-center">
                 <Link to="/auth/login">Sign In</Link>
               </div>

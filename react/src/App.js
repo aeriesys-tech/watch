@@ -24,7 +24,8 @@ import ClientDetail from "./Pages/ClientDetail";
 import CombinedDeviceClientUser from "./Pages/CombinedDeviceClientUser";
 import Unauthorized from "./Pages/Unauthorized ";
 import PermissionBasedRoute from "./Services/PermissionBasedRoute";
-
+import Subscribers from "./Pages/Subscribers";
+import SubscribersDetails from "./Pages/SubscribersDetails";
 function App() {
   return (
     <div>
@@ -149,6 +150,17 @@ function App() {
             path="/client/:client_id"
             element={<CombinedDeviceClientUser />}
           />
+
+          <Route
+            path="/subscribers"
+            element={<Subscribers />}
+          />
+
+          <Route
+            path="/subscribers/:subscriber_id"
+            element={ <SubscribersDetails />}
+          />
+
           <Route path="/unauthorized" element={<Unauthorized />} />{" "}
           <Route path="*" element={<Unauthorized />} />
         </Routes>

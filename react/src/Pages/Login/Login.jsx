@@ -9,12 +9,14 @@ import frame1 from "../../Assets/assets/img/frame1.png";
 import frame2 from "../../Assets/assets/img/frame2.png";
 import frame3 from "../../Assets/assets/img/frame3.png";
 import talws from "../../Assets/assets/img/talws-removebg-preview 1.png";
+import Loader from "../../Components/LoaderAndSpinner/Loader";
 
 function Login() {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (event) => {
@@ -23,6 +25,7 @@ function Login() {
     setErrors({}); // Reset errors on new submission
 
     try {
+      setLoading(true);
       const response = await authWrapper("/auth/login", data, true);
 
       // Log API response to ensure correct data structure
@@ -44,6 +47,7 @@ function Login() {
 
       // Display a success toast message
       toast.success("Login successful!");
+      setLoading(false);
     } catch (err) {
       if (err.response && err.response.data.errors) {
         setErrors(err.response.data.errors);
@@ -51,6 +55,7 @@ function Login() {
       } else {
         toast.error("An unexpected error occurred");
       }
+      setLoading(false);
       console.error("Login error:", err);
     }
   };
@@ -59,6 +64,7 @@ function Login() {
     <>
       <ToastContainer position="top-right" autoClose={4000} theme="colored" />
       <div className="page-sign">
+      {loading && <Loader />}
         <div className="container justify-content-center">
           <div className="row gx-0">
             <div className="col-8 col-lg-6 mb-5 mb-lg-0">
