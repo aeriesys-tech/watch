@@ -59,4 +59,12 @@ router.post(
   deviceController.paginateDevices
 );
 
+router.post(
+  "/getClientDevices",
+  authMiddleware,
+  checkPermission("devices.view"),
+  deviceController.getClientDevices
+);
+
+
 module.exports = router;

@@ -1,6 +1,6 @@
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD="arh112358!@#"
+DB_PASSWORD="123456789"
 DB_NAME=bespoke
 DB_DIALECT=mysql
 

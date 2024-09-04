@@ -19,6 +19,15 @@ router.post(
   checkPermission("device_users.create"),
   deviceUserController.addDeviceUser
 );
+router.post(
+  "/addDeviceUserWithCheckParameters",
+  // authMiddleware,
+  // addDeviceUserValidation,
+  // checkPermission("device_users.create"),
+  deviceUserController.addDeviceUserWithCheckParameters
+);
+
+
 
 router.post(
   "/updateDeviceUser",

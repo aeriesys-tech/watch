@@ -266,6 +266,29 @@ const paginateDevices = async (req, res) => {
     return responseService.error(req, res, "Internal Server Error", {}, 500);
   }
 };
+const getClientDevices = async (req, res) => {
+  try {
+    const { client_id } = req.body;
+    // Fetch all Devices with associated Client and DeviceType data
+    const devices = await Device.findAll({
+      where: { client_id: client_id },
+      include: [
+        { model: Client, as: "client" },
+        { model: DeviceType, as: "deviceType" },
+      ],
+    });
+    return responseService.success(
+      req,
+      res,
+      "Devices fetched successfully",
+      devices,
+      200
+    );
+  } catch (error) {
+    console.error("Error in getDevices function:", error.message);
+    return responseService.error(req, res, "Internal Server Error", {}, 500);
+  }
+};
 
 module.exports = {
   addDevice,
@@ -274,4 +297,5 @@ module.exports = {
   viewDevice,
   getDevices,
   paginateDevices,
+  getClientDevices,
 };

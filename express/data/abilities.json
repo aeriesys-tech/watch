@@ -246,5 +246,26 @@
                 "description": "Get all the abilities with role ability status"
             }
         ]
+    },
+    {
+        "module": "User Check Parameters",
+        "abilities": [
+            {
+                "ability": "user_check_parameters.view",
+                "description": "View User Check Parameters"
+            },
+            {
+                "ability": "user_check_parameters.create",
+                "description": "Create User Check Parameters"
+            },
+            {
+                "ability": "user_check_parameters.update",
+                "description": "Edit User Check Parameters"
+            },
+            {
+                "ability": "user_check_parameters.delete",
+                "description": "Delete User Check Parameters"
+            }
+        ]
     }
 ]
