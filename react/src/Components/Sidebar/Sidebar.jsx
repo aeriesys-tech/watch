@@ -572,8 +572,9 @@ function Sidebar() {
         sessionStorage.removeItem("auth");
         sessionStorage.removeItem("token");
         dispatch(clearUser());
-        navigate("/auth/login");
         toast.success("User Logged Out successful!");
+        navigate("/auth/login");
+        
       } else {
         toast.error("Logout failed. Please try again.");
       }

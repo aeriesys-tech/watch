@@ -11,3 +11,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+/* Add this CSS to your styles */
+.p-multiselect-panel {
+  z-index: 1060 !important; /* Ensure this is higher than the modal's z-index */
+}
+.modal {
+  overflow: visible;
+}
+
+.modal-dialog {
+  overflow-y: initial !important;
+}
+
+.modal-body {
+  overflow-y: auto;
+}
