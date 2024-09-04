@@ -496,10 +496,11 @@ function Sidebar() {
   const location = useLocation();
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [mobileNo, setMobileNo] = useState("");
-  const [address, setAddress] = useState("");
+  const [roleGroup, setRoleGroup] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [username, setUsername] = useState("");
+  // const [mobileNo, setMobileNo] = useState("");
+  // const [address, setAddress] = useState("");
   const [avatar, setAvatar] = useState(null);
   const navigate = useNavigate();
 
@@ -511,12 +512,13 @@ function Sidebar() {
   const fetchUserData = () => {
     if (user) {
       setName(user.name);
-      setEmail(user.email);
-      setUsername(user.username);
-      setMobileNo(user.mobile_no);
-      setAddress(user.address);
+      // setEmail(user.email);
+      // setUsername(user.username);
+      // setMobileNo(user.mobile_no);
+      // setAddress(user.address);
       setAvatar(user.avatar);
       setRole(user.role);
+      setRoleGroup(user.role_group)
     } else {
       console.log("User data not found in Redux store");
     }
@@ -571,6 +573,7 @@ function Sidebar() {
         sessionStorage.removeItem("token");
         dispatch(clearUser());
         navigate("/auth/login");
+        toast.success("User Logged Out successful!");
       } else {
         toast.error("Logout failed. Please try again.");
       }
@@ -623,7 +626,7 @@ function Sidebar() {
             hasPermission(["check_parameters.view"]) ||
             hasPermission(["check_groups.view"]) ||
             hasPermission(["units.view"]) ||
-            hasPermission(["device_types.view"])) && (
+            hasPermission(["device_types.view"])) && roleGroup == 'Admin' && (
             <div className="nav-group">
               <a href="#" className="nav-label" onClick={handleToggleDropdown1}>
                 <i className="ri-user-settings-line"></i>
@@ -680,7 +683,7 @@ function Sidebar() {
             </div>
           )}
 
-          {hasPermission(["clients.view"]) && (
+          {hasPermission(["clients.view"]) && roleGroup == 'Admin'  && (
             <div className="nav-group">
               <Link to="/clients" className="nav-label no_icon">
                 <i className="ri-group-line"></i> <span>Clients</span>
@@ -688,7 +691,7 @@ function Sidebar() {
             </div>
           )}
 
-          {(hasPermission(["roles.view"]) || hasPermission(["users.view"])) && (
+          {(hasPermission(["roles.view"]) || hasPermission(["users.view"]))  && roleGroup == 'Admin'  && (
             <div className="nav-group">
               <a href="#" className="nav-label" onClick={handleToggleDropdown}>
                 <i className="ri-file-text-line"></i>
@@ -716,6 +719,13 @@ function Sidebar() {
                   </li>
                 )}
               </ul>
+            </div>
+          )}
+          {roleGroup == 'Client'  && (
+            <div className="nav-group">
+              <Link to="/subscribers" className="nav-label no_icon">
+                <i className="ri-group-line"></i> <span>Subscribers</span>
+              </Link>
             </div>
           )}
         </div>

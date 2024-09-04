@@ -28,7 +28,7 @@ function CombinedDeviceClientUser() {
     const [deletingClientUserId, setDeletingClientUserId] = useState(null);
     // Common pagination states
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(5);
     const [search, setSearch] = useState('');
     const [newUser, setNewUser] = useState({
         client_id: client_id,
