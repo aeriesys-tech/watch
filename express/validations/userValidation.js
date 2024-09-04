@@ -30,12 +30,24 @@ const addUserValidation = (req, res, next) => {
       .withMessage("Password must be at least 6 characters long")
       .notEmpty()
       .withMessage("Password is required"),
+    // body("mobile_no")
+    //   .isString()
+    //   .withMessage("Mobile number must be a string")
+    //   .trim()
+    //   .isMobilePhone("en-IN")
+    //   .withMessage("Enter a valid mobile number")
+    //   .notEmpty()
+    //   .withMessage("Mobile number is required"),
     body("mobile_no")
+      .trim()
       .isString()
       .withMessage("Mobile number must be a string")
-      .trim()
-      .isMobilePhone("en-IN")
-      .withMessage("Enter a valid mobile number")
+      // .isLength({ min: 10, max: 15 })
+      // .withMessage("Mobile number must be between 10 and 15 digits")
+      // .isMobilePhone("en-IN")
+      // .withMessage("Enter a valid mobile number")
+      .matches(/^[0-9]{10,15}$/)
+      .withMessage("Enter a valid mobile number & it must be between 10 and 15 digits")
       .notEmpty()
       .withMessage("Mobile number is required"),
     body("role_id")
@@ -79,7 +91,6 @@ const updateUserValidation = (req, res, next) => {
       .withMessage("Name is required")
       .trim()
       .escape(),
-
     body("email")
       .optional()
       .isEmail()
@@ -95,16 +106,19 @@ const updateUserValidation = (req, res, next) => {
       .withMessage("Username is required")
       .trim()
       .escape(),
-
     body("mobile_no")
+      .trim()
       .optional()
       .isString()
       .withMessage("Mobile number must be a string")
-      .isMobilePhone("en-IN")
-      .withMessage("Enter a valid mobile number")
+      // .isLength({ min: 10, max: 15 })
+      // .withMessage("Mobile number must be between 10 and 15 digits")
+      // .isMobilePhone()
+      // .withMessage("Enter a valid mobile number")
+      .matches(/^[0-9]{10,15}$/)
+      .withMessage("Enter a valid mobile number & it must be between 10 and 15 digits")
       .notEmpty()
-      .withMessage("Mobile number is required")
-      .trim(),
+      .withMessage("Mobile number is required"),
     body("role_id")
       .optional()
       .isInt()

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const clientUserController = require("../controllers/clientUserController");
 const authMiddleware = require("../middleware/authMiddleware");
+const { checkPermission } = require("../middleware/permissionsMiddleware");
 const {
   addClientUserValidation,
   updateClientUserValidation,
@@ -16,6 +17,7 @@ const {
 router.post(
   "/addClientUser",
   authMiddleware,
+  checkPermission("client_users.create"),
   addClientUserValidation,
   clientUserController.addClientUser
 );
@@ -24,6 +26,7 @@ router.post(
 router.post(
   "/updateClientUser",
   authMiddleware,
+  checkPermission("client_users.update"),
   updateClientUserValidation,
   clientUserController.updateClientUser
 );
@@ -32,6 +35,7 @@ router.post(
 router.post(
   "/deleteClientUser",
   authMiddleware,
+  checkPermission("client_users.delete"),
   deleteClientUserValidation,
   clientUserController.deleteClientUser
 );
@@ -40,6 +44,7 @@ router.post(
 router.post(
   "/viewClientUser",
   authMiddleware,
+  checkPermission("client_users.view"),
   viewClientUserValidation,
   clientUserController.viewClientUser
 );
@@ -48,6 +53,7 @@ router.post(
 router.post(
   "/getClientUsers",
   authMiddleware,
+  checkPermission("client_users.view"),
   clientUserController.getClientUsers
 );
 
@@ -55,6 +61,7 @@ router.post(
 router.post(
   "/paginateClientUsers",
   authMiddleware,
+  checkPermission("client_users.view"),
   paginateClientUsersValidation,
   clientUserController.paginateClientUsers
 );

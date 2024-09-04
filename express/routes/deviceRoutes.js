@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const deviceController = require("../controllers/deviceController");
 const authMiddleware = require("../middleware/authMiddleware");
+const { checkPermission } = require("../middleware/permissionsMiddleware");
 const {
   addDeviceValidation,
   updateDeviceValidation,
@@ -15,6 +16,7 @@ router.post(
   "/addDevice",
   authMiddleware,
   addDeviceValidation,
+  checkPermission("devices.create"),
   deviceController.addDevice
 );
 
@@ -22,6 +24,7 @@ router.post(
   "/updateDevice",
   authMiddleware,
   updateDeviceValidation,
+  checkPermission("devices.update"),
   deviceController.updateDevice
 );
 
@@ -29,6 +32,7 @@ router.post(
   "/deleteDevice",
   authMiddleware,
   deleteDeviceValidation,
+  checkPermission("devices.delete"),
   deviceController.deleteDevice
 );
 
@@ -36,15 +40,22 @@ router.post(
   "/viewDevice",
   authMiddleware,
   viewDeviceValidation,
+  checkPermission("devices.view"),
   deviceController.viewDevice
 );
 
-router.post("/getDevices", authMiddleware, deviceController.getDevices);
+router.post(
+  "/getDevices",
+  authMiddleware,
+  checkPermission("devices.view"),
+  deviceController.getDevices
+);
 
 router.post(
   "/paginateDevices",
   authMiddleware,
   paginateDeviceValidation,
+  checkPermission("devices.view"),
   deviceController.paginateDevices
 );
 

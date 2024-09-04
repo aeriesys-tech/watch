@@ -5,14 +5,7 @@ const responseService = require("../services/responseService");
 // Add a new device user
 const addDeviceUser = async (req, res) => {
   try {
-    const {
-      client_id,
-      device_id,
-      user_id,
-      from_date_time,
-      to_date_time,
-      status,
-    } = req.body;
+    const { client_id, device_id, user_id, from_date_time, to_date_time, status } = req.body;
 
     // Object to collect validation errors
     const errors = {};
@@ -48,40 +41,20 @@ const addDeviceUser = async (req, res) => {
     }
 
     // Create the new device user entry
-    const newDeviceUser = await DeviceUser.create({
-      client_id,
-      device_id,
-      user_id,
-      from_date_time,
-      to_date_time,
-      status,
-    });
+    const newDeviceUser = await DeviceUser.create({ client_id, device_id, user_id, from_date_time, to_date_time, status });
 
-    return responseService.success(
-      req,
-      res,
-      "Device User created successfully",
-      newDeviceUser,
-      201
-    );
+    return responseService.success( req, res, "Device User created successfully", newDeviceUser, 201 );
+
   } catch (error) {
-    console.error("Error in addDeviceUser function:", error.message);
-    return responseService.error(req, res, "Internal Server Error", {}, 500);
+      console.error("Error in addDeviceUser function:", error.message);
+      return responseService.error(req, res, "Internal Server Error", {}, 500);
   }
 };
 
 // Update an existing device user
 const updateDeviceUser = async (req, res) => {
   try {
-    const {
-      device_user_id,
-      client_id,
-      device_id,
-      user_id,
-      from_date_time,
-      to_date_time,
-      status,
-    } = req.body;
+    const { device_user_id, client_id, device_id, user_id, from_date_time, to_date_time, status } = req.body;
 
     // Object to collect validation errors
     const errors = {};

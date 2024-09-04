@@ -86,6 +86,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     console.log("Token valid.");
+    
     // Attach user info to response locals
     req.user = decoded;
     res.locals.user = decoded; // Store the decoded user data in res.locals

@@ -16,7 +16,9 @@ const addRole = async (req, res) => {
     }
 
     // Check if the role and group combination already exists in the database
-    const existingRole = await Role.findOne({ where: { role, group } });
+    // const existingRole = await Role.findOne({ where: { role, group } });
+    const existingRole = await Role.findOne({ where: { role } });
+
     if (existingRole) {
       const errors = { role: "Role with this group already exists" };
       return responseService.error(req, res, "Validation Error", errors, 400);

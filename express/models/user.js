@@ -98,6 +98,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.UserToken, {
       foreignKey: "user_id",
     });
+    User.hasMany(models.ClientUser, {
+      foreignKey: 'user_id', // Assuming this is the foreign key in ClientUser
+      as: 'clientUsers', // This is the alias you can use in includes
+  });
   };
 
   return User;

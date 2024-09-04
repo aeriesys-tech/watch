@@ -30,14 +30,25 @@ const updateProfileValidation = (req, res, next) => {
       .notEmpty()
       .withMessage("Username is required"),
     ,
+    // check("mobile_no")
+    //   .optional()
+    //   .isMobilePhone()
+    //   .trim()
+    //   .withMessage("Enter a valid mobile number")
+    //   .notEmpty()
+    //   .withMessage("Mobile number is required"),
     check("mobile_no")
-      .optional()
-      .isMobilePhone()
       .trim()
-      .withMessage("Enter a valid mobile number")
+      .isString()
+      .withMessage("Mobile number must be a string")
+      // .isLength({ min: 10, max: 15 })
+      // .withMessage("Mobile number must be between 10 and 15 digits")
+      // .isMobilePhone()
+      // .withMessage("Enter a valid mobile number")
+      .matches(/^[0-9]{10,15}$/)
+      .withMessage("Enter a valid mobile number & it must be between 10 and 15 digits")
       .notEmpty()
       .withMessage("Mobile number is required"),
-    ,
     check("address")
       .optional()
       .isString()

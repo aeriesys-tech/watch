@@ -65,5 +65,15 @@ module.exports = (sequelize, DataTypes) => {
       deletedAt: "deleted_at",
     }
   );
+
+  // Define associations
+  Client.associate = (models) => {
+    Client.hasMany(models.Device, { as: "devices", foreignKey: "client_id" });
+    Client.hasMany(models.ClientUser, {
+      as: "clientUsers",
+      foreignKey: "client_id",
+    });
+  };
+
   return Client;
 };

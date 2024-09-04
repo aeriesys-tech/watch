@@ -1,4 +1,4 @@
-const { Client } = require("../models");
+const { Client, Device, ClientUser, DeviceType, User } = require("../models");
 const { Op } = require("sequelize");
 const responseService = require("../services/responseService");
 
@@ -165,23 +165,75 @@ const deleteClient = async (req, res) => {
   }
 };
 
-// View a client
 const viewClient = async (req, res) => {
   try {
     const { client_id } = req.body;
-    const client = await Client.findByPk(client_id);
+
+    // Fetch client details along with associated devices, device types, and users
+    const client = await Client.findByPk(client_id, {
+      include: [
+        {
+          model: Device,
+          as: "devices",
+          include: [
+            {
+              model: DeviceType,
+              as: "deviceType", // Alias should match the association in Device model
+            },
+          ],
+        },
+        {
+          model: ClientUser,
+          as: "clientUsers",
+          include: [
+            {
+              model: User,
+              as: "user", // Alias should match the association in ClientUser model
+            },
+          ],
+        },
+      ],
+    });
+
     if (!client) {
       return responseService.error(req, res, "Client not found", {}, 404);
     }
+
+    // Convert Sequelize instance to plain object
+    const clientData = client.toJSON();
+
+    // Format the response to include user names and device types
+    const formattedClient = {
+      ...clientData,
+      clientUsers: clientData.clientUsers.map((clientUser) => ({
+        ...clientUser,
+        userName: clientUser.user ? clientUser.user.name : null, // Ensure correct field name
+        user: undefined, // Remove user property to avoid circular reference
+      })),
+      devices: clientData.devices.map((device) => ({
+        ...device,
+        deviceTypeName: device.deviceType
+          ? device.deviceType.device_type
+          : null, // Ensure correct field name
+        deviceType: undefined, // Remove deviceType property to avoid circular reference
+      })),
+    };
+
     return responseService.success(
       req,
       res,
       "Client retrieved successfully",
-      client
+      formattedClient
     );
   } catch (error) {
-    console.error("Error in viewClient function:", error.message);
-    return responseService.error(req, res, "Internal Server Error", {}, 500);
+    console.error("Error in viewClient function:", error); // Log the full error
+    return responseService.error(
+      req,
+      res,
+      "Internal Server Error",
+      { error: error.message },
+      500
+    );
   }
 };
 

@@ -1,4 +1,4 @@
-const { User, Role, RoleAbility, Ability, UserToken } = require("../models");
+const { User, Role, RoleAbility, Ability, UserToken, ClientUser, Client } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
@@ -6,6 +6,99 @@ const crypto = require("crypto");
 require("dotenv").config();
 const responseService = require("../services/responseService");
 const { Op } = require("sequelize");
+
+// const login = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     // Find the user by email
+//     const user = await User.findOne({
+//       where: { email },
+//       include: [
+//         {
+//           model: Role,
+//           include: [
+//             {
+//               model: RoleAbility,
+//               as: "roleAbilities",
+//               include: [
+//                 {
+//                   model: Ability,
+//                   as: "ability",
+//                 },
+//               ],
+//             },
+//           ],
+//         },
+//       ],
+//     });
+
+//     if (!user) {
+//       return responseService.error(req, res, "Email not found", { email: "Invalid email or email not found" }, 400);
+//     }
+
+//     // Compare the provided password with the stored hashed password
+//     const validPassword = await bcrypt.compare(password, user.password);
+//     if (!validPassword) {
+//       return responseService.error(req, res, "Password is incorrect", { password: "Invalid password" }, 400);
+//     }
+
+//     await UserToken.destroy({ where: { user_id: user.user_id } });
+
+//     // Generate JWT token
+//     const token = jwt.sign(
+//       { id: user.user_id, role: user.role_id },
+//       process.env.JWT_SECRET,
+//       { expiresIn: process.env.TOKEN_EXPIRY }
+//     );
+
+//     // Calculate token expiration date
+//     const expireAt = new Date();
+//     expireAt.setHours(expireAt.getHours() + parseInt(process.env.TOKEN_EXPIRY)); // Token expiry in hours
+
+//     // Save the token to the UserToken table
+//     await UserToken.create({
+//       user_id: user.user_id,
+//       token: token,
+//       expire_at: expireAt,
+//     });
+
+//     // Extract user's abilities if Role and roleAbilities are not null
+//     const abilities =
+//       user.Role && user.Role.roleAbilities
+//         ? user.Role.roleAbilities.map(
+//           (roleAbility) => roleAbility.ability && roleAbility.ability.ability
+//         )
+//         : [];
+
+//     // Construct user object with only required fields
+//     const userWithoutPassword = {
+//       user_id: user.user_id,
+//       name: user.name,
+//       email: user.email,
+//       username: user.username,
+//       mobile_no: user.mobile_no,
+//       role_id: user.role_id,
+//       address: user.address,
+//       avatar: user.avatar,
+//       status: user.status,
+//       created_at: user.created_at,
+//       updated_at: user.updated_at,
+//       deleted_at: user.deleted_at,
+//       abilities,
+//     };
+
+//     // Respond with token and user object
+//     return responseService.success(req, res, "Login successful", {
+//       token,
+//       user: userWithoutPassword,
+//     });
+//   } catch (error) {
+//     console.error("Error in login function:", error.message);
+//     return responseService.error(req, res, "Internal server error", null, 500);
+//   }
+// };
+
+// Update Profile function
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -33,13 +126,25 @@ const login = async (req, res) => {
     });
 
     if (!user) {
-      return responseService.error(req, res, "Email not found", { email: "Invalid email or email not found" }, 400);
+      return responseService.error(
+        req,
+        res,
+        "Email not found",
+        { email: "Invalid email or email not found" },
+        400
+      );
     }
 
     // Compare the provided password with the stored hashed password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return responseService.error(req, res, "Password is incorrect", { password: "Invalid password" }, 400);
+      return responseService.error(
+        req,
+        res,
+        "Password is incorrect",
+        { password: "Invalid password" },
+        400
+      );
     }
 
     await UserToken.destroy({ where: { user_id: user.user_id } });
@@ -64,11 +169,14 @@ const login = async (req, res) => {
 
     // Extract user's abilities if Role and roleAbilities are not null
     const abilities =
-      user.Role && user.Role.roleAbilities
-        ? user.Role.roleAbilities.map(
-          (roleAbility) => roleAbility.ability && roleAbility.ability.ability
-        )
-        : [];
+      user.Role && user.Role.roleAbilities ? user.Role.roleAbilities.map(
+        (roleAbility) => roleAbility.ability && roleAbility.ability.ability
+      ) : [];
+
+    const client = await ClientUser.findOne({ 
+      where: { user_id: user.user_id }, 
+      include: [ { model: Client, as: 'client', attributes: ['client_id', 'client_code', 'client_name'] } ]     
+    } )
 
     // Construct user object with only required fields
     const userWithoutPassword = {
@@ -78,6 +186,8 @@ const login = async (req, res) => {
       username: user.username,
       mobile_no: user.mobile_no,
       role_id: user.role_id,
+      role: user.Role ? user.Role.role : null, // Add role field here
+      role_group: user.Role.group ? user.Role.group : null,
       address: user.address,
       avatar: user.avatar,
       status: user.status,
@@ -85,6 +195,7 @@ const login = async (req, res) => {
       updated_at: user.updated_at,
       deleted_at: user.deleted_at,
       abilities,
+      clientUserInfo: client
     };
 
     // Respond with token and user object
@@ -93,12 +204,11 @@ const login = async (req, res) => {
       user: userWithoutPassword,
     });
   } catch (error) {
-    console.error("Error in login function:", error.message);
-    return responseService.error(req, res, "Internal server error", null, 500);
+      console.error("Error in login function:", error.message);
+      return responseService.error(req, res, "Internal server error", null, 500);
   }
 };
 
-// Update Profile function
 const updateProfile = async (req, res) => {
   const userId = req.user.id;
   const { name, username, mobile_no, address } = req.body;
@@ -139,7 +249,12 @@ const updateProfile = async (req, res) => {
       },
     });
 
-    return responseService.success(req, res, "Profile updated successfully", user);
+    return responseService.success(
+      req,
+      res,
+      "Profile updated successfully",
+      user
+    );
   } catch (error) {
     console.error("Error in updateProfile function:", error.message);
     return responseService.error(req, res, "Internal server error", null, 500);
@@ -160,7 +275,13 @@ const updatePassword = async (req, res) => {
   const { oldPassword, newPassword, confirmPassword } = req.body;
 
   if (newPassword !== confirmPassword) {
-    return responseService.error(req, res, "New password and confirm password do not match", {}, 400);
+    return responseService.error(
+      req,
+      res,
+      "New password and confirm password do not match",
+      {},
+      400
+    );
   }
 
   try {
@@ -196,7 +317,13 @@ const forgotPassword = async (req, res) => {
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return responseService.error(req, res, "User not found", { email: "User not found" }, 404);
+      return responseService.error(
+        req,
+        res,
+        "User not found",
+        { email: "User not found" },
+        404
+      );
     }
 
     const otp = crypto.randomInt(100000, 999999).toString(); // Generate a 6-digit OTP
@@ -217,7 +344,13 @@ const forgotPassword = async (req, res) => {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        return responseService.error(req, res, "Failed to send email", error, 500);
+        return responseService.error(
+          req,
+          res,
+          "Failed to send email",
+          error,
+          500
+        );
       }
       return responseService.success(req, res, "Reset password email sent");
     });
@@ -231,13 +364,25 @@ const resetPassword = async (req, res) => {
   const { email, otp, newPassword, confirmPassword } = req.body;
 
   if (newPassword !== confirmPassword) {
-    return responseService.error(req, res, "Passwords do not match", { confirmPassword: "Passwords do not match" }, 400);
+    return responseService.error(
+      req,
+      res,
+      "Passwords do not match",
+      { confirmPassword: "Passwords do not match" },
+      400
+    );
   }
 
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return responseService.error(req, res, "User not found", { email: "User not found" }, 404);
+      return responseService.error(
+        req,
+        res,
+        "User not found",
+        { email: "User not found" },
+        404
+      );
     }
 
     const userToken = await UserToken.findOne({
@@ -249,7 +394,13 @@ const resetPassword = async (req, res) => {
     });
 
     if (!userToken) {
-      return responseService.error(req, res, "Invalid OTP", { otp: "Invalid or expired OTP" }, 400);
+      return responseService.error(
+        req,
+        res,
+        "Invalid OTP",
+        { otp: "Invalid or expired OTP" },
+        400
+      );
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -277,7 +428,12 @@ const me = async (req, res) => {
       return responseService.error(req, res, "User not found", {}, 404);
     }
 
-    return responseService.success(req, res, "User retrieved successfully", user);
+    return responseService.success(
+      req,
+      res,
+      "User retrieved successfully",
+      user
+    );
   } catch (error) {
     return responseService.error(req, res, "Internal server error", null, 500);
   }
@@ -288,7 +444,13 @@ const logout = async (req, res) => {
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
-    return responseService.error(req, res, "Access denied. No token provided.", {}, 401);
+    return responseService.error(
+      req,
+      res,
+      "Access denied. No token provided.",
+      {},
+      401
+    );
   }
 
   try {

@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const checkGroupController = require("../controllers/checkGroupController");
+
+const { checkPermission } = require("../middleware/permissionsMiddleware");
 const authMiddleware = require("../middleware/authMiddleware");
 const {
   addCheckGroupValidation,
@@ -14,6 +16,7 @@ const {
 router.post(
   "/addCheckGroup",
   authMiddleware,
+  checkPermission("check_groups.create"),
   addCheckGroupValidation,
   checkGroupController.addCheckGroup
 );
@@ -21,6 +24,7 @@ router.post(
 router.post(
   "/updateCheckGroup",
   authMiddleware,
+  checkPermission("check_groups.update"),
   updateCheckGroupValidation,
   checkGroupController.updateCheckGroup
 );
@@ -28,6 +32,7 @@ router.post(
 router.post(
   "/deleteCheckGroup",
   authMiddleware,
+  checkPermission("check_groups.delete"),
   deleteCheckGroupValidation,
   checkGroupController.deleteCheckGroup
 );
@@ -35,6 +40,7 @@ router.post(
 router.post(
   "/viewCheckGroup",
   authMiddleware,
+  checkPermission("check_groups.view"),
   viewCheckGroupValidation,
   checkGroupController.viewCheckGroup
 );
@@ -42,12 +48,14 @@ router.post(
 router.post(
   "/getCheckGroups",
   authMiddleware,
+  checkPermission("check_groups.view"),
   checkGroupController.getCheckGroups
 );
 
 router.post(
   "/paginateCheckGroup",
   authMiddleware,
+  checkPermission("check_groups.view"),
   paginateCheckGroupsValidation,
   checkGroupController.paginateCheckGroups
 );

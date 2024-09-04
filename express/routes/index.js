@@ -13,6 +13,7 @@ const clientUserRoutes = require("./clientUserRoutes");
 const checkParameterRoutes = require("./checkParameterRoutes");
 const deviceRoutes = require("./deviceRoutes");
 const deviceUserRoutes = require("./deviceUserRoutes");
+const subscriberRoutes = require("./subscriberRoutes");
 // Use user routes
 router.use("/users", userRoutes);
 router.use("/roleAbilities", roleAbilityRoutes);
@@ -27,4 +28,6 @@ router.use("/clientUser", clientUserRoutes);
 router.use("/checkParamter", checkParameterRoutes);
 router.use("/device", deviceRoutes);
 router.use("/deviceUser", deviceUserRoutes);
+router.use("/subscriber", subscriberRoutes);
+
 module.exports = router;

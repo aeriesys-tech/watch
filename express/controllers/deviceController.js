@@ -196,6 +196,7 @@ const paginateDevices = async (req, res) => {
       order = "asc",
       search = "",
       status,
+      client_id, // Adding client_id from query parameters
     } = req.query;
 
     const offset = (page - 1) * limit;
@@ -210,7 +211,7 @@ const paginateDevices = async (req, res) => {
       ];
     }
 
-    // Implement search and status filter
+    // Implement search, status filter, and client_id filter
     const where = {
       ...(search && {
         [Op.or]: [
@@ -222,6 +223,7 @@ const paginateDevices = async (req, res) => {
         ],
       }),
       ...(status && { status: status === "active" ? true : false }),
+      ...(client_id && { client_id }), // Adding client_id filter
     };
 
     // Fetch paginated devices with related models
@@ -251,8 +253,6 @@ const paginateDevices = async (req, res) => {
       currentPage: parseInt(page, 10),
       totalItems: devices.count,
     };
-
-    // Check if there are any records
 
     // Return success response with paginated data
     return responseService.success(
