@@ -306,17 +306,20 @@ const getSubscriber = async (req, res, next) => {
             client_id: client_id,
             user_id: subscriber_id
           },
+
+
         }
       ]
     });
 
     if (!subscriber) {
+
       return responseService.error(req, res, "User not found", {}, 404);
     }
 
     // Fetch the latest DeviceUser with associated Device and DeviceType
     const latestDeviceUser = await DeviceUser.findOne({
-      attributes: ['device_id', 'from_date_time', 'to_date_time', 'status'],
+      attributes: ['device_user_id', 'device_id', 'from_date_time', 'to_date_time', 'status'],
       where: {
         user_id: subscriber_id,
         client_id: client_id
