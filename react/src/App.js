@@ -26,6 +26,7 @@ import Unauthorized from "./Pages/Unauthorized ";
 import PermissionBasedRoute from "./Services/PermissionBasedRoute";
 import Subscribers from "./Pages/Subscribers";
 import SubscribersDetails from "./Pages/SubscribersDetails";
+import AlertDetails from "./Pages/AlertDetails";
 function App() {
   return (
     <div>
@@ -159,6 +160,10 @@ function App() {
           <Route
             path="/subscribers/:subscriber_id"
             element={ <SubscribersDetails />}
+          />
+          <Route
+            path="/subscribers/Alerts/:client_id"
+            element={ <AlertDetails />}
           />
 
           <Route path="/unauthorized" element={<Unauthorized />} />{" "}

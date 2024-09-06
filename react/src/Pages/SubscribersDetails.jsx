@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from '../Components/Sidebar/Sidebar';
@@ -24,7 +24,11 @@ function SubscribersDetails()  {
     const [subscribersChecks, setSubscribersChecks] = useState()
     const [deviceUserId, setdeviceUserId] = useState({})
     const [editingChecks, seteditingChecks] = useState(null);
+    const [sosAlerts, setSosAlerts] = useState({})
+    const [sosAlertsStatus, setSosAlertsStatus] = useState(false)
     const navigate = useNavigate();  
+
+    const modalRef = useRef(null);
 
     const [NewDevice, setNewDevice] = useState({        
         client_id:'',
@@ -45,8 +49,8 @@ function SubscribersDetails()  {
                 await Promise.all([
                     getSubscribers(),
                     getDevice(),
-                    getCheckParameters()
-                ]);
+                    getCheckParameters(),
+                ]);                
             } catch (error) {
                 console.error('Error fetching initial data:', error);
             }
@@ -57,16 +61,54 @@ function SubscribersDetails()  {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            // Update the necessary data or state here
-            // Example: fetchUpdatedData();
             if (deviceUserId.length > 0) {
-                console.log('Updated device_user_ids:----', deviceUserId);
-                getSubscribersCheccks(); // Now deviceUserId is updated and can be used
+                // console.log('Updated device_user_ids:----', deviceUserId);
+                getSubscribersCheccks(); 
+                getSOSAlerts();
+                
             }
-        }, 60000); // 60,000 milliseconds = 1 minute
+        }, 60000); 
     
         return () => clearInterval(interval);
     }, [subscriber_id]);
+
+
+    useEffect(() => {
+        if (user?.clientUserInfo?.client_id) {
+          getSOSAlerts(); // Fetch alerts when component mounts or client_id changes
+        }
+      }, [user?.clientUserInfo?.client_id]);
+      
+    const getSOSAlerts = async () => {
+        setLoading(true);
+        try {
+          const data = await axiosWrapper(`/client/getPanicAlertTransactions`, {
+              data: { client_id: user?.clientUserInfo?.client_id }
+          }, navigate);
+          setSosAlerts(data.data);
+          console.log('modalRef.current:---', modalRef.current)
+          setTimeout(() => {
+            if (modalRef.current && data?.data?.transactions?.length > 0) {
+              const modalInstance = new window.bootstrap.Modal(modalRef.current);
+              modalInstance.show();
+              setSosAlertsStatus(true)
+            }
+          }, 500); // 
+
+        //   openModal();
+        //   const modal = new window.bootstrap.Modal(modalRef.current);
+        //   modal.show(); // Use Bootstrap's modal method to show the modal
+
+        //   const model_id = document.getElementById('alertModal').click()
+          setLoading(false);
+    
+        } catch (error) {
+            console.log('error:---', error)
+        //   toast.error('Error fetching SOS Alerts');
+          setSosAlerts([]);
+          setLoading(false);
+        }
+      }
 
      // useEffect to monitor deviceUserId updates
     useEffect(() => {
@@ -185,6 +227,34 @@ function SubscribersDetails()  {
         });
     };
 
+    const updatePanicAlerts = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        const oneTransaction = sosAlerts.transactions[0];
+        let data_check = {
+            device_user_id: oneTransaction.device_user_id,
+            check_parameter_id: oneTransaction.check_parameter_id
+        }
+        console.log('oneTransaction:---', oneTransaction)
+        try {            
+            const data = await axiosWrapper(`/client/setSoSTransactionStatusToFalse`, {data: data_check}, navigate);
+            // console.log('data.data.addDeviceUserWithCheckParameters:----', data.data)
+            toast.success(data.message);            
+            setLoading(false);
+            closeModal();
+            getSubscribers();
+            setSosAlertsStatus(false)
+        } catch (error) {
+            console.log('error:---', error)
+            toast.error('Error Adding Device User and CheckParameters');
+            setLoading(false);
+            closeModal();
+        }
+        finally{
+            closeModal();
+        }
+    }
+
     const handleUpdateDevice = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -261,14 +331,23 @@ function SubscribersDetails()  {
                                 { Array.isArray(subscriber?.deviceUsers)  && subscriber?.deviceUsers?.length > 0 ? (
                                     subscriber?.deviceUsers?.map((device, index) => (
                                         device.status ? (
-                                            <div style={{display:'flex'}}>
-                                                <button type="button" onClick={() => handleEditChecks(device)} className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
-                                                    Update Checks
-                                                </button>
-                                                &nbsp;
-                                                <button type="button" className="btn btn-danger d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
-                                                    Deactivate Device
-                                                </button>
+                                            <div style={{display:'flex', alignItems: 'center'}}>
+                                                {
+                                                    sosAlertsStatus && 
+                                                    <div>
+                                                        <i className="ri-alarm-warning-fill blink" style={{fontSize: '40px', color: 'red'}}></i> 
+                                                    </div>
+                                                }   
+                                                &nbsp;&nbsp;&nbsp;
+                                                <div style={{display:'flex'}}>
+                                                    <button type="button" onClick={() => handleEditChecks(device)} style={{height: '40px'}} className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
+                                                        Update Checks
+                                                    </button>
+                                                    &nbsp;
+                                                    <button type="button" className="btn btn-danger d-flex align-items-center gap-2" style={{height: '40px'}} data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
+                                                        Deactivate Device
+                                                    </button>                                                
+                                                </div>
                                             </div>
                                         ) : (
                                             
@@ -458,6 +537,31 @@ function SubscribersDetails()  {
                                 </div>
                             </div>
                         </div>
+
+                        <div className="modal fade" id="alertModal" ref={modalRef} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                            <form onSubmit={updatePanicAlerts} autoComplete="off">
+                                <div className="modal-dialog modal-md">
+                                    <div className="modal-content">
+                                        <div className="modal-header bg-danger text-white">
+                                            <h5 className="modal-title" id="exampleModalLabel">Alert</h5>
+                                        </div>
+                                        <div className="modal-body" style={{ overflow: 'visible', textAlign: 'center' }}>
+                                            <i className="ri-alarm-warning-fill blink" style={{ fontSize: '60px', color: 'red' }}></i>
+                                            <p style={{ fontSize: '20px', color: 'black', marginTop: '20px' }}>
+                                            Attention! {sosAlerts.count > 0 ? `You have ${sosAlerts.count} new alerts.` : 'No alerts at the moment.'}
+                                            </p>
+                                        </div>
+                                        <div className="modal-footer d-block border-top-0">
+                                            <div className="d-flex gap-2 mb-4">
+                                            <button type="button" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" className="btn btn-primary flex-fill">Attain</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
                     </>
                 )}
             </div>
