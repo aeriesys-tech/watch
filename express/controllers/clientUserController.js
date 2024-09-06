@@ -1,4 +1,4 @@
-const { ClientUser, Client, User } = require("../models");
+const { ClientUser, Client, User, } = require("../models");
 const responseService = require("../services/responseService"); // Assuming you have a response service for handling responses
 const { Op } = require("sequelize");
 
@@ -217,6 +217,8 @@ const paginateClientUsers = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   addClientUser,
   updateClientUser,
@@ -224,4 +226,5 @@ module.exports = {
   viewClientUser,
   getClientUsers,
   paginateClientUsers,
+
 };

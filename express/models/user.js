@@ -106,7 +106,12 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'user_id', // Assuming this is the foreign key in ClientUser
       as: 'deviceUsers', // This is the alias you can use in includes
     });
+    User.hasMany(models.Transaction, {
+      foreignKey: 'user_id', // Assuming this is the foreign key in ClientUser
+      as: 'transactions', // This is the alias you can use in includes
+    });
   };
+
 
   return User;
 };
