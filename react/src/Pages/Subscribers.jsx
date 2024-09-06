@@ -392,7 +392,7 @@ function Subscribers(){
                             <button type="button" className="btn-close modal_close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <form onSubmit={editingSubscriber ? handleUpdateSubscriber : handleAddSubscriber} autocomplete="off">
+                            <form onSubmit={editingSubscriber ? handleUpdateSubscriber : handleAddSubscriber} autoComplete="off">
                                 <div className="row g-3">
                                     <div className="col-md-6">
                                         <label className="form-label">Name <span className="text-danger">*</span></label>

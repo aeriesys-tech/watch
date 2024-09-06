@@ -489,6 +489,7 @@ import { clearUser } from "../../redux/user/UserSlice";
 import Bespoke_logo_svg from "../../Assets/assets/img/Bespoke_logo_svg 1.png";
 import authWrapper from "../../utils/AuthWrapper";
 import { hasPermission } from "../../Services/authUtils";
+import Bespoke_logo_tal_svg from "../../Assets/assets/img/TalwsLogo.svg"
 
 function Sidebar() {
   const user = useSelector((state) => state.user.user);
@@ -613,8 +614,8 @@ function Sidebar() {
   return (
     <>
       <div className="sidebar">
-        <div className="sidebar-header">
-          <img src={Bespoke_logo_svg} alt="Bespoke Logo" />
+        <div className="sidebar-header text-center">
+          <img src={Bespoke_logo_tal_svg} alt="Bespoke Logo" style={{width: '200px', height: '60px'}}/>
         </div>
 
         <div id="sidebarMenu" className="sidebar-body">

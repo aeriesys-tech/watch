@@ -21,6 +21,8 @@ function SubscribersDetails()  {
     const [devices, setDevices] = useState();
     const [checkParameters, setCheckParameters] = useState();
     const [loading, setLoading] = useState(true);
+    const [subscribersChecks, setSubscribersChecks] = useState()
+    const [deviceUserId, setdeviceUserId] = useState({})
     const navigate = useNavigate();  
 
     const [NewDevice, setNewDevice] = useState({        
@@ -31,26 +33,81 @@ function SubscribersDetails()  {
         check_parameter_ids: [],
     });
 
+    // useEffect(() => {
+    //     getSubscribers();
+    //     getDevice();
+    //     getCheckParameters();
+    // }, []);
     useEffect(() => {
-        getSubscribers();
-        getDevice();
-        getCheckParameters();
+        const fetchData = async () => {
+            try {
+                await Promise.all([
+                    getSubscribers(),
+                    getDevice(),
+                    getCheckParameters()
+                ]);
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+            }
+        };
+    
+        fetchData();
     }, []);
 
-    const getSubscribers = async () => {       
-        setLoading(true);
-        try {            
-            const data = await axiosWrapper(`/subscriber/getSubscriber`, {
-                data: {subscriber_id: subscriber_id, client_id: user?.clientUserInfo?.client_id}
-            }, navigate);
-            // console.log('data.data.sub:----', data.data)
-            setSubscriber(data.data)
-            setLoading(false);
-        } catch (error) {
-            toast.error('Error fetching Subscribers');
-            setSubscriber([]);
-            setLoading(false);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // Update the necessary data or state here
+            // Example: fetchUpdatedData();
+            getSubscribersCheccks()
+        }, 60000); // 60,000 milliseconds = 1 minute
+    
+        return () => clearInterval(interval);
+    }, []);
+
+     // useEffect to monitor deviceUserId updates
+    useEffect(() => {
+        if (deviceUserId.length > 0) {
+            console.log('Updated device_user_ids:----', deviceUserId);
+            getSubscribersCheccks(); // Now deviceUserId is updated and can be used
         }
+    }, [deviceUserId]);
+
+const getSubscribers = async () => {
+    setLoading(true);
+    try {
+        const data = await axiosWrapper(`/subscriber/getSubscriber`, {
+            data: { subscriber_id: subscriber_id, client_id: user?.clientUserInfo?.client_id }
+        }, navigate);
+
+        setSubscriber(data.data);
+        setLoading(false);
+
+        if (Array.isArray(data.data?.deviceUsers)) {
+            const deviceUserIds = data.data.deviceUsers.map(user => user.device_user_id);
+            setdeviceUserId(deviceUserIds); // Setting state asynchronously
+        }
+    } catch (error) {
+        toast.error('Error fetching Subscribers');
+        setSubscriber([]);
+        setLoading(false);
+    }
+};
+
+    const getSubscribersCheccks = async () => {     
+            setLoading(true);
+            try {            
+                const data = await axiosWrapper(`/userCheckParameter/getCheckParametersByDeviceUserId`, {
+                    data: {device_user_id: deviceUserId[0]}
+                }, navigate);
+                console.log('data.data.sub:----', data.data)
+                setSubscribersChecks(data.data)
+                setLoading(false);
+            } catch (error) {
+                toast.error('Error fetching Subscribers Checks');
+                setSubscribersChecks([]);
+                setLoading(false);
+            }
+        
     }
 
     const getDevice = async () => {
@@ -128,8 +185,11 @@ function SubscribersDetails()  {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewDevice((prevUser) => ({ ...prevUser, [name]: value }));
-        setNewDevice(prevState => ({...prevState,  ['client_id']: user?.clientUserInfo?.client_id }));        
-        setNewDevice(prevState => ({...prevState,  ['user_id']: user?.user_id }));
+        // setNewDevice(prevState => ({...prevState,  ['client_id']: user?.clientUserInfo?.client_id }));        
+        // setNewDevice(prevState => ({...prevState,  ['user_id']: user?.user_id }));
+        
+        setNewDevice(prevState => ({...prevState,  client_id: user?.clientUserInfo?.client_id }));        
+        setNewDevice(prevState => ({...prevState,  user_id: user?.user_id }));
     };
 
     const handleMultiSelectChange = (e) => {
@@ -225,6 +285,48 @@ function SubscribersDetails()  {
                                                 </p>) 
                                             }
                                                 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="col-md-9 align-item-center">
+                                <div className="card card-one" >
+                                    <div className="card-header">
+                                        <h6 className="card-title">Chek Parameters</h6>
+                                    </div>
+                                    <div className="card-body">
+                                        <div className='row'>
+                                            <div className='col-md-4'>
+                                                <div className="card card-one" >
+                                                    <div className="card-header">
+                                                        <h6 className="card-title">Heart rate</h6>
+                                                    </div>
+                                                    <div className="card-body">
+                                                        heart Rate value
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className='col-md-4'>
+                                                <div className="card card-one" >
+                                                    <div className="card-header">
+                                                        <h6 className="card-title">Blood Pressure</h6>
+                                                    </div>
+                                                    <div className="card-body">
+                                                        BP value
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className='col-md-4'>
+                                                <div className="card card-one" >
+                                                    <div className="card-header">
+                                                        <h6 className="card-title">SPO2</h6>
+                                                    </div>
+                                                    <div className="card-body">
+                                                        SPO2 value
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
