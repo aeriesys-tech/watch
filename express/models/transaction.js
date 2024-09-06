@@ -55,6 +55,11 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.TEXT,
                 allowNull: true,
             },
+            status: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: true, // Set the default value if needed
+            },
             created_at: {
                 type: DataTypes.DATE,
                 allowNull: true,
@@ -98,8 +103,6 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: "device_user_id", // Ensure this foreign key is correct
             as: "userCheckParameter", // Adjust the alias as per your need
         });
-
-
     };
 
     return Transaction;

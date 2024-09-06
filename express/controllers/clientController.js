@@ -1,4 +1,4 @@
-const { Client, Device, ClientUser, DeviceType, User } = require("../models");
+const { Client, Device, ClientUser, DeviceType, User, CheckParameter, Transaction, DeviceUser } = require("../models");
 const { Op } = require("sequelize");
 const responseService = require("../services/responseService");
 
@@ -310,6 +310,120 @@ const paginateClients = async (req, res) => {
     return responseService.error(req, res, "Internal Server Error", {}, 500);
   }
 };
+const getPanicAlertTransactions = async (req, res) => {
+  try {
+    // Get client_id from the request body or params (based on your setup)
+    const { client_id } = req.body;
+
+    if (!client_id) {
+      return responseService.error(req, res, "Validation Error", { client_id: "Client ID is required" }, 400);
+    }
+
+    // Fetch the check_parameter_id for "Panic Alert"
+    const panicAlert = await CheckParameter.findOne({
+      where: { parameter_name: "Panic Alert" },
+      attributes: ["check_parameter_id"], // Fetch only the ID
+    });
+
+    if (!panicAlert) {
+      return responseService.error(req, res, "Not Found", { parameter_name: "Panic Alert parameter not found" }, 404);
+    }
+
+    const { check_parameter_id } = panicAlert;
+
+    // Fetch all transactions with the given client_id, check_parameter_id, and status = true
+    const transactions = await Transaction.findAll({
+      where: {
+        client_id,
+        check_parameter_id,
+        status: true,
+      },
+      attributes: ["transaction_id", "client_id", "user_id", "device_user_id", "check_parameter_id", "timestamp"], // Specify attributes if needed
+      include: [
+        {
+          model: DeviceUser,
+          as: 'deviceUser',
+          attributes: ['user_id'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['name'], // Fetch user name
+            },
+          ],
+        },
+      ],
+    });
+
+    if (transactions.length === 0) {
+      return responseService.success(req, res, "No active Panic Alert transactions found", [], 200);
+    }
+
+    // Format the response to include user details
+    const result = transactions.map((transaction) => ({
+      transaction_id: transaction.transaction_id,
+      device_user_id: transaction.device_user_id,
+      check_parameter_id: transaction.check_parameter_id,
+      client_id: transaction.client_id,
+      user_id: transaction.deviceUser.user_id,
+      timestamp: transaction.timestamp,
+      user: transaction.deviceUser.user, // Get user name from the included data
+    }));
+
+    // Return the list of transactions with user names
+    return responseService.success(req, res, "Panic Alert transactions retrieved successfully", {
+      count: transactions.length,
+      transactions: result,
+    }, 200);
+  } catch (error) {
+    console.error("Error in getPanicAlertTransactions:", error.message);
+    return responseService.error(req, res, "Internal Server Error", {}, 500);
+  }
+};
+
+const setSoSTransactionStatusToFalse = async (req, res) => {
+  try {
+    // Get device_user_id and check_parameter_id from the request body
+    const { device_user_id, check_parameter_id } = req.body;
+
+    // Validate input
+    if (!device_user_id || !check_parameter_id) {
+      return responseService.error(req, res, "Validation Error", {
+        device_user_id: "Device User ID is required",
+        check_parameter_id: "Check Parameter ID is required",
+      }, 400);
+    }
+
+    // Update all matching transactions to set status to false
+    const [updatedCount] = await Transaction.update(
+      { status: false }, // Set status to false
+      {
+        where: {
+          device_user_id,
+          check_parameter_id,
+          status: true, // Only update if the current status is true
+        },
+      }
+    );
+
+    if (updatedCount === 0) {
+      return responseService.success(req, res, "No active transactions found to update", [], 200);
+    }
+
+    // Return success with the number of updated transactions
+    return responseService.success(
+      req,
+      res,
+      `${updatedCount} transaction(s) updated successfully`,
+      { updatedCount },
+      200
+    );
+  } catch (error) {
+    console.error("Error in setTransactionStatusToFalse:", error.message);
+    return responseService.error(req, res, "Internal Server Error", {}, 500);
+  }
+};
+
 
 module.exports = {
   addClient,
@@ -318,4 +432,6 @@ module.exports = {
   viewClient,
   getClients,
   paginateClients,
+  getPanicAlertTransactions,
+  setSoSTransactionStatusToFalse
 };

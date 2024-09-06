@@ -115,6 +115,50 @@ async function handleData(port, receivedData, socket) {
         response = "IWBP0720140818064408611#";
     } else if (receivedData.includes("AP10")) {
         response = "IWBP10#";
+
+        const valueAfterV = receivedData.split('V' || 'A')[1];
+
+        const parts = valueAfterV.split(/[N,E,#]/);
+        const vValue = parts[0];
+        const latitude = parts[1];
+        const longitude = parts[2];
+        const longitudeFirst4 = longitude.slice(0, 5);
+        for (let i = 0; i < checkParameter_names.length; i++) {
+            try {
+                // Await the resolution of the promise
+                let check_parameter = await CheckParameter.findOne({
+                    where: { parameter_name: checkParameter_names[i] },
+                });
+                if (check_parameter.parameter_name === 'Panic Alert') {
+
+                    const val = vValue + 'N' + latitude + 'E' + longitudeFirst4
+                    transactionData = {
+                        device_user_id,
+                        client_id,
+                        device_id,
+                        user_id,
+                        timestamp: new Date(),
+                        check_parameter_id: check_parameter.check_parameter_id,
+                        value: val,
+                    };
+
+                    try {
+                        await Transaction.create(transactionData);
+                        console.log("Transaction data saved:", transactionData);
+                    } catch (error) {
+                        console.error("Error saving transaction data:", error.message);
+                    }
+                }
+
+
+            } catch (error) {
+                console.error('Error fetching check parameter:', error.message);
+            }
+        }
+
+
+
+
         // Future: Implement database updates or other actions
     } else if (receivedData.includes("AP49")) {
         response = "IWBP49#";
@@ -145,23 +189,25 @@ async function handleData(port, receivedData, socket) {
                 if (check_parameter.parameter_name === 'Body Temperature') {
                     val = parts[6];
                 }
+                if (val) {
+                    transactionData = {
+                        device_user_id,
+                        client_id,
+                        device_id,
+                        user_id,
+                        timestamp: new Date(),
+                        check_parameter_id: check_parameter.check_parameter_id,
+                        value: val,
+                    };
 
-                transactionData = {
-                    device_user_id,
-                    client_id,
-                    device_id,
-                    user_id,
-                    timestamp: new Date(),
-                    check_parameter_id: check_parameter.check_parameter_id, // Assuming all parameters are logged under one check_parameter_id
-                    value: val,
-                };
-
-                try {
-                    await Transaction.create(transactionData);
-                    console.log("Transaction data saved:", transactionData);
-                } catch (error) {
-                    console.error("Error saving transaction data:", error.message);
+                    try {
+                        await Transaction.create(transactionData);
+                        console.log("Transaction data saved:", transactionData);
+                    } catch (error) {
+                        console.error("Error saving transaction data:", error.message);
+                    }
                 }
+
 
             } catch (error) {
                 console.error('Error fetching check parameter:', error.message);

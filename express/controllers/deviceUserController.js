@@ -93,7 +93,7 @@ const addDeviceUserWithCheckParameters = async (req, res) => {
 
     // Create the new device user entry
     const newDeviceUser = await DeviceUser.create({ client_id, device_id, user_id, from_date_time, to_date_time, status });
-    const updateDevice = await Device.update({ status: false }, { where: { device_id: device_id } });
+    // const updateDevice = await Device.update({ status: false }, { where: { device_id: device_id } });
     // Validate check_parameter_ids
     if (!Array.isArray(check_parameter_ids) || check_parameter_ids.length === 0) {
       errors.check_parameter_ids = "Must provide an array of check parameter IDs";
@@ -157,31 +157,50 @@ const updateDeviceUserCheckParameters = async (req, res) => {
     });
 
     // Extract existing check parameter IDs and their statuses
-    const existingCheckParameterIds = existingEntries.map(entry => ({
-      id: entry.check_parameter_id,
-      status: entry.status
-    }));
+    const existingCheckParameterMap = existingEntries.reduce((map, entry) => {
+      map[entry.check_parameter_id] = entry.status;
+      return map;
+    }, {});
 
-    // Determine which check parameter IDs need to be created
-    const newCheckParameterIds = check_parameter_ids.filter(id =>
-      !existingCheckParameterIds.some(entry => entry.id === id)
-    );
+    // Determine which check parameter IDs need to be created or re-activated
+    const newCheckParameterIds = [];
+    const reActivateCheckParameterIds = [];
+
+    check_parameter_ids.forEach(id => {
+      if (existingCheckParameterMap[id] === undefined) {
+        // New check parameter, not in the existing records
+        newCheckParameterIds.push(id);
+      } else if (existingCheckParameterMap[id] === false) {
+        // Check parameter exists but is inactive, so re-activate it
+        reActivateCheckParameterIds.push(id);
+      }
+    });
 
     // Determine which check parameter IDs need to be deactivated
-    const removeCheckParameterIds = existingCheckParameterIds
-      .filter(entry => !check_parameter_ids.includes(entry.id) && entry.status === true)
-      .map(entry => entry.id);
+    const removeCheckParameterIds = Object.keys(existingCheckParameterMap)
+      .filter(id => !check_parameter_ids.includes(parseInt(id)) && existingCheckParameterMap[id] === true)
+      .map(id => parseInt(id));
 
     // Create new UserCheckParameter entries
     const newEntries = await Promise.all(newCheckParameterIds.map(id =>
       UserCheckParameter.create({ device_user_id, check_parameter_id: id, status: true })
     ));
 
+    // Reactivate existing UserCheckParameter entries
+    if (reActivateCheckParameterIds.length > 0) {
+      await UserCheckParameter.update(
+        { status: true },
+        { where: { device_user_id, check_parameter_id: reActivateCheckParameterIds } }
+      );
+    }
+
     // Update removed UserCheckParameter entries to set status to false
-    await UserCheckParameter.update(
-      { status: false },
-      { where: { device_user_id, check_parameter_id: removeCheckParameterIds } }
-    );
+    if (removeCheckParameterIds.length > 0) {
+      await UserCheckParameter.update(
+        { status: false },
+        { where: { device_user_id, check_parameter_id: removeCheckParameterIds } }
+      );
+    }
 
     // Fetch updated entries
     const updatedEntries = await UserCheckParameter.findAll({
@@ -190,6 +209,7 @@ const updateDeviceUserCheckParameters = async (req, res) => {
 
     return responseService.success(req, res, "User Check Parameters updated successfully", {
       newEntries,
+      reActivatedCheckParameterIds: reActivateCheckParameterIds,
       removedCheckParameterIds: removeCheckParameterIds,
       updatedEntries
     }, 200);
@@ -199,6 +219,7 @@ const updateDeviceUserCheckParameters = async (req, res) => {
     return responseService.error(req, res, "Internal Server Error", {}, 500);
   }
 };
+
 
 
 // Update an existing device user
