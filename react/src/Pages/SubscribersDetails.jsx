@@ -23,6 +23,7 @@ function SubscribersDetails()  {
     const [loading, setLoading] = useState(true);
     const [subscribersChecks, setSubscribersChecks] = useState()
     const [deviceUserId, setdeviceUserId] = useState({})
+    const [editingChecks, seteditingChecks] = useState(null);
     const navigate = useNavigate();  
 
     const [NewDevice, setNewDevice] = useState({        
@@ -52,17 +53,20 @@ function SubscribersDetails()  {
         };
     
         fetchData();
-    }, []);
+    }, [subscriber_id]);
 
     useEffect(() => {
         const interval = setInterval(() => {
             // Update the necessary data or state here
             // Example: fetchUpdatedData();
-            getSubscribersCheccks()
+            if (deviceUserId.length > 0) {
+                console.log('Updated device_user_ids:----', deviceUserId);
+                getSubscribersCheccks(); // Now deviceUserId is updated and can be used
+            }
         }, 60000); // 60,000 milliseconds = 1 minute
     
         return () => clearInterval(interval);
-    }, []);
+    }, [subscriber_id]);
 
      // useEffect to monitor deviceUserId updates
     useEffect(() => {
@@ -70,28 +74,28 @@ function SubscribersDetails()  {
             console.log('Updated device_user_ids:----', deviceUserId);
             getSubscribersCheccks(); // Now deviceUserId is updated and can be used
         }
-    }, [deviceUserId]);
+    }, [deviceUserId, subscriber_id]);
 
-const getSubscribers = async () => {
-    setLoading(true);
-    try {
-        const data = await axiosWrapper(`/subscriber/getSubscriber`, {
-            data: { subscriber_id: subscriber_id, client_id: user?.clientUserInfo?.client_id }
-        }, navigate);
+    const getSubscribers = async () => {
+        setLoading(true);
+        try {
+            const data = await axiosWrapper(`/subscriber/getSubscriber`, {
+                data: { subscriber_id: subscriber_id, client_id: user?.clientUserInfo?.client_id }
+            }, navigate);
 
-        setSubscriber(data.data);
-        setLoading(false);
+            setSubscriber(data.data);
+            setLoading(false);
 
-        if (Array.isArray(data.data?.deviceUsers)) {
-            const deviceUserIds = data.data.deviceUsers.map(user => user.device_user_id);
-            setdeviceUserId(deviceUserIds); // Setting state asynchronously
+            if (Array.isArray(data.data?.deviceUsers)) {
+                const deviceUserIds = data.data.deviceUsers.map(user => user.device_user_id);
+                setdeviceUserId(deviceUserIds); // Setting state asynchronously
+            }
+        } catch (error) {
+            toast.error('Error fetching Subscribers');
+            setSubscriber([]);
+            setLoading(false);
         }
-    } catch (error) {
-        toast.error('Error fetching Subscribers');
-        setSubscriber([]);
-        setLoading(false);
-    }
-};
+    };
 
     const getSubscribersCheccks = async () => {     
             setLoading(true);
@@ -157,8 +161,42 @@ const getSubscribers = async () => {
             toast.success(data.message);            
             setLoading(false);
             closeModal();
+            getSubscribers();
         } catch (error) {
             toast.error('Error Adding Device User and CheckParameters');
+            setLoading(false);
+            closeModal();
+        }
+        finally{
+            closeModal();
+        }
+    }
+
+    const handleEditChecks = (device) => {
+        // setErrors({}); // Reset errors on new submission
+        seteditingChecks(device);
+        let check_parameter_ids = [];
+        for(let i=0; i<device?.userCheckParameters?.length; i++) {
+            check_parameter_ids.push(device.userCheckParameters[i].check_parameter_id)
+        }          
+        setNewDevice({
+            device_user_id: device.device_user_id,
+            check_parameter_ids: check_parameter_ids,
+        });
+    };
+
+    const handleUpdateDevice = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {            
+            const data = await axiosWrapper(`/deviceUser/updateDeviceUserWithCheckParameters`, {data: NewDevice}, navigate);
+            // console.log('data.data.addDeviceUserWithCheckParameters:----', data.data)
+            toast.success(data.message);            
+            setLoading(false);
+            closeModal();
+            getSubscribers();
+        } catch (error) {
+            toast.error('Error updating Device User and CheckParameters');
             setLoading(false);
             closeModal();
         }
@@ -189,7 +227,7 @@ const getSubscribers = async () => {
         // setNewDevice(prevState => ({...prevState,  ['user_id']: user?.user_id }));
         
         setNewDevice(prevState => ({...prevState,  client_id: user?.clientUserInfo?.client_id }));        
-        setNewDevice(prevState => ({...prevState,  user_id: user?.user_id }));
+        setNewDevice(prevState => ({...prevState,  user_id: subscriber_id}));
     };
 
     const handleMultiSelectChange = (e) => {
@@ -223,12 +261,19 @@ const getSubscribers = async () => {
                                 { Array.isArray(subscriber?.deviceUsers)  && subscriber?.deviceUsers?.length > 0 ? (
                                     subscriber?.deviceUsers?.map((device, index) => (
                                         device.status ? (
+                                            <div style={{display:'flex'}}>
+                                                <button type="button" onClick={() => handleEditChecks(device)} className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
+                                                    Update Checks
+                                                </button>
+                                                &nbsp;
+                                                <button type="button" className="btn btn-danger d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
+                                                    Deactivate Device
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            
                                             <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
                                                 Activate Device
-                                            </button>
-                                        ) : (
-                                            <button type="button" className="btn btn-danger d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
-                                                Deactivate Device
                                             </button>
                                         )
                                     ))
@@ -297,36 +342,52 @@ const getSubscribers = async () => {
                                     </div>
                                     <div className="card-body">
                                         <div className='row'>
-                                            <div className='col-md-4'>
-                                                <div className="card card-one" >
-                                                    <div className="card-header">
-                                                        <h6 className="card-title">Heart rate</h6>
+                                        {Array.isArray(subscribersChecks) && subscribersChecks.length > 0 ? 
+                                            subscribersChecks.map((checks, index) => (
+                                            <div className='col-md-4 mb-2' >
+                                                <div className="card card-one text-center" >
+                                                    <div className="card-header" style={{display:'inline'}}>
+                                                        <h6 className="card-title">{checks?.checkParameter?.parameter_name}</h6>
                                                     </div>
                                                     <div className="card-body">
-                                                        heart Rate value
+                                                        {
+                                                            checks?.checkParameter?.parameter_name === 'Heart Rate' && 
+                                                            Array(checks?.checkParameter?.transaction) && checks?.checkParameter?.transaction.length > 0 &&
+                                                            checks?.checkParameter?.transaction?.map((tran, ind) => (
+                                                                <div> <i className="ri-heart-pulse-fill"></i> {tran.value}</div>
+                                                            ))
+                                                        
+                                                        }
+                                                        {
+                                                            checks?.checkParameter?.parameter_name === 'Blood Pressure' && 
+                                                            Array(checks?.checkParameter?.transaction) && checks?.checkParameter?.transaction.length > 0 &&
+                                                            checks?.checkParameter?.transaction.map((tran, ind) => (
+                                                                <div>{tran.value}</div>
+                                                            ))
+                                                        
+                                                        }
+                                                        {
+                                                            checks?.checkParameter?.parameter_name === 'SPO2' && 
+                                                            Array(checks?.checkParameter?.transaction) && checks?.checkParameter?.transaction.length > 0 &&
+                                                            checks?.checkParameter?.transaction.map((tran, ind) => (
+                                                                <div>{tran.value}</div>
+                                                            ))
+                                                        
+                                                        }
+                                                        {
+                                                            checks?.checkParameter?.parameter_name === 'Blood Sugar' && 
+                                                            Array(checks?.checkParameter?.transaction) && checks?.checkParameter?.transaction.length > 0 &&
+                                                            checks?.checkParameter?.transaction.map((tran, ind) => (
+                                                                <div>{tran.value}</div>
+                                                            ))
+                                                        
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className='col-md-4'>
-                                                <div className="card card-one" >
-                                                    <div className="card-header">
-                                                        <h6 className="card-title">Blood Pressure</h6>
-                                                    </div>
-                                                    <div className="card-body">
-                                                        BP value
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className='col-md-4'>
-                                                <div className="card card-one" >
-                                                    <div className="card-header">
-                                                        <h6 className="card-title">SPO2</h6>
-                                                    </div>
-                                                    <div className="card-body">
-                                                        SPO2 value
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            )) : (
+                                                <div>No Data To Display</div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -337,21 +398,23 @@ const getSubscribers = async () => {
                             <div className="modal-dialog modal-lg">
                                 <div className="modal-content">
                                     <div className="modal-header bg-primary text-white">
-                                        <h5 className="modal-title" id="exampleModalLabel">Assign Device</h5>
+                                        <h5 className="modal-title" id="exampleModalLabel">{editingChecks ? "Update checks" : "Assign Device"}</h5>
                                         <button type="button" className="btn-close modal_close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div className="modal-body" style={{overflow: 'visible'}}>
-                                        <form onSubmit={assignDevice} autoComplete="off">
+                                        <form onSubmit={editingChecks ? handleUpdateDevice : assignDevice} autoComplete="off">
                                             <div className="row g-3">
-                                                <div className="col-md-6">
-                                                    <label className="form-label">Devices <span className="text-danger">*</span></label>
-                                                    <select className="form-control" name="device_id" value={NewDevice.device_id} onChange={handleInputChange}>
-                                                        <option value="">Select Device</option>
-                                                        {devices?.map(device => (
-                                                            <option key={device.device_id} value={device.device_id}>{device?.deviceType?.device_type} :: {device?.serial_no}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
+                                                { !editingChecks && 
+                                                    <div className="col-md-6">
+                                                        <label className="form-label">Devices <span className="text-danger">*</span></label>
+                                                        <select className="form-control" name="device_id" value={NewDevice.device_id} onChange={handleInputChange}>
+                                                            <option value="">Select Device</option>
+                                                            {devices?.map(device => (
+                                                                <option key={device.device_id} value={device.device_id}>{device?.deviceType?.device_type} :: {device?.serial_no}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                }
                                                 <div className="col-md-6">
                                                     <div className='row'>
                                                         <div className="col-md-12">
