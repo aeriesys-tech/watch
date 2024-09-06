@@ -75,17 +75,27 @@ app.use((err, req, res, next) => {
 // Initialize TCP servers for existing device users
 async function initializeDeviceUserServers() {
   try {
-    const deviceUsers = await db.DeviceUser.findAll(); // Fetch all existing device users
+    // Fetch all active device users along with their associated device port numbers
+    const deviceUsers = await db.DeviceUser.findAll({
+      where: { status: true },
+      include: [
+        {
+          model: db.Device,
+          as: 'device', // Make sure this alias matches your association
+          attributes: ['port_no'] // Fetch only the port_no attribute
+        }
+      ]
+    });
 
     // Optionally, close previous servers if needed
     deviceUsers.forEach(deviceUser => {
-      const port = 8080 + deviceUser.device_user_id; // Calculate port based on device user ID
+      const port = deviceUser.device.port_no; // Get the port number from the associated device
       closeTCPServer(port); // Close any existing server on this port
     });
 
     // Create TCP servers for new device users
     deviceUsers.forEach(deviceUser => {
-      const port = 8080 + deviceUser.device_user_id; // Calculate port based on device user ID
+      const port = deviceUser.device.port_no; // Get the port number from the associated device
       createTCPServer(port);
     });
   } catch (error) {

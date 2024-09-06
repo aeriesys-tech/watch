@@ -21,11 +21,19 @@ router.post(
 );
 router.post(
   "/addDeviceUserWithCheckParameters",
-  // authMiddleware,
+  authMiddleware,
   // addDeviceUserValidation,
   // checkPermission("device_users.create"),
   deviceUserController.addDeviceUserWithCheckParameters
 );
+router.post(
+  "/updateDeviceUserWithCheckParameters",
+  authMiddleware,
+  // addDeviceUserValidation,
+  // checkPermission("device_users.create"),
+  deviceUserController.updateDeviceUserCheckParameters
+);
+
 
 
 

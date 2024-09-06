@@ -1,7 +1,8 @@
-const { sequelize, User, ClientUser, Role, DeviceUser, Device, DeviceType } = require('../models')
+const { sequelize, User, ClientUser, Role, DeviceUser, Device, DeviceType, UserCheckParameter, CheckParameter } = require('../models')
 const { Sequelize, Op } = require("sequelize");
 const bcrypt = require("bcrypt")
 const responseService = require("../services/responseService");
+const { addUserCheckParameter } = require('./userCheckParameterController');
 
 
 const addSubscriber = async (req, res, next) => {
@@ -326,16 +327,36 @@ const getSubscriber = async (req, res, next) => {
       },
       order: [['device_user_id', 'DESC']], // Order by latest
       limit: 1, // Get the most recent entry
-      include: [{
-        model: Device,
-        as: 'device',
-        attributes: ['serial_no', 'mobile_no', 'port_no', 'status'],
-        include: [{
-          model: DeviceType,
-          as: 'deviceType',
-          attributes: ['device_type', 'status'],
-        }]
-      }]
+      include: [
+        {
+          model: Device,
+          as: 'device',
+          attributes: ['serial_no', 'mobile_no', 'port_no', 'status'],
+          include: [
+            {
+              model: DeviceType,
+              as: 'deviceType',
+              attributes: ['device_type', 'status']
+            }
+          ]
+        },
+        {
+          model: UserCheckParameter,
+          as: 'userCheckParameters',
+          attributes: ['user_check_parameter_id', 'check_parameter_id', 'status'], // Include relevant attributes
+          where: {
+            status: true // Filter to include only active UserCheckParameters
+          },
+          include: [
+            {
+              model: CheckParameter,
+              as: 'checkParameter', // Adjust if necessary
+              attributes: ['parameter_name'] // Adjust attributes as needed
+
+            }
+          ]
+        }
+      ]
     });
 
     // Attach the latest DeviceUser (if it exists) to the subscriber

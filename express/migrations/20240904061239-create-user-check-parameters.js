@@ -29,6 +29,11 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
+      status: {
+        type: Sequelize.BOOLEAN, // New status column as BOOLEAN
+        allowNull: false,
+        defaultValue: true, // Default value is true (active)
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: true,
