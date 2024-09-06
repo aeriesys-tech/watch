@@ -61,5 +61,13 @@ router.post(
     paginateUserCheckParametersValidation,
     userCheckParameterController.paginateUserCheckParameters
 );
+router.post(
+    "/getCheckParametersByDeviceUserId",
+    // authMiddleware,
+    // checkPermission("user_check_parameters.view"), // Check for view user check parameters permission
+
+    userCheckParameterController.getCheckParametersByDeviceUserId
+);
+
 
 module.exports = router;

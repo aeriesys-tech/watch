@@ -86,6 +86,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "unit_id",
       as: "unit",
     });
+    CheckParameter.hasMany(models.UserCheckParameter, {
+      foreignKey: "check_parameter_id",
+      as: "checkParameter",
+    });
   };
 
   return CheckParameter;

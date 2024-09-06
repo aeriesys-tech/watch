@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     UserCheckParameter.associate = (models) => {
         UserCheckParameter.belongsTo(models.DeviceUser, {
             foreignKey: "device_user_id",
-            as: "deviceUser",
+            as: "deviceUsers",
         });
         UserCheckParameter.belongsTo(models.CheckParameter, {
             foreignKey: "check_parameter_id",
