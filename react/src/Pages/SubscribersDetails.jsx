@@ -225,7 +225,7 @@ function SubscribersDetails()  {
         setNewDevice((prevUser) => ({ ...prevUser, [name]: value }));
         // setNewDevice(prevState => ({...prevState,  ['client_id']: user?.clientUserInfo?.client_id }));        
         // setNewDevice(prevState => ({...prevState,  ['user_id']: user?.user_id }));
-        
+        console.log('subscriber_id:---', subscriber_id)
         setNewDevice(prevState => ({...prevState,  client_id: user?.clientUserInfo?.client_id }));        
         setNewDevice(prevState => ({...prevState,  user_id: subscriber_id}));
     };
