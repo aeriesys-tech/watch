@@ -93,7 +93,7 @@ const addDeviceUserWithCheckParameters = async (req, res) => {
 
     // Create the new device user entry
     const newDeviceUser = await DeviceUser.create({ client_id, device_id, user_id, from_date_time, to_date_time, status });
-
+    const updateDevice = await Device.update({ status: false }, { where: { device_id: device_id } });
     // Validate check_parameter_ids
     if (!Array.isArray(check_parameter_ids) || check_parameter_ids.length === 0) {
       errors.check_parameter_ids = "Must provide an array of check parameter IDs";
@@ -118,8 +118,14 @@ const addDeviceUserWithCheckParameters = async (req, res) => {
     ));
 
     // Call the TCP server function
-    const port = 8080 + newDeviceUser.device_user_id; // Example port assignment
-    createTCPServer(port);
+    // Fetch the device to get the port number
+    const deviceWithPort = await Device.findByPk(device_id);
+    if (deviceWithPort) {
+      const port = deviceWithPort.port_no; // Use the port number from the device
+      createTCPServer(port); // Call the TCP server function with the port number
+    } else {
+      console.warn("Device not found when trying to create TCP server.");
+    }
 
     return responseService.success(req, res, "Device User and User Check Parameters created successfully", {
       newDeviceUser,
@@ -132,7 +138,67 @@ const addDeviceUserWithCheckParameters = async (req, res) => {
   }
 };
 
+const updateDeviceUserCheckParameters = async (req, res) => {
+  try {
+    const { device_user_id, check_parameter_ids } = req.body;
 
+    // Object to collect validation errors
+    const errors = {};
+
+    // Validate input
+    if (!device_user_id || !Array.isArray(check_parameter_ids)) {
+      errors.input = "Device user ID and check parameter IDs are required.";
+      return responseService.error(req, res, "Validation Error", errors, 400);
+    }
+
+    // Fetch existing UserCheckParameters for the device_user_id
+    const existingEntries = await UserCheckParameter.findAll({
+      where: { device_user_id },
+    });
+
+    // Extract existing check parameter IDs and their statuses
+    const existingCheckParameterIds = existingEntries.map(entry => ({
+      id: entry.check_parameter_id,
+      status: entry.status
+    }));
+
+    // Determine which check parameter IDs need to be created
+    const newCheckParameterIds = check_parameter_ids.filter(id =>
+      !existingCheckParameterIds.some(entry => entry.id === id)
+    );
+
+    // Determine which check parameter IDs need to be deactivated
+    const removeCheckParameterIds = existingCheckParameterIds
+      .filter(entry => !check_parameter_ids.includes(entry.id) && entry.status === true)
+      .map(entry => entry.id);
+
+    // Create new UserCheckParameter entries
+    const newEntries = await Promise.all(newCheckParameterIds.map(id =>
+      UserCheckParameter.create({ device_user_id, check_parameter_id: id, status: true })
+    ));
+
+    // Update removed UserCheckParameter entries to set status to false
+    await UserCheckParameter.update(
+      { status: false },
+      { where: { device_user_id, check_parameter_id: removeCheckParameterIds } }
+    );
+
+    // Fetch updated entries
+    const updatedEntries = await UserCheckParameter.findAll({
+      where: { device_user_id }
+    });
+
+    return responseService.success(req, res, "User Check Parameters updated successfully", {
+      newEntries,
+      removedCheckParameterIds: removeCheckParameterIds,
+      updatedEntries
+    }, 200);
+
+  } catch (error) {
+    console.error("Error in updateDeviceUserCheckParameters function:", error.message);
+    return responseService.error(req, res, "Internal Server Error", {}, 500);
+  }
+};
 
 
 // Update an existing device user
@@ -404,6 +470,7 @@ const paginateDeviceUsers = async (req, res) => {
 module.exports = {
   addDeviceUser,
   addDeviceUserWithCheckParameters,
+  updateDeviceUserCheckParameters,
   updateDeviceUser,
   deleteDeviceUser,
   viewDeviceUser,

@@ -90,6 +90,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "check_parameter_id",
       as: "checkParameter",
     });
+    CheckParameter.hasMany(models.Transaction, {
+      foreignKey: "check_parameter_id",
+      as: "transaction",
+    });
   };
 
   return CheckParameter;

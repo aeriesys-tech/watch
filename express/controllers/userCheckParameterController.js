@@ -1,4 +1,4 @@
-const { UserCheckParameter, DeviceUser, CheckParameter, } = require("../models");
+const { UserCheckParameter, DeviceUser, CheckParameter, Transaction } = require("../models");
 const responseService = require("../services/responseService");
 
 const addUserCheckParameter = async (req, res) => {
@@ -188,6 +188,7 @@ const paginateUserCheckParameters = async (req, res) => {
         return responseService.error(req, res, "Internal Server Error", {}, 500);
     }
 };
+
 const getCheckParametersByDeviceUserId = async (req, res) => {
     try {
         const { device_user_id } = req.body;  // Get device_user_id from the request body
@@ -197,7 +198,7 @@ const getCheckParametersByDeviceUserId = async (req, res) => {
             return responseService.error(req, res, "device_user_id is required", {}, 400);
         }
 
-        // Find all related check parameters by device_user_id
+        // Find all related check parameters and the latest transaction by device_user_id
         const checkParameters = await UserCheckParameter.findAll({
             where: { device_user_id },
             include: [
@@ -205,6 +206,17 @@ const getCheckParametersByDeviceUserId = async (req, res) => {
                     model: CheckParameter,
                     as: "checkParameter",
                     attributes: ["check_parameter_id", "parameter_code", "parameter_name"],
+
+                    include: [
+                        {
+                            model: Transaction,
+                            where: { device_user_id },
+                            as: "transaction", // Ensure this alias matches your setup
+                            attributes: ["transaction_id", "value", "timestamp"],
+                            order: [["timestamp", "DESC"]],  // Order by timestamp descending
+                            limit: 1,  // Limit to the latest transaction
+                        },
+                    ],
                 },
             ],
         });
@@ -213,12 +225,13 @@ const getCheckParametersByDeviceUserId = async (req, res) => {
             return responseService.error(req, res, "No check parameters found for this device user", {}, 404);
         }
 
-        return responseService.success(req, res, "Check parameters retrieved successfully", checkParameters, 200);
+        return responseService.success(req, res, "Check parameters and latest transaction retrieved successfully", checkParameters, 200);
     } catch (error) {
         console.error("Error in getCheckParametersByDeviceUserId:", error.message);
         return responseService.error(req, res, "Internal Server Error", {}, 500);
     }
 };
+
 
 
 

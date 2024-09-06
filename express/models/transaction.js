@@ -94,6 +94,12 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: "check_parameter_id",
             as: "checkParameter",
         });
+        Transaction.belongsTo(models.UserCheckParameter, {
+            foreignKey: "device_user_id", // Ensure this foreign key is correct
+            as: "userCheckParameter", // Adjust the alias as per your need
+        });
+
+
     };
 
     return Transaction;

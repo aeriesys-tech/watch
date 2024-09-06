@@ -1,5 +1,6 @@
 const net = require("net");
 const { Device, DeviceUser, UserCheckParameter, CheckParameter, Transaction } = require("../models"); // Adjust the path to your Sequelize models
+const { where } = require("sequelize");
 
 const activeServers = new Map(); // To keep track of active servers
 
@@ -16,6 +17,8 @@ async function fetchDeviceAndUserInfo(port) {
                         {
                             model: UserCheckParameter,
                             as: "userCheckParameters",
+                            where: { status: true }, // Only fetch active user check parameters
+
                             include: [{
                                 model: CheckParameter,
                                 as: "checkParameter",
