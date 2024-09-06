@@ -381,7 +381,48 @@ const getPanicAlertTransactions = async (req, res) => {
   }
 };
 
-module.exports = { getPanicAlertTransactions };
+const setSoSTransactionStatusToFalse = async (req, res) => {
+  try {
+    // Get device_user_id and check_parameter_id from the request body
+    const { device_user_id, check_parameter_id } = req.body;
+
+    // Validate input
+    if (!device_user_id || !check_parameter_id) {
+      return responseService.error(req, res, "Validation Error", {
+        device_user_id: "Device User ID is required",
+        check_parameter_id: "Check Parameter ID is required",
+      }, 400);
+    }
+
+    // Update all matching transactions to set status to false
+    const [updatedCount] = await Transaction.update(
+      { status: false }, // Set status to false
+      {
+        where: {
+          device_user_id,
+          check_parameter_id,
+          status: true, // Only update if the current status is true
+        },
+      }
+    );
+
+    if (updatedCount === 0) {
+      return responseService.success(req, res, "No active transactions found to update", [], 200);
+    }
+
+    // Return success with the number of updated transactions
+    return responseService.success(
+      req,
+      res,
+      `${updatedCount} transaction(s) updated successfully`,
+      { updatedCount },
+      200
+    );
+  } catch (error) {
+    console.error("Error in setTransactionStatusToFalse:", error.message);
+    return responseService.error(req, res, "Internal Server Error", {}, 500);
+  }
+};
 
 
 module.exports = {
@@ -392,4 +433,5 @@ module.exports = {
   getClients,
   paginateClients,
   getPanicAlertTransactions,
+  setSoSTransactionStatusToFalse
 };

@@ -66,5 +66,13 @@ router.post(
   // paginateClientsValidation,
   clientController.getPanicAlertTransactions
 );
+router.post(
+  "/setSoSTransactionStatusToFalse",
+  authMiddleware,
+  // checkPermission("clients.view"),
+  // paginateClientsValidation,
+  clientController.setSoSTransactionStatusToFalse
+);
+
 
 module.exports = router;
