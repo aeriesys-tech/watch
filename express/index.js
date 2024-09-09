@@ -57,6 +57,8 @@ app.use(bodyParser.json());
 // Static file serving
 app.use("/", express.static(path.join(__dirname, "../react/build")));
 
+app.get('*', (req, res) => { res.sendFile(path.join(__dirname, '../react/build', 'index.html')); });
+
 // Routes
 app.use("/api", routes);
 app.use("/uploads/avatars", express.static(path.join(__dirname, "uploads/avatars")));

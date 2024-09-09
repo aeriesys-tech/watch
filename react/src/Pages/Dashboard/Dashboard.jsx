@@ -40,7 +40,7 @@ function Dashboard() {
       setLoading(false);
 
     } catch (error) {
-      toast.error('Error fetching SOS Alerts');
+      // toast.error('Error fetching SOS Alerts');
       setSosAlerts([]);
       setLoading(false);
     }

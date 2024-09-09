@@ -47,7 +47,7 @@ export default function Dashbord1() {
       setLoading(false);
 
     } catch (error) {
-      toast.error('Error fetching SOS Alerts');
+      // toast.error('Error fetching SOS Alerts');
       setSosAlerts([]);
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function Dashbord1() {
       setLoading(false);
 
     } catch (error) {
-      toast.error('Error fetching SOS Alerts');
+      // toast.error('Error fetching SOS Alerts');
       setdashboardDetails([]);
       setLoading(false);
     }
