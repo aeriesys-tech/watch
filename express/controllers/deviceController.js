@@ -1,4 +1,4 @@
-const { Device, Client, DeviceType } = require("../models");
+const { Device, Client, DeviceType, DeviceUser } = require("../models");
 const responseService = require("../services/responseService"); // Assuming you have a response service for handling responses
 const { Op } = require("sequelize");
 
@@ -266,29 +266,72 @@ const paginateDevices = async (req, res) => {
     return responseService.error(req, res, "Internal Server Error", {}, 500);
   }
 };
+
 const getClientDevices = async (req, res) => {
+  const { client_id } = req.body;
+
   try {
-    const { client_id } = req.body;
-    // Fetch all Devices with associated Client and DeviceType data
+    // Fetch all devices for the client, including device users (even if there are none)
     const devices = await Device.findAll({
-      where: { client_id: client_id },
+      where: {
+        client_id,
+        status: 0, // tinyint(1) value for false
+        deleted_at: null
+      },
       include: [
-        { model: Client, as: "client" },
-        { model: DeviceType, as: "deviceType" },
-      ],
+        {
+          model: Client,
+          as: 'client',
+          attributes: ['client_id', 'client_code', 'client_name', 'contact_person', 'mobile_no', 'email', 'address', 'logo', 'status']
+        },
+        {
+          model: DeviceType,
+          as: 'deviceType',
+          attributes: ['device_type_id', 'device_type', 'status']
+        },
+        {
+          model: DeviceUser,
+          as: 'deviceUsers',
+          required: false, // Allow devices without users
+          attributes: ['device_user_id', 'status', 'user_id', 'from_date_time', 'to_date_time']
+        }
+      ]
     });
-    return responseService.success(
-      req,
-      res,
-      "Devices fetched successfully",
-      devices,
-      200
-    );
+
+    // Filter out devices that have active users (status: 1) in the deviceUsers array
+    const filteredDevices = devices.filter(device => {
+      // If there are no device users, include the device
+      if (device.deviceUsers.length === 0) {
+        return true;
+      }
+
+      // Exclude devices that have any user with status: 1
+      const hasActiveUser = device.deviceUsers.some(user => user.status === true);
+      return !hasActiveUser;
+    });
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Devices fetched successfully',
+      data: filteredDevices
+    });
+
   } catch (error) {
-    console.error("Error in getDevices function:", error.message);
-    return responseService.error(req, res, "Internal Server Error", {}, 500);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Error fetching devices',
+      error: error.message
+    });
   }
 };
+
+
+
+
+
+
+
+
 
 module.exports = {
   addDevice,

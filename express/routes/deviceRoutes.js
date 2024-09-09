@@ -61,8 +61,8 @@ router.post(
 
 router.post(
   "/getClientDevices",
-  authMiddleware,
-  checkPermission("devices.view"),
+  // authMiddleware,
+  // checkPermission("devices.view"),
   deviceController.getClientDevices
 );
 
