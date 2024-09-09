@@ -61,10 +61,17 @@ router.post(
 
 router.post(
   "/getPanicAlertTransactions",
-  authMiddleware,
+  // authMiddleware,
   // checkPermission("clients.view"),
   // paginateClientsValidation,
   clientController.getPanicAlertTransactions
+);
+router.post(
+  "/getPanicAlertTransactionsByDeviceUserId",
+  // authMiddleware,
+  // checkPermission("clients.view"),
+  // paginateClientsValidation,
+  clientController.getPanicAlertTransactionsByDeviceUserId
 );
 router.post(
   "/setSoSTransactionStatusToFalse",
