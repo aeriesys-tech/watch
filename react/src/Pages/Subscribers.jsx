@@ -371,7 +371,7 @@ function Subscribers(){
                                                         <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
                                                             {user.status  && (   
-                                                                <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/subscribers/${user.user_id}`)}>
+                                                                <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/subscribers2/${user.user_id}`)}>
                                                                     <i className="ri-eye-line"></i>&nbsp;&nbsp;
                                                                 </a>
                                                             )}

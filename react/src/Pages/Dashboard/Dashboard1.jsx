@@ -94,9 +94,9 @@ export default function Dashbord1() {
                 <div className="card-footer bg-transparent border-success p-0 lh-lg">
                   <div className="d-flex flex-row justify-content-between text-white align-items-end">
                     {/* <div> <small className="fs-xs">-5% from last month</small></div> */}
-                    <div className="dash_icon"> 
+                    {/* <div className="dash_icon"> 
                       <img className="img-fluid p-1" src={img7} width="40"  alt="custom-magnifier"/>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -115,9 +115,9 @@ export default function Dashbord1() {
                 <div className="card-footer bg-transparent border-success p-0 lh-lg">
                   <div className="d-flex flex-row justify-content-between text-white align-items-end">
                     {/* <div> <small className="fs-xs">-5% from last month</small></div> */}
-                    <div className="dash_icon"> 
+                    {/* <div className="dash_icon"> 
                       <img className="img-fluid p-1" src={img9} width="40"  alt="custom-magnifier"/>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -136,9 +136,9 @@ export default function Dashbord1() {
                 <div className="card-footer bg-transparent border-success p-0 lh-lg">
                   <div className="d-flex flex-row justify-content-between text-white align-items-end">
                     {/* <div> <small className="fs-xs">-5% from last month</small></div> */}
-                    <div className="dash_icon"> 
+                    {/* <div className="dash_icon"> 
                       <img className="img-fluid p-1" src={img11} width="40"  alt="custom-magnifier"/>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -161,11 +161,11 @@ export default function Dashbord1() {
                   <div className="card-footer bg-transparent border-success p-0 lh-lg">
                     <div className="d-flex flex-row justify-content-between text-white align-items-end">
                       {/* <div> <small className="fs-xs">-5% from last month</small></div> */}
-                      <div className="dash_icon"> 
+                      {/* <div className="dash_icon"> 
                         <Link to={`/subscribers/Alerts/${user?.clientUserInfo?.client_id}`}>
                           <img className="img-fluid p-1" src={img11} width="40"  alt="custom-magnifier"/>
                         </Link>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>

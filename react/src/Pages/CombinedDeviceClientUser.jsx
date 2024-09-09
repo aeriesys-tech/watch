@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Sidebar from '../Components/Sidebar/Sidebar';
+import Sidebar from '../Components/Sidebar/Sidebar1';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate, useParams } from 'react-router-dom';
 import { hasPermission } from "../Services/authUtils";
+
+
+import img1 from '../Assets/img/icon/akar-icons_search.svg'
+import img2 from '../Assets/img/icon/fluent_add-16-filled.svg'
 
 function CombinedDeviceClientUser() {
 
@@ -541,7 +545,7 @@ function CombinedDeviceClientUser() {
                         {/* Device Table */}
                         <div className="row g-3">
                             <div className="col-xl-12">
-                                <div className="card card-one">
+                                {/* <div className="card card-one">
                                     <div className="card-body pb-3">
                                         <div className="d-flex align-items-center mb-2">
                                             <div className="form-search me-auto border py-0 shadow-none w-25">
@@ -560,18 +564,7 @@ function CombinedDeviceClientUser() {
                                             <table className="table table-bordered text-nowrap">
                                                 <thead className="bg-light">
                                                     <tr>
-                                                        <th className="text-center">#ID</th>
-                                                        {/* <th className="w-24" onClick={() => handleSortChangeDevice("client")}> Client
-                                                            {sortByDevice.field === "client" && (
-                                                                <span style={{ display: "inline-flex" }}>
-                                                                    {sortByDevice.order === "asc" ? (
-                                                                        <i className="ri-arrow-up-fill"></i>
-                                                                    ) : (
-                                                                        <i className="ri-arrow-down-fill"></i>
-                                                                    )}
-                                                                </span>
-                                                            )}
-                                                        </th> */}
+                                                        <th className="text-center">#ID</th>                                                        
                                                         <th className="w-24" onClick={() => handleSortChangeDevice("device_type_id")}> Device Type
                                                             {sortByDevice.field === "device_type_id" && (
                                                                 <span style={{ display: "inline-flex" }}>
@@ -636,7 +629,6 @@ function CombinedDeviceClientUser() {
                                                     {Array.isArray(devices) && devices.length > 0 ? devices.map((device, index) => (
                                                         <tr key={device.device_id} style={{ opacity: device.status ? 1 : 0.5 }}>
                                                             <td className="text-center">{index + 1}</td>
-                                                            {/* <td>{clients.find(client => client.client_id === device.client_id)?.client_name || ''}</td> */}
                                                             <td>{deviceTypes.find(type => type.device_type_id === device.device_type_id)?.device_type || ''}</td>
                                                             <td>{device.serial_no}</td>
                                                             <td>{device.mobile_no}</td>
@@ -644,13 +636,11 @@ function CombinedDeviceClientUser() {
                                                             <td>{device.status ? 'Active' : 'Inactive'}</td>
                                                             <td className="text-center">
                                                                 <div className="d-flex align-items-center justify-content-center">
-                                                                    {/* Permission check for 'devices.update' before showing edit option */}
                                                                     {device.status && hasPermission(["devices.update"]) && (
                                                                         <a href="#" className="text-success me-2" onClick={() => handleEditDevice(device)} data-bs-toggle="modal" data-bs-target="#addDeviceModal">
                                                                             <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                         </a>
                                                                     )}
-                                                                    {/* Permission check for 'devices.delete' before showing toggle switch */}
                                                                     {hasPermission(["devices.delete"]) && (
                                                                         <div className="form-check form-switch me-2">
                                                                             <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${device.device_id}`} checked={device.status} onChange={() => handleToggleStatusDevice(device)} />
@@ -680,8 +670,157 @@ function CombinedDeviceClientUser() {
                                             />
                                         </div>
                                     </div>
+                                </div> */}
+
+                            <div className="card card_parameter">
+                                <div className="card-body p-0 pb-3">
+                                    <div className="container-fluid px-3 pb-3">
+                                        <div className="row g-2 g-lg-3 pt-3 user_row">
+                                            <div className="col-sm-8 text-center text-sm-start">
+                                                <ul className="list-unstyled d-inline-block card-option mb-0 text-center text-sm-start">
+                                                    <li className="list-inline-item me-4">
+                                                        <div className="form-group">
+                                                        <label className="d-inline-block fs-xs align-text-bottom" for="from_year">
+                                                            <small className="pe-2 fs-xs fw-bold">Show</small>
+                                                            <select name="from_year" value={pageSize} onChange={(e) => setPageSize(parseInt(e.target.value))} className="form-select form-select-sm d-inline-block select_enteries border-0" aria-label=".form-select-sm example" style={{width: "auto"}} id="from_year">
+                                                                <option value="5">5</option>
+                                                                <option value="10">10</option>
+                                                                <option value="20">20</option>
+                                                                <option value="30">30</option>
+                                                            </select> 
+                                                            <small className="ps-2 fs-xs fw-bold">Enteries</small>
+                                                        </label>
+                                                        </div>
+                                                    </li>
+                                                    <li className="list-inline-item align-bottom"> 
+                                                        <div className="input-group group_search bg-white">
+                                                        <span className="input-group-prepend">
+                                                            <div className="input-group-text p-0 bg-transparent border-right-0">
+                                                            <img className="img-fluid p-2" src={img1} alt="custom-magnifier"/>
+                                                            </div>
+                                                        </span>
+                                                        <input className="form-control border-left-0 text-muted user_search fs-xs ps-0 bg-transparent" type="search" placeholder="Search..." id="example-search-input" value={searchDevices} onChange={(e) => setSearchDevices(e.target.value)}/>
+                                                        <span className="input-group-append"></span>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div className="col-sm-4 text-center text-sm-end">                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="table table-responsive mb-0">
+                                    <table className="table table-bordered text-nowrap">
+                                        <thead className="bg-light">
+                                            <tr>
+                                            <th className="text-center">#ID</th>                                                        
+                                                        <th className="w-24" onClick={() => handleSortChangeDevice("device_type_id")}> Device Type
+                                                            {sortByDevice.field === "device_type_id" && (
+                                                                <span style={{ display: "inline-flex" }}>
+                                                                    {sortByDevice.order === "asc" ? (
+                                                                        <i className="ri-arrow-up-fill"></i>
+                                                                    ) : (
+                                                                        <i className="ri-arrow-down-fill"></i>
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                        </th>
+                                                        <th className="w-24" onClick={() => handleSortChangeDevice("serial_no")}> Serial No.
+                                                            {sortByDevice.field === "serial_no" && (
+                                                                <span style={{ display: "inline-flex" }}>
+                                                                    {sortByDevice.order === "asc" ? (
+                                                                        <i className="ri-arrow-up-fill"></i>
+                                                                    ) : (
+                                                                        <i className="ri-arrow-down-fill"></i>
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                        </th>
+                                                        <th className="w-24" onClick={() => handleSortChangeDevice("mobile_no")}> Mobile No.
+                                                            {sortByDevice.field === "mobile_no" && (
+                                                                <span style={{ display: "inline-flex" }}>
+                                                                    {sortByDevice.order === "asc" ? (
+                                                                        <i className="ri-arrow-up-fill"></i>
+                                                                    ) : (
+                                                                        <i className="ri-arrow-down-fill"></i>
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                        </th>
+                                                        <th className="w-24" onClick={() => handleSortChangeDevice("port_no")}> Port No.
+                                                            {sortByDevice.field === "port_no" && (
+                                                                <span style={{ display: "inline-flex" }}>
+                                                                    {sortByDevice.order === "asc" ? (
+                                                                        <i className="ri-arrow-up-fill"></i>
+                                                                    ) : (
+                                                                        <i className="ri-arrow-down-fill"></i>
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                        </th>
+                                                        <th className="w-24" onClick={() => handleSortChangeDevice("status")}> Status
+                                                            {sortByDevice.field === "status" && (
+                                                                <span style={{ display: "inline-flex" }}>
+                                                                    {sortByDevice.order === "asc" ? (
+                                                                        <i className="ri-arrow-up-fill"></i>
+                                                                    ) : (
+                                                                        <i className="ri-arrow-down-fill"></i>
+                                                                    )}
+                                                                </span>
+                                                            )}
+                                                        </th>
+                                                        {(hasPermission(["devices.update"]) || hasPermission(["devices.delete"])) && (
+                                                            <th className="text-center">Action</th>
+                                                        )}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white p-3">
+                                        {Array.isArray(devices) && devices.length > 0 ? devices.map((device, index) => (
+                                                        <tr key={device.device_id} style={{ opacity: device.status ? 1 : 0.5 }}>
+                                                            <td className="text-center">{index + 1}</td>
+                                                            <td>{deviceTypes.find(type => type.device_type_id === device.device_type_id)?.device_type || ''}</td>
+                                                            <td>{device.serial_no}</td>
+                                                            <td>{device.mobile_no}</td>
+                                                            <td>{device.port_no}</td>
+                                                            <td>{device.status ? 'Active' : 'Inactive'}</td>
+                                                            <td className="text-center">
+                                                                <div className="d-flex align-items-center justify-content-center">
+                                                                    {device.status && hasPermission(["devices.update"]) && (
+                                                                        <a href="#" className="text-success me-2" onClick={() => handleEditDevice(device)} data-bs-toggle="modal" data-bs-target="#addDeviceModal">
+                                                                            <i className="ri-pencil-line fs-18 lh-1"></i>
+                                                                        </a>
+                                                                    )}
+                                                                    {hasPermission(["devices.delete"]) && (
+                                                                        <div className="form-check form-switch me-2">
+                                                                            <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${device.device_id}`} checked={device.status} onChange={() => handleToggleStatusDevice(device)} />
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    )) : (
+                                                        <tr>
+                                                            <td colSpan="8" className="text-center">No devices found</td>
+                                                        </tr>
+                                                    )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="table-footer">
+                                    <div className="d-flex justify-content-between align-items-center px-2 py-2">
+                                    <span>Showing {totalItemsDevices} devices</span>
+                                    <Pagination
+                                        currentPage={pageDevices}
+                                        totalPages={totalPagesDevices}
+                                        onPageChange={setPageDevices}
+                                        pageSize={pageSizeDevices}
+                                        onPageSizeChange={setPageSizeDevices}
+                                    />
                                 </div>
                             </div>
+                            </div>
+                        </div>
                         </div>
 
                         {/* Client User Section */}
@@ -698,7 +837,7 @@ function CombinedDeviceClientUser() {
                         {/* Client User Table */}
                         <div className="row g-3">
                             <div className="col-xl-12">
-                                <div className="card card-one">
+                                {/* <div className="card card-one">
                                     <div className="card-body pb-3">
                                         <div className="d-flex align-items-center mb-2">
                                             <div className="form-search me-auto border py-0 shadow-none w-25">
@@ -717,18 +856,7 @@ function CombinedDeviceClientUser() {
                                             <table className="table table-bordered text-nowrap">
                                                 <thead className="bg-light">
                                                     <tr>
-                                                        <th className="text-center">#ID</th>
-                                                        {/* <th className="w-24" onClick={() => handleSortChangeClientUser("client_id")}>Client Name
-                                                            {sortByClientUser.field === "client_id" && (
-                                                                <span style={{ display: "inline-flex" }}>
-                                                                    {sortByClientUser.order === "asc" ? (
-                                                                        <i className="ri-arrow-up-fill"></i>
-                                                                    ) : (
-                                                                        <i className="ri-arrow-down-fill"></i>
-                                                                    )}
-                                                                </span>
-                                                            )}
-                                                        </th> */}
+                                                        <th className="text-center">#ID</th>                                                       
                                                         <th className="w-24" onClick={() => handleSortChangeClientUser("user")}>User Name
                                                             {sortByClientUser.field === "user" && (
                                                                 <span style={{ display: "inline-flex" }}>
@@ -747,27 +875,24 @@ function CombinedDeviceClientUser() {
                                                 </thead>
                                                 <tbody>
                                                     {Array.isArray(clientUsers) && clientUsers.length > 0 ? clientUsers.map((clientUser, index) => {
-                                                        // Find the corresponding user from the users list based on clientUser's user_id
                                                         const user = users.find((u) => u.user_id === clientUser.user_id);
 
                                                         return (
                                                             <tr key={clientUser.client_user_id}>
-                                                                <td className="text-center">{index + 1}</td>
-                                                                {/* <td>{clientUser.client?.client_name || 'No Client Name'}</td> */}
-                                                                <td>{user?.name || 'No User Name'}</td> {/* Display the user name from the users list */}
+                                                                <td className="text-center">{index + 1}</td>                                                                
+                                                                <td>{user?.name || 'No User Name'}</td> 
                                                                 <td className="text-center">
                                                                     <div className="d-flex align-items-center justify-content-center">
-                                                                        {/* Permission check for 'users.update' before showing edit option */}
+                                                                       
                                                                         {hasPermission(["users.update"]) && (
                                                                             <a href="#"
                                                                                 className="text-success me-2"
-                                                                                onClick={() => handleEditUser(user)}  // Pass the user from the users list
+                                                                                onClick={() => handleEditUser(user)}  
                                                                                 data-bs-toggle="modal"
                                                                                 data-bs-target="#addClientUserModal">
                                                                                 <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                             </a>
                                                                         )}
-                                                                        {/* Permission check for 'users.delete' before showing delete option */}
                                                                         {hasPermission(["users.delete"]) && (
                                                                             <a href="#"
                                                                                 className="text-danger"
@@ -803,7 +928,123 @@ function CombinedDeviceClientUser() {
                                             />
                                         </div>
                                     </div>
+                                </div> */}
+
+
+                            <div className="card card_parameter">
+                                <div className="card-body p-0 pb-3">
+                                    <div className="container-fluid px-3 pb-3">
+                                        <div className="row g-2 g-lg-3 pt-3 user_row">
+                                            <div className="col-sm-8 text-center text-sm-start">
+                                                <ul className="list-unstyled d-inline-block card-option mb-0 text-center text-sm-start">
+                                                    <li className="list-inline-item me-4">
+                                                        <div className="form-group">
+                                                        <label className="d-inline-block fs-xs align-text-bottom" for="from_year">
+                                                            <small className="pe-2 fs-xs fw-bold">Show</small>
+                                                            <select name="from_year" value={pageSize} onChange={(e) => setPageSize(parseInt(e.target.value))} className="form-select form-select-sm d-inline-block select_enteries border-0" aria-label=".form-select-sm example" style={{width: "auto"}} id="from_year">
+                                                                <option value="5">5</option>
+                                                                <option value="10">10</option>
+                                                                <option value="20">20</option>
+                                                                <option value="30">30</option>
+                                                            </select> 
+                                                            <small className="ps-2 fs-xs fw-bold">Enteries</small>
+                                                        </label>
+                                                        </div>
+                                                    </li>
+                                                    <li className="list-inline-item align-bottom"> 
+                                                        <div className="input-group group_search bg-white">
+                                                        <span className="input-group-prepend">
+                                                            <div className="input-group-text p-0 bg-transparent border-right-0">
+                                                            <img className="img-fluid p-2" src={img1} alt="custom-magnifier"/>
+                                                            </div>
+                                                        </span>
+                                                        <input className="form-control border-left-0 text-muted user_search fs-xs ps-0 bg-transparent" type="search" placeholder="Search..." id="example-search-input" value={searchClientUsers} onChange={(e) => setSearchClientUsers(e.target.value)}/>
+                                                        <span className="input-group-append"></span>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div className="col-sm-4 text-center text-sm-end">                                                
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <div className="table table-responsive mb-0">
+                                    <table className="table table-bordered text-nowrap">
+                                        <thead className="bg-light">
+                                            <tr>
+                                                <th className="text-center">#ID</th>                                                       
+                                                <th className="w-24" onClick={() => handleSortChangeClientUser("user")}>User Name
+                                                    {sortByClientUser.field === "user" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortByClientUser.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                {(hasPermission(["users.update"]) || hasPermission(["users.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white p-3">
+                                        {Array.isArray(clientUsers) && clientUsers.length > 0 ? clientUsers.map((clientUser, index) => {
+                                                        const user = users.find((u) => u.user_id === clientUser.user_id);
+
+                                                        return (
+                                                            <tr key={clientUser.client_user_id}>
+                                                                <td className="text-center">{index + 1}</td>                                                                
+                                                                <td>{user?.name || 'No User Name'}</td> 
+                                                                <td className="text-center">
+                                                                    <div className="d-flex align-items-center justify-content-center">
+                                                                       
+                                                                        {hasPermission(["users.update"]) && (
+                                                                            <a href="#"
+                                                                                className="text-success me-2"
+                                                                                onClick={() => handleEditUser(user)}  
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#addClientUserModal">
+                                                                                <i className="ri-pencil-line fs-18 lh-1"></i>
+                                                                            </a>
+                                                                        )}
+                                                                        {hasPermission(["users.delete"]) && (
+                                                                            <a href="#"
+                                                                                className="text-danger"
+                                                                                data-bs-toggle="modal"
+                                                                                data-bs-target="#deleteUserModal"
+                                                                                onClick={() => setDeletingClientUserId(clientUser.client_user_id)}>
+                                                                                <i className="ri-delete-bin-line fs-18 lh-1"></i>
+                                                                            </a>
+                                                                        )}
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    }) : (
+                                                        <tr>
+                                                            <td colSpan="4" className="text-center">No client users found</td>
+                                                        </tr>
+                                                    )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="table-footer">
+                                    <div className="d-flex justify-content-between align-items-center px-2 py-2">
+                                    <span>Showing {totalItemsClientUsers} client users</span>
+                                            <Pagination
+                                                currentPage={pageClientUsers}
+                                                totalPages={totalPagesClientUsers}
+                                                onPageChange={setPageClientUsers}
+                                                pageSize={pageSizeClientUsers}
+                                                onPageSizeChange={setPageSizeClientUsers}
+                                            />
+                                </div>
+                            </div>
+                            
+                        </div>
                             </div>
                         </div>
                     </div>

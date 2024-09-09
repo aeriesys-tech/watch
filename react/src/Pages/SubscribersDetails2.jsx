@@ -106,13 +106,15 @@ function SubscribersDetails2() {
         if (user?.clientUserInfo?.client_id) {
             getSOSAlerts(); // Fetch alerts when component mounts or client_id changes
         }
-    }, [user?.clientUserInfo?.client_id]);
+    }, [deviceUserId]);
 
     const getSOSAlerts = async () => {
         setLoading(true);
+        let payload = { client_id: user?.clientUserInfo?.client_id,  device_user_id: deviceUserId[0] }
+        console.log('payload:----',)
         try {
-            const data = await axiosWrapper(`/client/getPanicAlertTransactions`, {
-                data: { client_id: user?.clientUserInfo?.client_id }
+            const data = await axiosWrapper(`/client/getPanicAlertTransactionsByDeviceUserId`, {
+                data: payload
             }, navigate);
             setSosAlerts(data.data);
             console.log('modalRef.current:---', modalRef.current)
@@ -333,10 +335,14 @@ function SubscribersDetails2() {
         if (modal) {
             modal.hide();
         }
-        const elements = document.getElementsByclassNameName('modal-backdrop');
-        for (let i = 0; i < elements.length; i++) {
-            elements[i].classNameName = '';
-        }
+        const elements = document.getElementsByClassName('modal-backdrop');
+        // for (let i = 0; i < elements.length; i++) {
+        //     console.log('elements:---', elements[i].classNameName)
+        //     elements[i].classNameName = '';
+        // }
+        Array.from(elements).forEach(element => {
+            element.remove();
+        });
     };
 
     const handleInputChange = (e) => {
@@ -427,7 +433,7 @@ function SubscribersDetails2() {
                                         <span className="text-capitalize fw-bold">{subscriber?.name}</span>
                                     </span>
                                 </div>
-                                <div className="col-md-6 text-center text-sm-end">
+                                <div className="col-md-6 text-center text-sm-end d-flex" style={{justifyContent:'end'}}>
                                     {Array.isArray(subscriber?.deviceUsers) && subscriber?.deviceUsers?.length > 0 ? (
                                         subscriber?.deviceUsers?.map((device, index) => (
                                             device.status ? (
@@ -577,11 +583,11 @@ function SubscribersDetails2() {
                                     <hr className="d-sm-none" />
                                     <h5 className="text-uppercase text-dark head_text">Watch Location</h5>
                                     <div className="iframe-container">
-                                        <iframe className="my-common-radius-card" width="100%" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://www.openstreetmap.org/export/embed.html?bbox=-102.72216796875%2C16.825574258731496%2C-73.71826171874999%2C34.397844946449865&amp;layer=mapnik" style={{ border: "1px solid black" }}></iframe>
+                                        <iframe className="my-common-radius-card" width="100%" height="300" frameBorder="0" scrolling="no" marginHeight="0" marginWidth="0" src="http://www.openstreetmap.org/export/embed.html?bbox=-102.72216796875%2C16.825574258731496%2C-73.71826171874999%2C34.397844946449865&amp;layer=mapnik" style={{ border: "1px solid black" }}></iframe>
                                     </div>
                                 </div>
                                 <div className="col-sm-6 col-lg-6 mb-2 d-flex align-items-stretch">
-                                    <div className="rside">
+                                    <div className="rside" style={{width: "100%"}}>
                                         <div className="centerVertHoriz">
                                             <h5 className="text-uppercase text-dark head_text">Parameters</h5>
                                         </div>

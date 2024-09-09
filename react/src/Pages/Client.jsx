@@ -216,13 +216,13 @@ function Client() {
                         </div>
                     )} */}
                 </div>
-                <div className="container-fluid mt-28">
+                {/* <div className="container-fluid mt-28">
                     <div className="row">
                         <div className="col">
                         <h5 className="text-uppercase rate-short-symbol card_title_evry">Clients</h5>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 
                 <div className="container-fluid">
                     <div className="row">

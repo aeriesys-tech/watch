@@ -68,8 +68,10 @@ export default function Sidebar1() {
       bodyElement.classList.add("body-pd");
       navElement.classList.add("show_sidebar");
     } else {
-      bodyElement.classList.remove("body-pd");
-      navElement.classList.remove("show_sidebar");
+    //   bodyElement.classList.remove("body-pd");
+    //   navElement.classList.remove("show_sidebar");
+    bodyElement.classList.add("body-pd");
+      navElement.classList.add("show_sidebar");
     }
   }, [isSidebarHidden]);
 

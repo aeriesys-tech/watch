@@ -128,7 +128,7 @@ function SubscribersDetails()  {
                                                 <td>{sos.user.name}</td>         
                                                 <td>{sos.timestamp}</td>                               
                                                 <td className="text-center">
-                                                    <Link to={`/subscribers/${sos?.user_id}`}>
+                                                    <Link to={`/subscribers2/${sos?.user_id}`}>
                                                         <i class="ri-pencil-fill"></i>
                                                     </Link>
                                                 </td>
