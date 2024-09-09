@@ -63,11 +63,11 @@ function Login() {
   return (
     <>
       <ToastContainer position="top-right" autoClose={4000} theme="colored" />
-      <div className="page-sign">
+      <div className="page-sign justify-content-center">
       {loading && <Loader />}
-        <div className="container justify-content-center">
+        <div className="container justify-content-center" style={{paddingTop:"80px"}}>
           <div className="row gx-0">
-            <div className="col-8 col-lg-6 mb-5 mb-lg-0">
+            <div className="col-8 col-lg-5 mb-5 mb-lg-0">
               <div className="card card-one card-sign bg-blue ml-auto">
                 <div className="card-body">
                   <div
@@ -75,8 +75,8 @@ function Login() {
                     className="carousel carousel-dark slide"
                     data-bs-ride="carousel"
                   >
-                    <div className="carousel-inner">
-                      <div className="carousel-item active" data-bs-interval="2000">
+                    <div className="carousel-inner d-flex">
+                      <div className="carousel-item active text-center" data-bs-interval="2000">
                         <img
                           src={frame1}
                           className="d-block w-90 p-20 pt-5"
@@ -145,22 +145,24 @@ function Login() {
                 </div>
               </div>
             </div>
-            <div className="col-lg-5 d-flex flex-column align-items-center">
-              <div className="card card-one radius-form card-sign mr-auto">
+            <div className="col-lg-6 d-flex flex-column align-items-center">
+              <div className="card card-one radius-form card-sign mr-auto"  style={{padding:'20px'}}>
                 <div className="card-header text-center d-block pt-0">
-                  <img
-                    className="text-center"
-                    src={talws}
-                    width="200px"
-                    alt="Logo"
-                  />
-                  <a href="../" className="header-logo mb-4">
-                    Hello Admin!
-                  </a>
+                  <div className="col-md-12">
+                    <img
+                      className="text-center"
+                      src={talws}
+                      width="160px"
+                      alt="Logo"
+                    />
+                  </div>
+                  <span className="header_part">Hello Admin!</span><br/>
                   <p className="card-text">
                     Please enter your email to login into your account.
                   </p>
-                </div>
+                  </div>
+                  
+                
                 <div className="card-body">
                   <form
                     onSubmit={handleLogin}
@@ -197,13 +199,16 @@ function Login() {
                           {errors.password}
                         </div>
                       )}
-                    </div>
+                    </div>  
+                    <div className="col-12">
+                      <div className="d-grid">
+                        <button className="btn btn-primary btn-sm btn-sm-login my-common-radius" type="submit">Login</button>
+                      </div>
+                    </div>                 
+                    
                     <label className="form-label float-end">
                       <Link to="/forget-password">Forgot password?</Link>
                     </label>
-                    <button type="submit" className="btn btn-primary btn-sign">
-                      Login
-                    </button>
                   </form>
                 </div>
                 <div className="card-footer">

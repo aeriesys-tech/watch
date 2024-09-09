@@ -71,7 +71,7 @@ function SubscribersDetails()  {
         }, 60000); 
     
         return () => clearInterval(interval);
-    }, [subscriber_id]);
+    }, [deviceUserId, subscriber_id]);
 
 
     useEffect(() => {

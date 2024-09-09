@@ -36,6 +36,7 @@ export default function Sidebar1() {
     const [isSidebarHidden, setIsSidebarHidden] = useState(false);
     const [isDropdownOpen1, setIsDropdownOpen1] = useState(false); // State for Configure dropdown
     const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for User Management dropdown
+    const [isDropdownOpen2, setIsDropdownOpen2] = useState(false);
 
     // Toggle function to change the sidebar visibility state
   const toggleSidebar = () => {
@@ -54,6 +55,11 @@ export default function Sidebar1() {
     setIsDropdownOpen((prevState) => !prevState);
   };
 
+  const handleToggleDropdownHeader = (event) => {
+    event.preventDefault();
+    setIsDropdownOpen2((prevState) => !prevState);
+  };
+
   useEffect(() => {
     const bodyElement = document.body;
     const navElement = document.getElementById('nav-bar');
@@ -66,6 +72,17 @@ export default function Sidebar1() {
       navElement.classList.remove("show_sidebar");
     }
   }, [isSidebarHidden]);
+
+
+useEffect(() => {
+    const navElement = document.getElementById('dropdown-menu');
+
+    if (isDropdownOpen2) {
+      navElement.classList.add("show");
+    } else {
+      navElement.classList.remove("show");
+    }
+  }, [isDropdownOpen2]);
 
   const handleLogout = async (event) => {
     event.preventDefault();
@@ -281,16 +298,17 @@ export default function Sidebar1() {
             <div className="row gy-5">
                 <div className="col">
                     <div className="header p-1 bg-white rounded" id="header">
-                        <div className="header_toggle col-1" onClick={toggleSidebar}> 
+                        <div className="header_toggle col-1 d-flex" onClick={toggleSidebar}> 
                             <i className="bx bx-menu" id="header-toggle"></i> 
-                        </div>
-                        <div className="">
                             <img src={img6} className="img-fluid header_img_logo" alt="..."/>
                         </div>
+                        {/* <div className="">
+                            <img src={img6} className="img-fluid header_img_logo" alt="..."/>
+                        </div> */}
                         <div className="display-inline-flex text-end">
                             <img src={img7} className="img-fluid" alt="..."/>
                             <a className="nav-link dropdown-toggle border border rounded-pill nav_link_drop
-                           border-secondary p-2 ms-2" href="#" id="navbarDropdown" style={{padding: '6px !important'}} role="button" data-bs-toggle="dropdown" aria-expanded="false" data-md-offset="10,20">
+                           border-secondary p-2 ms-2" onClick={handleToggleDropdownHeader} href="#" id="navbarDropdown" style={{padding: '6px !important'}} role="button" data-bs-toggle="dropdown" aria-expanded="false" data-md-offset="10,20">
                                 <div className="profile-pic me-1">
                                     {/* <img src="https://i.imgur.com/hczKIze.jpg" alt="Profile Picture"/> */}
                                     <img
@@ -300,7 +318,7 @@ export default function Sidebar1() {
                                 </div>
                                 <span id="fixed-sidebar" className="me-4 align-middle">{name}</span>
                             </a>
-                            <ul className="dropdown-menu" aria-labelledby="dropdownMenuOffset" >
+                            <ul className="dropdown-menu" id="dropdown-menu" aria-labelledby="dropdownMenuOffset" >
                                 <li>
                                     {/* <a className="dropdown-item" href="#"> */}
                                     <Link to="/profile" className="dropdown-item" > 

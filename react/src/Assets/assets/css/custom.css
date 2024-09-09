@@ -19,7 +19,7 @@
     background-color: rgba(13, 202, 240, .08)!important;
 }
 .w-90{
-    width: 90%;
+    width: 64.3%;
 }
 .fs-12{
     font-size: 12px;
@@ -55,7 +55,7 @@
 .carousel-dark .carousel-indicators [data-bs-target] {
     background-color: white !important;
 }
-@media screen and (max-width: 991px) {
+/* @media screen and (max-width: 991px) {
     .bg-blue {
         display: none !important;
     }
@@ -64,8 +64,8 @@
   .sidebar-body .no_icon::after {
     content: "";
   
-}
-.nav-group .nav-label i {
+} */
+/* .nav-group .nav-label i {
     margin-right: 12px;
     line-height: 1;
     font-size: 20px;
@@ -77,4 +77,4 @@
     align-items: center!important;
     display: flex!important;
     text-transform:none!important;
-}
+} */
