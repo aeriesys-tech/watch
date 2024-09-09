@@ -424,6 +424,55 @@ const setSoSTransactionStatusToFalse = async (req, res) => {
   }
 };
 
+const clientDeviceCount = async (req, res) => {
+  try {
+    const { client_id } = req.body;
+    let DeviceCount = '';
+    let SubscribersCount = '';
+    let TransactionCount = '';
+    if (client_id) {
+      DeviceCount = await Device.count({
+        where: { client_id: client_id }
+      });
+
+      SubscribersCount = await DeviceUser.count({
+        where: { client_id: client_id },
+        distinct: true,
+        col: 'user_id'
+      });
+
+      TransactionCount = await DeviceUser.count({
+        where: { client_id: client_id },
+      });
+    }
+    else {
+      DeviceCount = await Device.count();
+
+      SubscribersCount = await DeviceUser.count({
+        distinct: true,
+        col: 'user_id'
+      });
+
+      TransactionCount = await DeviceUser.count();
+    }
+
+
+    return responseService.success(
+      req,
+      res,
+      "Device Count retrieved successfully",
+      {
+        DeviceCount: DeviceCount,
+        SubscribersCount: SubscribersCount,
+        TransactionCount: TransactionCount
+      }
+    );
+  } catch (error) {
+    console.error("Error in clientDeviceCount function:", error.message);
+    return responseService.error(req, res, "Internal Server Error", {}, 500);
+  }
+};
+
 
 module.exports = {
   addClient,
@@ -433,5 +482,6 @@ module.exports = {
   getClients,
   paginateClients,
   getPanicAlertTransactions,
-  setSoSTransactionStatusToFalse
+  setSoSTransactionStatusToFalse,
+  clientDeviceCount
 };

@@ -28,6 +28,7 @@ import PermissionBasedRoute from "./Services/PermissionBasedRoute";
 import Subscribers from "./Pages/Subscribers";
 import SubscribersDetails from "./Pages/SubscribersDetails";
 import AlertDetails from "./Pages/AlertDetails";
+import SubscribersDetails2 from "./Pages/SubscribersDetails2";
 function App() {
   return (
     <div>
@@ -161,11 +162,17 @@ function App() {
 
           <Route
             path="/subscribers/:subscriber_id"
-            element={ <SubscribersDetails />}
+            element={<SubscribersDetails />}
           />
           <Route
+            path="/subscribers2/:subscriber_id"
+            element={<SubscribersDetails2 />}
+          />
+
+
+          <Route
             path="/subscribers/Alerts/:client_id"
-            element={ <AlertDetails />}
+            element={<AlertDetails />}
           />
 
           <Route path="/unauthorized" element={<Unauthorized />} />{" "}
