@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../Components/Sidebar/Sidebar";
+import Sidebar from "../Components/Sidebar/Sidebar1";
 import axiosWrapper from "../utils/AxiosWrapper";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Loader from "../Components/LoaderAndSpinner/Loader";
 import "react-toastify/dist/ReactToastify.css";
 import { hasPermission } from "../Services/authUtils";
+
+import img1 from '../Assets/img/icon/akar-icons_search.svg'
+import img2 from '../Assets/img/icon/fluent_add-16-filled.svg'
 
 function Permission() {
   const [permissions, setPermissions] = useState([]);
@@ -202,8 +205,8 @@ function Permission() {
           {permissions.length > 0 ? (
             permissions.map((permission, index) => (
               <div className="col-sm-6" key={index}>
-                <div className="table-responsive">
-                  <table className="table text-nowrap table-bordered mb-0">
+                <div className="table table-responsive mb-0">
+                  <table className="table table-bordered text-nowrap">
                     <thead>
                       <tr>
                         <th colSpan="4" className="bold text-primary">

@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Dashboard from "./Pages/Dashboard/Dashboard";
+import Dashboard1 from "./Pages/Dashboard/Dashboard1";
 import Login from "./Pages/Login/Login";
 import Sidebar from "./Components/Sidebar/Sidebar";
 import User from "./Pages/User";
@@ -36,6 +37,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/auth/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard1" element={<Dashboard1 />} />
           <Route path="/sidebar" element={<Sidebar />} />
           <Route
             path="/users"

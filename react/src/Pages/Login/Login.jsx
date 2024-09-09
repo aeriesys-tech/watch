@@ -43,7 +43,7 @@ function Login() {
       );
 
       // Navigate to the users page after login
-      navigate("/dashboard");
+      navigate("/dashboard1");
 
       // Display a success toast message
       toast.success("Login successful!");
@@ -72,17 +72,17 @@ function Login() {
                 <div className="card-body">
                   <div
                     id="carouselExampleDark"
-                    class="carousel carousel-dark slide"
+                    className="carousel carousel-dark slide"
                     data-bs-ride="carousel"
                   >
-                    <div class="carousel-inner">
-                      <div class="carousel-item active" data-bs-interval="2000">
+                    <div className="carousel-inner">
+                      <div className="carousel-item active" data-bs-interval="2000">
                         <img
                           src={frame1}
-                          class="d-block w-90 p-20 pt-5"
+                          className="d-block w-90 p-20 pt-5"
                           alt="..."
                         />
-                        <div class="carousel-caption d-none d-md-block text-white">
+                        <div className="carousel-caption d-none d-md-block text-white">
                           <h5>First slide label</h5>
                           <p>
                             Some representative placeholder content for the
@@ -90,13 +90,13 @@ function Login() {
                           </p>
                         </div>
                       </div>
-                      <div class="carousel-item" data-bs-interval="2000">
+                      <div className="carousel-item" data-bs-interval="2000">
                         <img
                           src={frame2}
-                          class="d-block w-90 p-20 pt-5"
+                          className="d-block w-90 p-20 pt-5"
                           alt="..."
                         />
-                        <div class="carousel-caption d-none d-md-block text-white">
+                        <div className="carousel-caption d-none d-md-block text-white">
                           <h5>Second slide label</h5>
                           <p>
                             Some representative placeholder content for the
@@ -104,13 +104,13 @@ function Login() {
                           </p>
                         </div>
                       </div>
-                      <div class="carousel-item" data-bs-interval="2000">
+                      <div className="carousel-item" data-bs-interval="2000">
                         <img
                           src={frame3}
-                          class="d-block w-90 p-20 pt-5"
+                          className="d-block w-90 p-20 pt-5"
                           alt="..."
                         />
-                        <div class="carousel-caption d-none d-md-block text-white">
+                        <div className="carousel-caption d-none d-md-block text-white">
                           <h5>Third slide label</h5>
                           <p>
                             Some representative placeholder content for the
@@ -119,12 +119,12 @@ function Login() {
                         </div>
                       </div>
                     </div>
-                    <div class="carousel-indicators mb-0">
+                    <div className="carousel-indicators mb-0">
                       <button
                         type="button"
                         data-bs-target="#carouselExampleDark"
                         data-bs-slide-to="0"
-                        class="active"
+                        className="active"
                         aria-current="true"
                         aria-label="Slide 1"
                       ></button>
@@ -198,7 +198,7 @@ function Login() {
                         </div>
                       )}
                     </div>
-                    <label class="form-label float-end">
+                    <label className="form-label float-end">
                       <Link to="/forget-password">Forgot password?</Link>
                     </label>
                     <button type="submit" className="btn btn-primary btn-sign">

@@ -29,6 +29,7 @@ function SubscribersDetails()  {
     const navigate = useNavigate();  
 
     const modalRef = useRef(null);
+    const modalRefDea = useRef(null);
 
     const [NewDevice, setNewDevice] = useState({        
         client_id:'',
@@ -275,6 +276,26 @@ function SubscribersDetails()  {
         }
     }
 
+    const deactivateDeviceUser = async(e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {            
+            const data = await axiosWrapper(`/deviceUser/deleteDeviceUser`, {data: {device_user_id: deviceUserId[0]}}, navigate);
+            // console.log('data.data.addDeviceUserWithCheckParameters:----', data.data)
+            toast.success(data.message);            
+            setLoading(false);
+            closeModal();
+            getSubscribers();
+        } catch (error) {
+            toast.error('Error Deactivating Device');
+            setLoading(false);
+            closeModal();
+        }
+        finally{
+            closeModal();
+        }
+    }
+
     // Function to close the modal
     const closeModal = () => {
         // setErrors({}); // Reset errors on new submission
@@ -344,7 +365,7 @@ function SubscribersDetails()  {
                                                         Update Checks
                                                     </button>
                                                     &nbsp;
-                                                    <button type="button" className="btn btn-danger d-flex align-items-center gap-2" style={{height: '40px'}} data-bs-toggle="modal" data-bs-target="#assignDeviceModal">
+                                                    <button type="button" className="btn btn-danger d-flex align-items-center gap-2" style={{height: '40px'}} data-bs-toggle="modal" data-bs-target="#alertModal_deactivate">
                                                         Deactivate Device
                                                     </button>                                                
                                                 </div>
@@ -555,6 +576,30 @@ function SubscribersDetails()  {
                                             <div className="d-flex gap-2 mb-4">
                                             <button type="button" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</button>
                                             <button type="submit" className="btn btn-primary flex-fill">Attain</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className="modal fade" id="alertModal_deactivate" ref={modalRefDea} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                            <form onSubmit={deactivateDeviceUser} autoComplete="off">
+                                <div className="modal-dialog modal-md">
+                                    <div className="modal-content">
+                                        <div className="modal-header bg-danger text-white">
+                                            <h5 className="modal-title" id="exampleModalLabel">Deactivate</h5>
+                                        </div>
+                                        <div className="modal-body" style={{ overflow: 'visible', textAlign: 'center' }}>
+                                            {/* <i className="ri-alarm-warning-fill blink" style={{ fontSize: '60px', color: 'red' }}></i> */}
+                                            <p style={{ fontSize: '20px', color: 'black', marginTop: '20px' }}>
+                                            Are you Sure You want to deactivte!
+                                            </p>
+                                        </div>
+                                        <div className="modal-footer d-block border-top-0">
+                                            <div className="d-flex gap-2 mb-4">
+                                            <button type="button" className="btn btn-white flex-fill" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" className="btn btn-primary flex-fill">Deactivate</button>
                                             </div>
                                         </div>
                                     </div>

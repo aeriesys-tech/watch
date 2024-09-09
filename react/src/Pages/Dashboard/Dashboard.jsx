@@ -50,24 +50,24 @@ function Dashboard() {
     <>
       <Sidebar />
 
-      <div class="main main-app p-3 p-lg-4">
-        <div class="d-flex align-items-center justify-content-between mb-4">
+      <div className="main main-app p-3 p-lg-4">
+        <div className="d-flex align-items-center justify-content-between mb-4">
           <div>
-            <ol class="breadcrumb fs-sm mb-1">
-              <li class="breadcrumb-item">
+            <ol className="breadcrumb fs-sm mb-1">
+              <li className="breadcrumb-item">
                 <a href="s">Dashboard</a>
               </li>
-              <li class="breadcrumb-item active" aria-current="page">
+              <li className="breadcrumb-item active" aria-current="page">
                 Website Analytics
               </li>
             </ol>
-            <h4 class="main-title mb-0">Welcome to Dashboard</h4>
+            <h4 className="main-title mb-0">Welcome to Dashboard</h4>
           </div>          
         </div>
         {user?.clientUserInfo?.client_id && (
           <div className="row g-3">
             <div className="col-xl-12">
-              <div class="col-lg-3 col-6">
+              <div className="col-lg-3 col-6">
                 <div className="card card-one" style={{alignItems:'center'}}>
                   <div className="card-header">
                       <h6 className="card-title">SOS Alerts</h6>

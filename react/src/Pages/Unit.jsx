@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Sidebar from '../Components/Sidebar/Sidebar';
+import Sidebar from '../Components/Sidebar/Sidebar1';
 import Pagination from '../Components/Pagination/Pagination';
 import axiosWrapper from '../../src/utils/AxiosWrapper'; // Import the axiosWrapper function
 import { useNavigate } from 'react-router-dom';
 import { hasPermission } from "../Services/authUtils";
+import img1 from '../Assets/img/icon/akar-icons_search.svg'
+import img2 from '../Assets/img/icon/fluent_add-16-filled.svg'
 
 function Unit() {
     const [units, setUnits] = useState([]);
@@ -184,17 +186,156 @@ function Unit() {
                             <li className="breadcrumb-item"><a href="#">Configuration</a></li>
                             <li className="breadcrumb-item active" aria-current="page">Units</li>
                         </ol>
-                        <h4 className="main-title mb-0">Units</h4>
+                        {/* <h4 className="main-title mb-0">Units</h4> */}
                     </div>
-                    {hasPermission(["units.create"]) && (
+                    {/* {hasPermission(["units.create"]) && (
                         <div className="mt-3 mt-md-0">
                             <button type="button" className="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addUnitModal" onClick={resetForm}>
                                 <i className="ri-add-line fs-18 lh-1"></i>Add New Unit
                             </button>
                         </div>
-                    )}
+                    )} */}
                 </div>
-                <div className="row g-3">
+
+                <div className="container-fluid mt-28">
+                    <div className="row">
+                        <div className="col">
+                        <h5 className="text-uppercase rate-short-symbol card_title_evry">Units</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-md-12">  
+                            <div className="card card_parameter">
+                                <div className="card-body p-0 pb-3">
+                                    <div className="container-fluid px-3 pb-3">
+                                        <div className="row g-2 g-lg-3 pt-3 user_row">
+                                            <div className="col-sm-8 text-center text-sm-start">
+                                                <ul className="list-unstyled d-inline-block card-option mb-0 text-center text-sm-start">
+                                                    <li className="list-inline-item me-4">
+                                                        <div className="form-group">
+                                                        <label className="d-inline-block fs-xs align-text-bottom" for="from_year">
+                                                            <small className="pe-2 fs-xs fw-bold">Show</small>
+                                                            <select name="from_year" value={pageSize} onChange={(e) => handlePageSizeChange(parseInt(e.target.value))} className="form-select form-select-sm d-inline-block select_enteries border-0" aria-label=".form-select-sm example" style={{width: "auto"}} id="from_year">
+                                                                <option value="5">5</option>
+                                                                <option value="10">10</option>
+                                                                <option value="20">20</option>
+                                                                <option value="30">30</option>
+                                                            </select> 
+                                                            <small className="ps-2 fs-xs fw-bold">Enteries</small>
+                                                        </label>
+                                                        </div>
+                                                    </li>
+                                                    <li className="list-inline-item align-bottom"> 
+                                                        <div className="input-group group_search bg-white">
+                                                        <span className="input-group-prepend">
+                                                            <div className="input-group-text p-0 bg-transparent border-right-0">
+                                                            <img className="img-fluid p-2" src={img1} alt="custom-magnifier"/>
+                                                            </div>
+                                                        </span>
+                                                        <input className="form-control border-left-0 text-muted user_search fs-xs ps-0 bg-transparent" type="search" placeholder="Search..." id="example-search-input" value={search} onChange={handleSearchChange}/>
+                                                        <span className="input-group-append"></span>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div className="col-sm-4 text-center text-sm-end">
+                                                {/* <button type="button" className="btn btn-sm fw-normal btn-primary float-sm-end my-common-radius fs-xs" data-bs-toggle="modal" data-bs-target="#exampleModal">  
+                                                <img className="img-fluid pe-2" src={img2} alt="custom-magnifier"/>Add New User
+                                                </button> */}
+                                                {hasPermission(["units.create"]) && (
+                                                    <button type="button" className="btn btn-sm fw-normal btn-primary float-sm-end my-common-radius fs-xs" data-bs-toggle="modal" data-bs-target="#addUnitModal" onClick={resetForm}>
+                                                        <i className="ri-add-line fs-18 lh-1"></i>Add New Unit
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="table table-responsive mb-0">
+                                    <table className="table table-bordered text-nowrap">
+                                        <thead className="bg-light">
+                                            <tr>
+                                            <th className="text-center">#ID</th>
+                                                <th className="w-24" onClick={() => handleSortChange("unit")}>Unit
+                                                    {sortBy.field === "unit" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                <th className="w-24" onClick={() => handleSortChange("status")}>Status
+                                                    {sortBy.field === "status" && (
+                                                        <span style={{ display: "inline-flex" }}>
+                                                            {sortBy.order === "asc" ? (
+                                                                <i className="ri-arrow-up-fill"></i>
+                                                            ) : (
+                                                                <i className="ri-arrow-down-fill"></i>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </th>
+                                                {(hasPermission(["units.update"]) || hasPermission(["units.delete"])) && (
+                                                    <th className="text-center">Action</th>
+                                                )}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white p-3">
+                                        {Array.isArray(units) && units.length > 0 ? units.map((unit, index) => (
+                                                <tr key={unit.id} style={{ opacity: unit.status ? 1 : 0.5 }}>
+                                                    <td className="text-center">{startIndex + index}</td> 
+                                                    <td>{unit.unit}</td>
+                                                    <td>{unit.status ? 'Active' : 'Inactive'}</td>
+                                                    <td className="text-center">
+                                                        <div className="d-flex align-items-center justify-content-center">
+                                                            {unit.status && hasPermission(["units.update"]) && (
+                                                                <a href="#" className="text-success me-2" onClick={() => handleEditUnit(unit)} data-bs-toggle="modal" data-bs-target="#addUnitModal">
+                                                                    <i className="ri-pencil-line fs-18 lh-1"></i>
+                                                                </a>
+                                                            )}
+                                                            {hasPermission(["units.delete"]) && (
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${unit.id}`} checked={unit.status} onChange={() => handleToggleStatus(unit)} />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan="8" className="text-center">No units found</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="table-footer">
+                                    <div className="d-flex justify-content-between align-items-center px-2 py-2">
+                                    <span>Showing {startIndex} to {endIndex} of {totalItems} units</span>
+                                    <Pagination
+                                        currentPage={page}
+                                        totalPages={totalPages}
+                                        onPageChange={handlePageChange}
+                                        pageSize={pageSize}
+                                        onPageSizeChange={handlePageSizeChange}
+                                        totalItems={totalItems}
+                                        startIndex={startIndex}
+                                        endIndex={endIndex}
+                                    />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                {/* <div className="row g-3">
                     <div className="col-xl-12">
                         <div className="card card-one">
                             <div className="card-body pb-3">
@@ -246,18 +387,16 @@ function Unit() {
                                         <tbody>
                                             {Array.isArray(units) && units.length > 0 ? units.map((unit, index) => (
                                                 <tr key={unit.id} style={{ opacity: unit.status ? 1 : 0.5 }}>
-                                                    <td className="text-center">{startIndex + index}</td> {/* Serial number */}
+                                                    <td className="text-center">{startIndex + index}</td> 
                                                     <td>{unit.unit}</td>
                                                     <td>{unit.status ? 'Active' : 'Inactive'}</td>
                                                     <td className="text-center">
                                                         <div className="d-flex align-items-center justify-content-center">
-                                                            {/* Permission check for 'units.update' before showing edit option */}
                                                             {unit.status && hasPermission(["units.update"]) && (
                                                                 <a href="#" className="text-success me-2" onClick={() => handleEditUnit(unit)} data-bs-toggle="modal" data-bs-target="#addUnitModal">
                                                                     <i className="ri-pencil-line fs-18 lh-1"></i>
                                                                 </a>
                                                             )}
-                                                            {/* Permission check for 'units.delete' before showing toggle switch */}
                                                             {hasPermission(["units.delete"]) && (
                                                                 <div className="form-check form-switch me-2">
                                                                     <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${unit.id}`} checked={unit.status} onChange={() => handleToggleStatus(unit)} />
@@ -292,7 +431,7 @@ function Unit() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
 
             {/* ADD/EDIT MODAL */}
