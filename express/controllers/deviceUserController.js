@@ -302,11 +302,12 @@ const deleteDeviceUser = async (req, res) => {
       return responseService.error(req, res, "Device User not found", {}, 404);
     }
 
-    // Toggle the status between active (1) and inactive (0)
+    // Toggle the status between active (true) and inactive (false)
     if (deviceUser.status === true) {
-      // Soft delete (deactivate) the user by setting status to 0 (false)
+      // Soft delete (deactivate) the user by setting status to false
       deviceUser.status = false;
-      await deviceUser.save(); // Save the status change
+      deviceUser.to_date_time = new Date(); // Set the to_date_time to the current time
+      await deviceUser.save(); // Save the status and to_date_time change
       return responseService.success(
         req,
         res,
@@ -314,8 +315,9 @@ const deleteDeviceUser = async (req, res) => {
         {}
       );
     } else {
-      // Restore the user by setting status to 1 (true)
+      // Restore the user by setting status to true and clearing to_date_time
       deviceUser.status = true;
+      deviceUser.to_date_time = null; // Clear the to_date_time upon activation
       await deviceUser.save(); // Save the status change
       return responseService.success(
         req,
