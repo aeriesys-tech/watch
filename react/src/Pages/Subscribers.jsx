@@ -30,7 +30,7 @@ function Subscribers(){
         order: "asc",
     });
 
-    const navigate = useNavigate();    
+    const navigate = useNavigate();
 
     // State for form errors
     const [errors, setErrors] = useState({});
@@ -39,7 +39,7 @@ function Subscribers(){
     const [editingSubscriber, setEditingSubscriber] = useState(null);
 
     const startIndex = (page - 1) * pageSize + 1;
-    const endIndex = Math.min(page * pageSize, totalItems);    
+    const endIndex = Math.min(page * pageSize, totalItems);
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
@@ -83,7 +83,7 @@ function Subscribers(){
             modal.hide();
         }
     };
-    
+
     // State for new user form
     const [newSubscriber, setNewSubscriber] = useState({
         user_id: null,
@@ -100,12 +100,12 @@ function Subscribers(){
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewSubscriber((prevUser) => ({ ...prevUser, [name]: value }));
-        if(!editingSubscriber){
+        if (!editingSubscriber) {
             console.log('inside editingSubscriber')
-            setNewSubscriber(prevState => ({...prevState, ['role_id']: roles.role_id }));
-            setNewSubscriber(prevState => ({...prevState,  ['client_id']: user?.clientUserInfo?.client_id }));
+            setNewSubscriber(prevState => ({ ...prevState, ['role_id']: roles.role_id }));
+            setNewSubscriber(prevState => ({ ...prevState, ['client_id']: user?.clientUserInfo?.client_id }));
         }
-        
+
         console.log('handleInputChange:----', newSubscriber)
     };
 
@@ -123,7 +123,7 @@ function Subscribers(){
         } catch (error) {
             console.error('Error fetching roles data:', error);
         }
-    };   
+    };
 
 
     const fetchSubscribers = async () => {
@@ -142,13 +142,13 @@ function Subscribers(){
             setSubscribers([]);
             // setLoading(false);
         }
-    };    
+    };
 
     const handleAddSubscriber = async (e) => {
         e.preventDefault();
         setErrors({}); // Reset errors on new submission
 
-        try {            
+        try {
             await axiosWrapper('/subscriber/addSubscriber', { data: newSubscriber }, navigate).then((respo) => {
                 console.log(respo);
             });
@@ -493,7 +493,7 @@ function Subscribers(){
                                                             )}
                                                         </span>
                                                     )}
-                                                </th>                                                
+                                                </th>
                                                 <th className="text-center">Action</th>
                                             </tr>
                                         </thead>
@@ -509,23 +509,23 @@ function Subscribers(){
                                                         <td>{user.Role.role}</td>
                                                         <td>{user.status ? 'Active' : 'Inactive'}</td>
                                                         <td className="text-center">
-                                                        <div className="d-flex align-items-center justify-content-center">
-                                                            {user.status  && (   
-                                                                <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/subscribers/${user.user_id}`)}>
-                                                                    <i className="ri-eye-line"></i>&nbsp;&nbsp;
-                                                                </a>
-                                                            )}
-                                                            {user.status  && (                                                                
-                                                                <a href="" className="text-success me-2" onClick={() => handleEditSubscriber(user)} data-bs-toggle="modal" data-bs-target="#addSubscriberModal">
-                                                                    <i className="ri-pencil-line fs-18 lh-1"></i>&nbsp;&nbsp;
-                                                                </a>
-                                                            )}
-                                                            
-                                                            <div className="form-check form-switch me-2">
-                                                                <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${user.id}`} checked={user.status} onChange={() => handleToggleStatus(user)} />
+                                                            <div className="d-flex align-items-center justify-content-center">
+                                                                {user.status && (
+                                                                    <a href="#" className="nav-link text-secondary" onClick={() => navigate(`/subscribers2/${user.user_id}`)}>
+                                                                        <i className="ri-eye-line"></i>&nbsp;&nbsp;
+                                                                    </a>
+                                                                )}
+                                                                {user.status && (
+                                                                    <a href="" className="text-success me-2" onClick={() => handleEditSubscriber(user)} data-bs-toggle="modal" data-bs-target="#addSubscriberModal">
+                                                                        <i className="ri-pencil-line fs-18 lh-1"></i>&nbsp;&nbsp;
+                                                                    </a>
+                                                                )}
+
+                                                                <div className="form-check form-switch me-2">
+                                                                    <input className="form-check-input" type="checkbox" role="switch" id={`flexSwitchCheckChecked-${user.id}`} checked={user.status} onChange={() => handleToggleStatus(user)} />
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
+                                                        </td>
                                                     </tr>
                                                 ))
                                             ) : (
@@ -556,7 +556,7 @@ function Subscribers(){
                     </div>
                 </div> */}
             </div>
-            
+
 
 
             <div className="modal fade" id="addSubscriberModal" tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -620,7 +620,7 @@ function Subscribers(){
                     </div>
                 </div>
             </div>
-        </div>            
+        </div>
     )
 
 }

@@ -74,5 +74,13 @@ router.post(
   clientController.setSoSTransactionStatusToFalse
 );
 
+router.post(
+  "/dashboardDetails",
+  // authMiddleware,
+  // checkPermission("clients.view"),
+  // paginateClientsValidation,
+  clientController.clientDeviceCount
+);
+
 
 module.exports = router;

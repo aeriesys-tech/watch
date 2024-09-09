@@ -15,8 +15,9 @@ code {
 
 /* Add this CSS to your styles */
 .p-multiselect-panel {
-  z-index: 1060 !important; /* Ensure this is higher than the modal's z-index */
+  z-index: 1060 !important;
 }
+
 .modal {
   overflow: visible;
 }
@@ -34,14 +35,17 @@ code {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }
 }
 
 .blink {
-  animation: blink 1s infinite; /* 1s duration, infinite loop */
+  animation: blink 1s infinite;
+  /* 1s duration, infinite loop */
 }
