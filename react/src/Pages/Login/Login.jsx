@@ -63,8 +63,8 @@ function Login() {
   return (
     <>
       <ToastContainer position="top-right" autoClose={4000} theme="colored" />
-      <div className="page-sign justify-content-center">
       {loading && <Loader />}
+      <div className="page-sign justify-content-center">      
         <div className="container justify-content-center" style={{paddingTop:"80px"}}>
           <div className="row gx-0">
             <div className="col-8 col-lg-5 mb-5 mb-lg-0">

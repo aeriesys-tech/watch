@@ -302,7 +302,7 @@ useEffect(() => {
                     <div className="header p-1 bg-white rounded" id="header">
                         <div className="header_toggle col-1 d-flex" onClick={toggleSidebar}> 
                             <i className="bx bx-menu" id="header-toggle"></i> 
-                            <img src={img6} className="img-fluid header_img_logo" alt="..."/>
+                            {/* <img src={img6} className="img-fluid header_img_logo" alt="..."/> */}
                         </div>
                         {/* <div className="">
                             <img src={img6} className="img-fluid header_img_logo" alt="..."/>

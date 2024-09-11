@@ -194,6 +194,11 @@ function Client() {
         if (modal) {
             modal.hide();
         }
+
+        const elements = document.getElementsByClassName('modal-backdrop');
+        Array.from(elements).forEach(element => {
+            element.remove();
+        });
     };
 
     return (
