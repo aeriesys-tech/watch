@@ -61,14 +61,14 @@ router.post(
 
 router.post(
   "/getPanicAlertTransactions",
-  // authMiddleware,
+  authMiddleware,
   // checkPermission("clients.view"),
   // paginateClientsValidation,
   clientController.getPanicAlertTransactions
 );
 router.post(
   "/getPanicAlertTransactionsByDeviceUserId",
-  // authMiddleware,
+  authMiddleware,
   // checkPermission("clients.view"),
   // paginateClientsValidation,
   clientController.getPanicAlertTransactionsByDeviceUserId
@@ -83,7 +83,7 @@ router.post(
 
 router.post(
   "/dashboardDetails",
-  // authMiddleware,
+  authMiddleware,
   // checkPermission("clients.view"),
   // paginateClientsValidation,
   clientController.clientDeviceCount
