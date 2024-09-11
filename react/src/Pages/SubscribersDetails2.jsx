@@ -99,7 +99,7 @@ function SubscribersDetails2() {
         }, 60000);
 
         return () => clearInterval(interval);
-    }, [subscriber_id]);
+    }, [deviceUserId, subscriber_id]);
 
 
     useEffect(() => {
@@ -399,7 +399,7 @@ function SubscribersDetails2() {
             case 'Blood Sugar': return 'mg/dL';
             case 'Body Temperature': return '°C';
             case 'Sleep': return 'Hours';
-            case 'Panic Alert':
+            case 'Panic Alert': return 'Location';
             case 'Fall Detect': return 'Times';
             default: return '';
         }
