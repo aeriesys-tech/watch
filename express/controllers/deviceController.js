@@ -275,7 +275,7 @@ const getClientDevices = async (req, res) => {
     const devices = await Device.findAll({
       where: {
         client_id,
-        status: 0, // tinyint(1) value for false
+        status: 1, // tinyint(1) value for false
         deleted_at: null
       },
       include: [
